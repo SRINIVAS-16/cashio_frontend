@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ImagePlus } from "lucide-react";
-import { productApi, customFieldApi, purchaseApi } from "../api/client";
+import { productApi, customFieldApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
-import { CustomFieldDefinition, PurchaseItem } from "../types";
+import { CustomFieldDefinition } from "../types";
 import toast from "react-hot-toast";
 
 export default function ProductForm() {
@@ -23,9 +23,6 @@ export default function ProductForm() {
   // Custom fields
   const [customFieldDefs, setCustomFieldDefs] = useState<CustomFieldDefinition[]>([]);
   const [customFieldValues, setCustomFieldValues] = useState<Record<number, string>>({});
-
-  // Purchase history (edit mode only)
-  const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
 
   const unitOptions = ["kg", "bag", "bottle", "packet", "litre", "piece"];
   const categoryOptions = ["fertilizer", "pesticide", "seeds", "organic", "micronutrient", "growth_promoter", "soil_amendment", "equipment", "general"];
@@ -54,7 +51,6 @@ export default function ProductForm() {
         setCustomFieldValues(vals);
       }
       loadCustomFieldDefs(p.category);
-      loadPurchaseHistory();
     } catch {
       toast.error("Failed to load product");
       navigate("/products");
@@ -68,13 +64,6 @@ export default function ProductForm() {
       const res = await customFieldApi.getForCategory(cat);
       setCustomFieldDefs(res.data);
     } catch { setCustomFieldDefs([]); }
-  };
-
-  const loadPurchaseHistory = async () => {
-    try {
-      const res = await purchaseApi.getByProduct(Number(id));
-      setPurchaseHistory(res.data);
-    } catch { setPurchaseHistory([]); }
   };
 
   const handleSave = async () => {
@@ -260,47 +249,6 @@ export default function ProductForm() {
           </div>
         </div>
       </div>
-
-      {/* Purchase History (edit mode) */}
-      {isEdit && purchaseHistory.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-5 py-3 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-700">{t.purchaseHistory}</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="bg-slate-50 border-b border-gray-100">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.invoiceNo}</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.dealer}</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.batchNo}</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.hsnCode}</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.mfgDate}</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.expiryDate}</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">{t.costPrice}</th>
-                  <th className="px-3 py-2 text-center font-medium text-gray-500">{t.quantity}</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">{t.purchaseDate}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {purchaseHistory.map((item: any, i: number) => (
-                  <tr key={i} className="hover:bg-slate-50/50">
-                    <td className="px-3 py-2 font-medium text-primary-700">{item.purchase?.invoiceNo || "-"}</td>
-                    <td className="px-3 py-2 text-gray-600">{item.purchase?.dealerName || item.purchase?.dealer?.name || "-"}</td>
-                    <td className="px-3 py-2 text-gray-700">{item.batchNo || "-"}</td>
-                    <td className="px-3 py-2 text-gray-500">{item.hsnCode || "-"}</td>
-                    <td className="px-3 py-2 text-gray-500">{item.mfgDate ? new Date(item.mfgDate).toLocaleDateString("en-IN") : "-"}</td>
-                    <td className="px-3 py-2 text-gray-500">{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString("en-IN") : "-"}</td>
-                    <td className="px-3 py-2 text-right font-medium">₹{Number(item.costPrice).toLocaleString("en-IN")}</td>
-                    <td className="px-3 py-2 text-center">{item.quantity}{item.freeQty ? ` +${item.freeQty}` : ""}</td>
-                    <td className="px-3 py-2 text-gray-500">{item.purchase?.purchaseDate ? new Date(item.purchase.purchaseDate).toLocaleDateString("en-IN") : "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
