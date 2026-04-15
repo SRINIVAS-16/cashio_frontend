@@ -237,7 +237,6 @@ const en = {
 
   // Stock Book
   stockBook: "Stock Book",
-  totalProducts: "Total Products",
   totalPurchased: "Total Purchased",
   totalSold: "Total Sold",
   currentStock: "Current Stock",
@@ -245,7 +244,6 @@ const en = {
   purchaseBatches: "Purchase Batches",
   ordersFromBatch: "Orders from this batch",
   unlinkedOrders: "Unlinked Orders",
-  allCategories: "All Categories",
   selectBatch: "Select Batch",
   addWithoutBatch: "Add without batch",
   availableQty: "Available Qty",

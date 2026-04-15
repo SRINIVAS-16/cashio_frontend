@@ -120,6 +120,7 @@ export default function Billing() {
       batchNo: batch?.batchNo || null,
       mfgDate: batch?.mfgDate || null,
       expiryDate: batch?.expiryDate || null,
+      maxAvailableQty: batch?.availableQty ?? null,
     };
     const key = cartKey(newItem);
 
@@ -127,8 +128,8 @@ export default function Billing() {
     const existingIdx = cart.findIndex((c) => cartKey(c) === key);
     if (existingIdx >= 0) {
       const existing = cart[existingIdx];
-      const maxQty = batch ? batch.availableQty : product.stock;
-      if (existing.quantity >= maxQty) {
+      const maxQty = batch ? batch.availableQty : existing.maxAvailableQty;
+      if (maxQty != null && existing.quantity >= maxQty) {
         toast.error(`Only ${maxQty} available`);
         setBatchProduct(null); setBatches([]);
         return;
@@ -154,8 +155,8 @@ export default function Billing() {
     }
     const item = cart.find((c) => cartKey(c) === key);
     if (!item) return;
-    if (qty > item.product.stock) {
-      toast.error(`Only ${item.product.stock} available`);
+    if (item.maxAvailableQty != null && qty > item.maxAvailableQty) {
+      toast.error(`Only ${item.maxAvailableQty} available`);
       return;
     }
     setCart(
@@ -502,7 +503,7 @@ export default function Billing() {
                   <thead>
                     <tr className="bg-slate-50 text-left text-gray-500">
                       <th className="px-3 py-2 font-medium">{t.productName}</th>
-                      <th className="px-3 py-2 font-medium">{t.batch || "Batch"}</th>
+                      <th className="px-3 py-2 font-medium">{t.batchNo || "Batch"}</th>
                       <th className="px-3 py-2 font-medium text-center">{t.quantity}</th>
                       <th className="px-3 py-2 font-medium text-right">{t.price}</th>
                       <th className="px-3 py-2 font-medium text-center">CGST%</th>

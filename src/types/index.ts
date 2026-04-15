@@ -192,6 +192,7 @@ export interface CartItem {
   batchNo?: string | null;
   mfgDate?: string | null;
   expiryDate?: string | null;
+  maxAvailableQty?: number | null;
 }
 
 // ─── Available Batch (for billing batch selection) ───────────────

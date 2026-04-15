@@ -237,7 +237,6 @@ const te = {
 
   // Stock Book
   stockBook: "స్టాక్ బుక్",
-  totalProducts: "మొత్తం ఉత్పత్తులు",
   totalPurchased: "మొత్తం కొనుగోలు",
   totalSold: "మొత్తం అమ్మకం",
   currentStock: "ప్రస్తుత స్టాక్",
@@ -245,7 +244,6 @@ const te = {
   purchaseBatches: "కొనుగోలు బ్యాచ్లు",
   ordersFromBatch: "ఈ బ్యాచ్ నుండి ఆర్డర్లు",
   unlinkedOrders: "లింక్ లేని ఆర్డర్లు",
-  allCategories: "అన్ని కేటగొరీలు",
   selectBatch: "బ్యాచ్ ఎంచుకోండి",
   addWithoutBatch: "బ్యాచ్ లేకుండా జోడించండి",
   availableQty: "అందుబాటులో ఉన్న పరిమాణం",
