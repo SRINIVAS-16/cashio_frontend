@@ -5,6 +5,19 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ["react", "react-dom", "react-router-dom"],
+            charts: ["recharts"],
+            pdf: ["jspdf", "jspdf-autotable"],
+            xlsx: ["xlsx"],
+            query: ["@tanstack/react-query"],
+          },
+        },
+      },
+    },
     server: {
       port: 5173,
       proxy: {

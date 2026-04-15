@@ -21,6 +21,7 @@ export default function CustomFields() {
   const { t, lang } = useLang();
   const [fields, setFields] = useState<CustomFieldDefinition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [search, setSearch] = useState("");
   const [filterScope, setFilterScope] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -33,15 +34,17 @@ export default function CustomFields() {
     options: "", isRequired: false, scope: "global", category: "", sortOrder: 0,
   });
 
-  useEffect(() => { loadFields(); }, [filterScope, filterCategory]);
+  useEffect(() => { loadFields(true); }, []);
+  useEffect(() => { if (!loading) loadFields(false); }, [filterScope, filterCategory]);
 
-  const loadFields = async () => {
+  const loadFields = async (initial = false) => {
     try {
-      setLoading(true);
+      if (initial) setLoading(true);
+      else setFiltering(true);
       const res = await customFieldApi.getAll(filterScope || undefined, filterCategory || undefined);
       setFields(res.data);
     } catch { toast.error("Failed to load fields"); }
-    finally { setLoading(false); }
+    finally { setLoading(false); setFiltering(false); }
   };
 
   const openAdd = () => {
@@ -110,7 +113,7 @@ export default function CustomFields() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4${filtering ? " opacity-50 pointer-events-none transition-opacity" : ""}`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -131,7 +134,7 @@ export default function CustomFields() {
             placeholder="Search fields..."
             className="w-full pl-8 pr-3 py-2 rounded-md border border-gray-200 text-xs focus:ring-1 focus:ring-primary-500 outline-none" />
         </div>
-        <select value={filterScope} onChange={(e) => setFilterScope(e.target.value)}
+        <select value={filterScope} onChange={(e) => { setFilterScope(e.target.value); setFilterCategory(""); }}
           className="px-3 py-2 rounded-md border border-gray-200 text-xs bg-white outline-none">
           <option value="">{t.allScopes}</option>
           <option value="global">{t.global}</option>
