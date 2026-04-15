@@ -7,7 +7,7 @@ import {
 import { productApi, customerApi, orderApi, stockBookApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
 import { Product, Customer, CartItem, AvailableBatch } from "../types";
-import { shopConfig } from "../config/shopConfig";
+import { useShopConfig } from "../context/ShopConfigContext";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +17,7 @@ const cartKey = (item: CartItem) =>
 
 export default function Billing() {
   const { t } = useLang();
+  const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
 

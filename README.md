@@ -1,4 +1,4 @@
-# 🌱 Fertilizer Shop — Frontend
+# Fertilizer Shop — Frontend
 ## ఎరువుల దుకాణం — ఫ్రంటెండ్
 
 React frontend for the Fertilizer Shop Management System. Built with a Telugu-friendly UI for non-technical village shop owners.
@@ -30,7 +30,7 @@ React frontend for the Fertilizer Shop Management System. Built with a Telugu-fr
 
 ### 👥 Customer Management
 - Add customers with phone, village, address
-- Search by phone number
+- Search customers
 - View full order history
 
 ### 🧾 Billing System (2-Step Process)

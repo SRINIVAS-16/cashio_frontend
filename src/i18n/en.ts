@@ -9,6 +9,7 @@ const en = {
   orders: "Orders",
   settings: "Settings",
   logout: "Logout",
+  theme: "Theme",
   save: "Save",
   cancel: "Cancel",
   delete: "Delete",
@@ -73,7 +74,7 @@ const en = {
   address: "Address",
   addCustomer: "Add Customer",
   editCustomer: "Edit Customer",
-  searchByPhone: "Search by phone...",
+  searchByPhone: "Search customers",
   orderHistory: "Order History",
 
   // Billing
@@ -249,6 +250,24 @@ const en = {
   availableQty: "Available Qty",
   noBatches: "No batches available",
   remainingStock: "Remaining",
+
+  // Settings Page
+  shopName: "Shop Name",
+  shopNameTe: "Shop Name (Telugu)",
+  tagline: "Tagline",
+  taglineTe: "Tagline (Telugu)",
+  altPhone: "Alternate Phone",
+  email: "Email",
+  addressLabel: "Address",
+  addressLabelTe: "Address (Telugu)",
+  district: "District",
+  districtTe: "District (Telugu)",
+  themeColor: "Theme Color",
+  resetDefaults: "Reset Defaults",
+  saveSettings: "Save Settings",
+  settingsSaved: "Settings saved!",
+  allChangesSaved: "All changes saved",
+  language: "Language",
 };
 
 export default en;

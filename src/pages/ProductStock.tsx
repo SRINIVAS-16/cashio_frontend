@@ -62,12 +62,12 @@ export default function ProductStock() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-            <Package className="w-4 h-4 text-blue-600" />
+          <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center">
+            <Package className="w-4 h-4 text-primary-600" />
           </div>
           <div>
             <p className="text-[11px] text-gray-400 font-medium">{t.totalPurchased || "Total Purchased"}</p>
-            <p className="text-lg font-bold text-blue-700">{totalPurchased} <span className="text-xs font-normal text-gray-400">{product.unit}</span></p>
+            <p className="text-lg font-bold text-primary-700">{totalPurchased} <span className="text-xs font-normal text-gray-400">{product.unit}</span></p>
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
@@ -119,7 +119,7 @@ export default function ProductStock() {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <p className="text-sm font-semibold text-gray-800">{batch.batchNo || "No Batch #"}</p>
-                      {batch.hsnCode && <span className="px-1.5 py-0.5 text-[10px] rounded bg-blue-50 text-blue-600 font-medium">HSN: {batch.hsnCode}</span>}
+                      {batch.hsnCode && <span className="px-1.5 py-0.5 text-[10px] rounded bg-primary-50 text-primary-600 font-medium">HSN: {batch.hsnCode}</span>}
                       {isExpiringSoon && (
                         <span className="px-1.5 py-0.5 text-[10px] rounded bg-red-50 text-red-500 font-medium flex items-center gap-0.5">
                           <AlertTriangle className="w-3 h-3" /> Expiring Soon

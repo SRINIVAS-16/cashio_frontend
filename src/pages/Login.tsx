@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Sprout, Eye, EyeOff, Phone, MapPin } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
-import { shopConfig } from "../config/shopConfig";
+import { useShopConfig } from "../context/ShopConfigContext";
 import toast from "react-hot-toast";
 
 export default function Login() {
   const { login } = useAuth();
   const { t } = useLang();
+  const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +32,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo & Shop Details */}
         <div className="text-center mb-6">

@@ -129,7 +129,7 @@ export default function Products() {
                   <td className="px-3 py-2.5 text-gray-600 text-sm capitalize">{(t as any)[p.unit] || p.unit}</td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-0.5">
-                      <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-blue-50 text-blue-600" title={t.editProduct}>
+                      <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title={t.editProduct}>
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600" title={t.deleteProduct || "Delete"}>
@@ -165,7 +165,7 @@ export default function Products() {
                       <span className="text-xs text-gray-600">{(t as any)[p.unit] || p.unit}</span>
                     </div>
                     <div className="flex items-center gap-0.5">
-                      <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-blue-50 text-blue-600"><Edit2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Edit2 className="w-3.5 h-3.5" /></button>
                       <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </div>

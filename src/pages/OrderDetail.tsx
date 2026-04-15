@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { orderApi, paymentApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
-import { shopConfig } from "../config/shopConfig";
+import { useShopConfig } from "../context/ShopConfigContext";
 import { Order } from "../types";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
@@ -14,6 +14,7 @@ import autoTable from "jspdf-autotable";
 
 export default function OrderDetail() {
   const { t } = useLang();
+  const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);

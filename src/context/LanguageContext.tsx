@@ -1,38 +1,39 @@
 // ─── Language Context (i18n) ─────────────────────────────────────
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import en from "../i18n/en";
-import te from "../i18n/te";
+import { LangCode, languages, loadTranslation, getTranslationSync } from "../i18n";
 
-type Lang = "en" | "te";
 type Translations = typeof en;
 
 interface LanguageContextType {
-  lang: Lang;
+  lang: LangCode;
   t: Translations;
-  setLang: (lang: Lang) => void;
-  toggleLang: () => void;
+  setLang: (lang: LangCode) => void;
+  languages: typeof languages;
 }
-
-const translations: Record<Lang, Translations> = { en, te };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(
-    () => (localStorage.getItem("lang") as Lang) || "en"
+  const [lang, setLangRaw] = useState<LangCode>(
+    () => (localStorage.getItem("lang") as LangCode) || "en"
   );
+  const [t, setT] = useState<Translations>(() => getTranslationSync(lang));
 
-  const setLang = (newLang: Lang) => {
+  const setLang = useCallback(async (newLang: LangCode) => {
     localStorage.setItem("lang", newLang);
-    setLangState(newLang);
-  };
+    setLangRaw(newLang);
+    const translation = await loadTranslation(newLang);
+    setT(translation);
+  }, []);
 
-  const toggleLang = () => {
-    setLang(lang === "en" ? "te" : "en");
-  };
+  // Load initial language on mount (handles non-en/te cached langs)
+  useEffect(() => {
+    loadTranslation(lang).then(setT);
+  }, []);
 
   return (
-    <LanguageContext.Provider value={{ lang, t: translations[lang], setLang, toggleLang }}>
+    <LanguageContext.Provider value={{ lang, t, setLang, languages }}>
       {children}
     </LanguageContext.Provider>
   );

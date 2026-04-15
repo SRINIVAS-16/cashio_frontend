@@ -1,4 +1,5 @@
 // ─── Sidebar Navigation ──────────────────────────────────────────
+import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -12,11 +13,14 @@ import {
   Languages,
   X,
   Settings2,
+  Sliders,
   BookOpen,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
-import { shopConfig } from "../config/shopConfig";
+import { useShopConfig } from "../context/ShopConfigContext";
 
 interface SidebarProps {
   open: boolean;
@@ -25,25 +29,38 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
-  const { t, lang, toggleLang } = useLang();
+  const { t, lang, setLang, languages } = useLang();
+  const { shop: shopConfig } = useShopConfig();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const currentLang = languages.find((l) => l.code === lang);
 
   const navItems = [
     { to: "/", icon: LayoutDashboard, label: t.dashboard },
-    { to: "/products", icon: Package, label: t.products },
-    { to: "/customers", icon: Users, label: t.customers },
     { to: "/billing", icon: ShoppingCart, label: t.billing },
+    { to: "/stock-book", icon: BookOpen, label: t.stockBook || "Stock Book" },
     { to: "/orders", icon: Receipt, label: t.orders },
     { to: "/purchases", icon: Truck, label: t.purchases || "Purchases" },
+    { to: "/customers", icon: Users, label: t.customers },
     { to: "/dealers", icon: Store, label: t.dealers || "Dealers" },
-    { to: "/stock-book", icon: BookOpen, label: t.stockBook || "Stock Book" },
+    { to: "/products", icon: Package, label: t.products },
     { to: "/custom-fields", icon: Settings2, label: t.customFields || "Custom Fields" },
   ];
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-all ${
       isActive
-        ? "bg-primary-600 text-white shadow-sm"
-        : "text-gray-600 hover:bg-primary-50 hover:text-primary-700"
+        ? "bg-primary-50 text-primary-700 border-l-[3px] border-primary-600"
+        : "text-gray-600 hover:bg-gray-50 hover:text-gray-800 border-l-[3px] border-transparent"
     }`;
 
   return (
@@ -60,22 +77,22 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         } lg:translate-x-0 lg:static lg:z-0`}
       >
         {/* Header - Shop branding */}
-        <div className="p-3 border-b border-gray-100">
+        <div className="px-3 py-3.5 bg-gradient-to-b from-primary-600 to-primary-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
               <img
                 src={shopConfig.logo}
                 alt="Logo"
-                className="w-8 h-8 rounded-md flex-shrink-0"
+                className="w-9 h-9 rounded-lg flex-shrink-0 shadow ring-2 ring-white/25"
               />
               <div className="min-w-0">
-                <h1 className="text-xs font-bold text-primary-800 leading-tight">
+                <h1 className="text-[13px] font-bold text-white leading-tight tracking-tight">
                   {lang === "te" ? shopConfig.nameTe : shopConfig.name}
                 </h1>
-                <p className="text-[9px] text-gray-400 truncate">{shopConfig.phone}</p>
+                <p className="text-[10px] text-primary-200 truncate mt-0.5">{shopConfig.phone}</p>
               </div>
             </div>
-            <button onClick={onClose} className="lg:hidden p-1 text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="lg:hidden p-1 text-primary-200 hover:text-white">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -93,14 +110,45 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="p-2 border-t border-gray-100 space-y-0.5">
-          {/* Language Toggle */}
-          <button
-            onClick={toggleLang}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-blue-50 hover:text-blue-700 w-full transition-all"
-          >
-            <Languages className="w-4 h-4" />
-            <span>{lang === "en" ? "తెలుగు" : "English"}</span>
-          </button>
+          {/* Language Picker */}
+          <div className="relative" ref={langRef}>
+            <button
+              onClick={() => setLangOpen((v) => !v)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-primary-50 hover:text-primary-700 w-full transition-all"
+            >
+              <Languages className="w-4 h-4" />
+              <span className="flex-1 text-left">{currentLang?.name || "English"}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${langOpen ? "rotate-180" : ""}`} />
+            </button>
+            {langOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto z-50">
+                {languages.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => { setLang(l.code); setLangOpen(false); }}
+                    className={`flex items-center gap-2.5 w-full px-3 py-2 text-left text-sm transition-colors ${
+                      l.code === lang
+                        ? "bg-primary-50 text-primary-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
+                      {l.script}
+                    </span>
+                    <span className="flex-1">{l.name}</span>
+                    <span className="text-[10px] text-gray-400">{l.nameEn}</span>
+                    {l.code === lang && <Check className="w-3.5 h-3.5 text-primary-600 flex-shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Settings */}
+          <NavLink to="/settings" className={linkClasses} onClick={onClose}>
+            <Sliders className="w-4 h-4 flex-shrink-0" />
+            <span>{t.settings || "Settings"}</span>
+          </NavLink>
 
           {/* Logout */}
           <button

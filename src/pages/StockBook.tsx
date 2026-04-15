@@ -52,8 +52,8 @@ export default function StockBook() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-            <Package className="w-4 h-4 text-blue-600" />
+          <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center">
+            <Package className="w-4 h-4 text-primary-600" />
           </div>
           <div>
             <p className="text-[11px] text-gray-400 font-medium">{t.totalProducts || "Total Products"}</p>
@@ -164,7 +164,7 @@ export default function StockBook() {
                         {qty30d}
                       </td>
                       <td className="px-3 py-2.5 text-center">
-                        <button className="p-1.5 rounded hover:bg-blue-50 text-blue-600" title="View Details">
+                        <button className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title="View Details">
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </td>

@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import { ThemeProvider } from "./context/ThemeContext";
+import { ShopConfigProvider } from "./context/ShopConfigContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
@@ -20,6 +22,7 @@ import PurchaseForm from "./pages/PurchaseForm";
 import Dealers from "./pages/Dealers";
 import StockBook from "./pages/StockBook";
 import ProductStock from "./pages/ProductStock";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +33,8 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+      <ShopConfigProvider>
       <LanguageProvider>
         <AuthProvider>
           <BrowserRouter>
@@ -58,6 +63,7 @@ export default function App() {
                 <Route path="stock-book" element={<StockBook />} />
                 <Route path="stock-book/:productId" element={<ProductStock />} />
                 <Route path="custom-fields" element={<CustomFields />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -75,6 +81,8 @@ export default function App() {
           />
         </AuthProvider>
       </LanguageProvider>
+      </ShopConfigProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

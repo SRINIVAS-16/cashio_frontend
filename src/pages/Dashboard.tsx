@@ -21,7 +21,7 @@ import {
 import { dashboardApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
 import { DashboardData, SalesTrend, ProductDistribution, ExpiringBatch } from "../types";
-import { shopConfig } from "../config/shopConfig";
+import { useShopConfig } from "../context/ShopConfigContext";
 
 const COLORS = ["#3b82f6", "#0ea5e9", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
 
@@ -39,6 +39,7 @@ const ChartLoader = () => (
 
 export default function Dashboard() {
   const { t, lang } = useLang();
+  const { shop: shopConfig } = useShopConfig();
   const [data, setData] = useState<DashboardData | null>(null);
   const [salesTrend, setSalesTrend] = useState<SalesTrend[] | null>(null);
   const [productDist, setProductDist] = useState<ProductDistribution[] | null>(null);
@@ -71,21 +72,21 @@ export default function Dashboard() {
       <h1 className="text-xl font-bold text-gray-800">{t.dashboard}</h1>
 
       {/* ─── Shop Info Card ─────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-primary-700 to-primary-600 rounded-lg p-5 shadow-sm text-white">
+      <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-primary-500">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           {/* Left: Logo + Name + Type + Address */}
           <div className="flex items-start gap-3">
             <img
               src={shopConfig.logo}
               alt="Shop Logo"
-              className="w-14 h-14 rounded-lg bg-white/20 p-0.5 flex-shrink-0"
+              className="w-14 h-14 rounded-lg bg-primary-50 p-0.5 flex-shrink-0"
             />
             <div>
-              <h2 className="text-base font-bold">{lang === "te" ? shopConfig.nameTe : shopConfig.name}</h2>
-              <p className="text-blue-200 text-xs mt-0.5">
+              <h2 className="text-base font-bold text-gray-800">{lang === "te" ? shopConfig.nameTe : shopConfig.name}</h2>
+              <p className="text-primary-600 text-xs mt-0.5">
                 {lang === "te" ? shopConfig.taglineTe : shopConfig.tagline}
               </p>
-              <div className="flex items-start gap-1.5 text-blue-200 text-xs mt-2">
+              <div className="flex items-start gap-1.5 text-gray-500 text-xs mt-2">
                 <MapPin className="w-3 h-3 flex-shrink-0 mt-0.5" />
                 <span>{lang === "te" ? shopConfig.addressTe : shopConfig.address}</span>
               </div>
@@ -94,11 +95,11 @@ export default function Dashboard() {
 
           {/* Right: Phone + GST */}
           <div className="space-y-1.5 text-xs sm:text-right flex-shrink-0">
-            <div className="flex items-center gap-1.5 text-blue-200 sm:justify-end">
+            <div className="flex items-center gap-1.5 text-gray-500 sm:justify-end">
               <Phone className="w-3 h-3 flex-shrink-0" />
               <span>{shopConfig.phone}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-blue-200 sm:justify-end">
+            <div className="flex items-center gap-1.5 text-gray-500 sm:justify-end">
               <FileText className="w-3 h-3 flex-shrink-0" />
               <span>GST: {shopConfig.gst}</span>
             </div>
@@ -127,8 +128,8 @@ export default function Dashboard() {
         {/* Monthly Sales */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 bg-blue-50 rounded-md">
-              <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+            <div className="p-1.5 bg-primary-50 rounded-md">
+              <TrendingUp className="w-3.5 h-3.5 text-primary-600" />
             </div>
             <span className="text-xs text-gray-500">{t.monthSales}</span>
           </div>
@@ -374,7 +375,7 @@ export default function Dashboard() {
         {/* Recent Orders */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-1.5 mb-3">
-            <Receipt className="w-3.5 h-3.5 text-blue-600" />
+            <Receipt className="w-3.5 h-3.5 text-primary-600" />
             <h3 className="text-sm font-semibold text-gray-700">{t.recentOrders}</h3>
           </div>
           {dashLoading ? <TileLoader /> : (

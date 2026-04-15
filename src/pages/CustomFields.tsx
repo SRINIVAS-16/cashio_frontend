@@ -10,7 +10,7 @@ const fieldTypes = ["text", "number", "date", "select", "textarea"];
 const categoryOptions = ["fertilizer", "pesticide", "seeds", "organic", "micronutrient", "growth_promoter", "soil_amendment", "equipment", "general"];
 
 const typeColors: Record<string, string> = {
-  text: "bg-blue-50 text-blue-700",
+  text: "bg-primary-50 text-primary-700",
   number: "bg-emerald-50 text-emerald-700",
   date: "bg-amber-50 text-amber-700",
   select: "bg-purple-50 text-purple-700",
@@ -280,24 +280,24 @@ function FieldSection({ title, fields, t, lang, onEdit, onDelete }: {
       </div>
       {/* Desktop table */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-xs table-fixed">
           <thead className="bg-slate-50 border-b border-gray-100">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">{t.fieldName}</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">{t.label}</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">{t.labelTe}</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">{t.fieldType}</th>
-              <th className="px-3 py-2 text-center font-medium text-gray-500">{t.required}</th>
-              <th className="px-3 py-2 text-center font-medium text-gray-500">{t.sortOrderLabel}</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500"></th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 w-[20%]">{t.fieldName}</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 w-[20%]">{t.label}</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 w-[18%]">{t.labelTe}</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-500 w-[12%]">{t.fieldType}</th>
+              <th className="px-3 py-2 text-center font-medium text-gray-500 w-[10%]">{t.required}</th>
+              <th className="px-3 py-2 text-center font-medium text-gray-500 w-[10%]">{t.sortOrderLabel}</th>
+              <th className="px-3 py-2 text-right font-medium text-gray-500 w-[10%]"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {fields.map((f) => (
               <tr key={f.id} className="hover:bg-slate-50/50">
-                <td className="px-3 py-2 font-mono text-gray-500">{f.name}</td>
-                <td className="px-3 py-2 font-medium text-gray-800">{f.label}</td>
-                <td className="px-3 py-2 text-gray-500">{f.labelTe || "-"}</td>
+                <td className="px-3 py-2 font-mono text-gray-500 truncate" title={f.name}>{f.name}</td>
+                <td className="px-3 py-2 font-medium text-gray-800 truncate" title={f.label}>{f.label}</td>
+                <td className="px-3 py-2 text-gray-500 truncate" title={f.labelTe || "-"}>{f.labelTe || "-"}</td>
                 <td className="px-3 py-2">
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${typeColors[f.fieldType] || "bg-gray-100 text-gray-600"}`}>
                     {f.fieldType}

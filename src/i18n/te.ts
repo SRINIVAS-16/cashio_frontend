@@ -9,6 +9,7 @@ const te = {
   orders: "ఆర్డర్లు",
   settings: "సెట్టింగ్‌లు",
   logout: "లాగ్ అవుట్",
+  theme: "థీమ్",
   save: "సేవ్",
   cancel: "రద్దు",
   delete: "తొలగించు",
@@ -73,7 +74,7 @@ const te = {
   address: "చిరునామా",
   addCustomer: "కస్టమర్ జోడించు",
   editCustomer: "కస్టమర్ మార్చు",
-  searchByPhone: "ఫోన్ నంబర్ ద్వారా వెతకండి...",
+  searchByPhone: "కస్టమర్ వెతకండి...",
   orderHistory: "ఆర్డర్ చరిత్ర",
 
   // Billing
@@ -249,6 +250,24 @@ const te = {
   availableQty: "అందుబాటులో ఉన్న పరిమాణం",
   noBatches: "బ్యాచ్లు లేవు",
   remainingStock: "మిగిలినవి",
+
+  // Settings Page
+  shopName: "దుకాణం పేరు",
+  shopNameTe: "దుకాణం పేరు (తెలుగు)",
+  tagline: "ట్యాగ్‌లైన్",
+  taglineTe: "ట్యాగ్‌లైన్ (తెలుగు)",
+  altPhone: "ప్రత్యామ్నాయ ఫోన్",
+  email: "ఇమెయిల్",
+  addressLabel: "చిరునామా",
+  addressLabelTe: "చిరునామా (తెలుగు)",
+  district: "జిల్లా",
+  districtTe: "జిల్లా (తెలుగు)",
+  themeColor: "థీమ్ రంగు",
+  resetDefaults: "డిఫాల్ట్‌లు రీసెట్",
+  saveSettings: "సెట్టింగ్‌లు సేవ్ చేయండి",
+  settingsSaved: "సెట్టింగ్‌లు సేవ్ అయ్యాయి!",
+  allChangesSaved: "అన్ని మార్పులు సేవ్ అయ్యాయి",
+  language: "భాష",
 };
 
 export default te;

@@ -2,6 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Theme Color Variables ──────────────────────────────────── */
+:root,
+[data-theme="blue"] {
+  --primary-50: #f0f5ff;
+  --primary-100: #e0ebff;
+  --primary-200: #c2d6ff;
+  --primary-300: #94b8ff;
+  --primary-400: #6b9cfc;
+  --primary-500: #5185ed;
+  --primary-600: #4272d6;
+  --primary-700: #3661b8;
+  --primary-800: #2d5096;
+  --primary-900: #273f73;
+}
+[data-theme="emerald"] {
+  --primary-50: #f0fafb;
+  --primary-100: #d6f1f4;
+  --primary-200: #ade3e9;
+  --primary-300: #7ecdd8;
+  --primary-400: #4db5c4;
+  --primary-500: #35a0af;
+  --primary-600: #2d8898;
+  --primary-700: #266f7c;
+  --primary-800: #225a64;
+  --primary-900: #1d4a52;
+}
+[data-theme="purple"] {
+  --primary-50: #f3f3fa;
+  --primary-100: #e8e8f4;
+  --primary-200: #d1d2e8;
+  --primary-300: #b2b4d6;
+  --primary-400: #9294c2;
+  --primary-500: #7678b0;
+  --primary-600: #5c62a8;
+  --primary-700: #4d518c;
+  --primary-800: #414472;
+  --primary-900: #35385c;
+}
+[data-theme="orange"] {
+  --primary-50: #f1f8f4;
+  --primary-100: #dff0e5;
+  --primary-200: #bfe0cc;
+  --primary-300: #96cba9;
+  --primary-400: #6db487;
+  --primary-500: #4ea06d;
+  --primary-600: #3f8a5f;
+  --primary-700: #357150;
+  --primary-800: #2c5b42;
+  --primary-900: #254b37;
+}
+[data-theme="rose"] {
+  --primary-50: #fdf6f4;
+  --primary-100: #f9ebe6;
+  --primary-200: #f2d5cc;
+  --primary-300: #e7b7a8;
+  --primary-400: #da9684;
+  --primary-500: #ce7e6c;
+  --primary-600: #b86a58;
+  --primary-700: #9a574a;
+  --primary-800: #7e483e;
+  --primary-900: #663b34;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

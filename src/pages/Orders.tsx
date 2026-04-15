@@ -7,7 +7,7 @@ import { useLang } from "../context/LanguageContext";
 import { OrdersResponse, Order, Customer } from "../types";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
-import { shopConfig } from "../config/shopConfig";
+import { useShopConfig } from "../context/ShopConfigContext";
 
 type DatePreset = "all" | "today" | "7d" | "30d" | "month" | "year" | "custom";
 
@@ -26,6 +26,7 @@ function getDateRange(preset: DatePreset): { startDate?: string; endDate?: strin
 
 export default function Orders() {
   const { t } = useLang();
+  const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
   const [data, setData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ export default function Orders() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [custSearch, setCustSearch] = useState("");
   const [custDropdownOpen, setCustDropdownOpen] = useState(false);
+  const [orderSearch, setOrderSearch] = useState("");
   const custDropdownRef = useRef<HTMLDivElement>(null);
   const reqId = useRef(0);
 
@@ -233,10 +235,25 @@ export default function Orders() {
     }
   };
 
+  const displayedOrders = useMemo(() => {
+    const orders = data?.orders || [];
+    if (!orderSearch.trim()) return orders;
+    const q = orderSearch.trim().toLowerCase();
+    return orders.filter((o) => o.orderNo.toLowerCase().includes(q));
+  }, [data?.orders, orderSearch]);
+
   const fmt = (val: number) => `₹${Number(val).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const inp = "px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-primary-400 focus:ring-1 focus:ring-primary-200 outline-none text-xs bg-white transition";
 
-  const summary = data?.summary || { totalAmount: 0, paidAmount: 0, dueAmount: 0, uniqueCustomers: 0 };
+  const summary = useMemo(() => {
+    const fallback = { totalAmount: 0, paidAmount: 0, dueAmount: 0, uniqueCustomers: 0 };
+    if (!orderSearch.trim()) return data?.summary || fallback;
+    const totalAmount = displayedOrders.reduce((s, o) => s + Number(o.total), 0);
+    const paidAmount = displayedOrders.reduce((s, o) => s + Number(o.paidAmount), 0);
+    const dueAmount = displayedOrders.reduce((s, o) => s + Number(o.dueAmount), 0);
+    const uniqueCustomers = new Set(displayedOrders.map((o) => o.customerId).filter(Boolean)).size;
+    return { totalAmount, paidAmount, dueAmount, uniqueCustomers };
+  }, [data?.summary, displayedOrders, orderSearch]);
 
   return (
     <div className="space-y-4">
@@ -282,6 +299,11 @@ export default function Orders() {
               </div>
             </>
           )}
+          <div>
+            <label className="block text-[11px] font-medium text-gray-400 mb-1"><Search className="w-3 h-3 inline mr-1" />{t.orderNo}</label>
+            <input type="text" value={orderSearch} onChange={(e) => setOrderSearch(e.target.value)}
+              placeholder={`${t.orderNo}...`} className={inp + " min-w-[140px]"} />
+          </div>
           <div className="relative" ref={custDropdownRef}>
             <label className="block text-[11px] font-medium text-gray-400 mb-1"><Filter className="w-3 h-3 inline mr-1" />{t.customer}</label>
             <button type="button" onClick={() => setCustDropdownOpen((v) => !v)}
@@ -355,8 +377,8 @@ export default function Orders() {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-            <IndianRupee className="w-4 h-4 text-blue-600" />
+          <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center">
+            <IndianRupee className="w-4 h-4 text-primary-600" />
           </div>
           <div>
             <p className="text-[11px] text-gray-400 font-medium">{t.totalOrderAmount}</p>
@@ -413,7 +435,7 @@ export default function Orders() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {(data?.orders || []).map((o) => (
+                {displayedOrders.map((o) => (
                   <tr key={o.id} className="hover:bg-slate-50/50 transition">
                     <td className="px-3 py-2.5 font-medium text-gray-800 text-sm">{o.orderNo}</td>
                     <td className="px-3 py-2.5 text-gray-600 text-sm">{o.customer?.name || o.customerName || "Walk-in"}</td>
@@ -440,7 +462,7 @@ export default function Orders() {
                     </td>
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-0.5">
-                        <button onClick={() => navigate(`/orders/${o.id}`)} className="p-1.5 rounded hover:bg-blue-50 text-blue-600" title={t.viewBill}>
+                        <button onClick={() => navigate(`/orders/${o.id}`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title={t.viewBill}>
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                         {o.status === "completed" && (
@@ -454,14 +476,14 @@ export default function Orders() {
                 ))}
               </tbody>
             </table>
-            {(!data?.orders || data.orders.length === 0) && (
+            {displayedOrders.length === 0 && (
               <p className="text-center py-6 text-gray-400 text-xs">{t.noData}</p>
             )}
           </div>
 
           {/* Mobile Cards */}
           <div className="md:hidden divide-y divide-gray-50">
-            {(data?.orders || []).map((o) => (
+            {displayedOrders.map((o) => (
               <div key={o.id} className="p-3">
                 <div className="flex justify-between items-start mb-1">
                   <div>
@@ -489,7 +511,7 @@ export default function Orders() {
                   <span className="text-xs text-gray-500">{new Date(o.createdAt).toLocaleDateString("en-IN")}</span>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-gray-800 text-sm">{fmt(Number(o.total))}</span>
-                    <button onClick={() => navigate(`/orders/${o.id}`)} className="p-1.5 rounded bg-blue-50 text-blue-600"><Eye className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => navigate(`/orders/${o.id}`)} className="p-1.5 rounded bg-primary-50 text-primary-600"><Eye className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               </div>
