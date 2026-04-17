@@ -155,10 +155,10 @@ export default function ProductForm() {
         <h1 className="text-xl font-bold text-gray-800">{isEdit ? t.editProduct : t.addProduct}</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
           {/* Photo Upload - spans full width on top */}
-          <div className="lg:col-span-3 flex items-center gap-4">
+          <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-4">
             {form.photo ? (
               <img src={form.photo} alt="Preview" className="w-24 h-24 rounded-lg object-cover border-2 border-primary-200 shadow flex-shrink-0" />
             ) : (
@@ -232,14 +232,14 @@ export default function ProductForm() {
           ))}
 
           {/* Description - full width */}
-          <div className="lg:col-span-3">
+          <div className="sm:col-span-2 lg:col-span-3">
             <label className="block text-xs font-medium text-gray-500 mb-1">{t.description}</label>
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
               className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-sm" rows={3} />
           </div>
 
           {/* Actions - full width */}
-          <div className="lg:col-span-3 flex gap-3 pt-2">
+          <div className="sm:col-span-2 lg:col-span-3 flex gap-3 pt-2">
             <button onClick={() => navigate("/products")} className="flex-1 py-2.5 rounded-md border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition">
               {t.cancel}
             </button>

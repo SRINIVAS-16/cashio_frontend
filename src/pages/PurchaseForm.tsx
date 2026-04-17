@@ -210,7 +210,7 @@ export default function PurchaseForm() {
     return (
       <div className="space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate("/purchases")} className="p-1.5 rounded-lg hover:bg-gray-100 transition">
               <ArrowLeft className="w-4 h-4 text-gray-500" />
@@ -220,9 +220,9 @@ export default function PurchaseForm() {
               <p className="text-xs text-gray-400">{new Date(form.purchaseDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:flex-shrink-0">
             {purchase && (
-              <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
+              <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${
                 purchase.paymentStatus === "paid" ? "bg-emerald-50 text-emerald-700" :
                 purchase.paymentStatus === "partial" ? "bg-amber-50 text-amber-700" :
                 "bg-red-50 text-red-600"
@@ -242,8 +242,8 @@ export default function PurchaseForm() {
         {/* Invoice Meta + Payment Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Left: Dealer & Invoice Info */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p className="text-[11px] text-gray-400 mb-0.5">{t.dealer}</p>
                 <p className="text-sm font-semibold text-gray-800">{form.dealerName || "—"}</p>
@@ -336,7 +336,7 @@ export default function PurchaseForm() {
                   </div>
                   {/* Item details grid */}
                   <div className="px-5 py-3">
-                    <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-x-5 gap-y-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-x-5 gap-y-3">
                       <DetailCell icon={<Package className="w-3 h-3" />} label={t.quantity} value={`${item.quantity}${item.freeQty ? ` + ${item.freeQty} free` : ""}`} />
                       <DetailCell label={t.costPrice} value={`₹${item.costPrice.toLocaleString("en-IN")}`} />
                       <DetailCell label={t.discount} value={`₹${item.discount.toLocaleString("en-IN")}`} className={item.discount > 0 ? "text-red-500" : undefined} />
@@ -357,8 +357,8 @@ export default function PurchaseForm() {
         {purchase?.payments && purchase.payments.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-700 mb-3">{t.paymentHistory} ({purchase.payments.length})</h2>
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="w-full text-xs">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+              <table className="w-full text-xs min-w-[500px]">
                 <thead>
                   <tr className="bg-slate-50/70 border-b border-gray-100 text-[11px] text-gray-400 uppercase tracking-wide">
                     <th className="text-left px-4 py-2.5">#</th>
@@ -541,7 +541,7 @@ export default function PurchaseForm() {
                 </div>
 
                 {/* Row 3: Qty / Cost / Discount / GST / Total */}
-                <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 pl-8">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 pl-8">
                   <Field label={t.quantity}>
                     <input type="text" inputMode="numeric" value={item.quantity}
                       onChange={(e) => updateItem(idx, "quantity", parseInt(e.target.value) || 0)}

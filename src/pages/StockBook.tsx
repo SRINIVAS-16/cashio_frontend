@@ -50,7 +50,7 @@ export default function StockBook() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center">
             <Package className="w-4 h-4 text-primary-600" />
@@ -99,9 +99,9 @@ export default function StockBook() {
       </div>
 
       {/* Search & Filter */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex-1 min-w-[200px]">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 min-w-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
@@ -111,7 +111,7 @@ export default function StockBook() {
           </div>
           <div>
             <select value={category} onChange={(e) => setCategory(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-primary-400 focus:ring-1 focus:ring-primary-200 outline-none text-xs bg-white transition">
+              className="w-full sm:w-auto px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-primary-400 focus:ring-1 focus:ring-primary-200 outline-none text-xs bg-white transition">
               {categories.map((c) => <option key={c} value={c}>{c === "all" ? (t.allCategories || "All Categories") : c}</option>)}
             </select>
           </div>

@@ -233,8 +233,8 @@ export default function Purchases() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <div className="flex flex-wrap items-end gap-3">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4">
+        <div className="flex flex-wrap items-end gap-2 sm:gap-3">
           {/* Date preset */}
           <div>
             <label className="block text-[11px] font-medium text-gray-400 mb-1"><Calendar className="w-3 h-3 inline mr-1" />{t.date}</label>
@@ -282,7 +282,7 @@ export default function Purchases() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center">
             <IndianRupee className="w-4 h-4 text-primary-600" />

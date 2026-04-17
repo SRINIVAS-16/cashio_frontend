@@ -361,17 +361,17 @@ export default function OrderDetail() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/orders")} className="p-1.5 rounded-md hover:bg-gray-100 transition">
             <ArrowLeft className="w-4 h-4 text-gray-600" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-gray-800">{order.orderNo}</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-800">{order.orderNo}</h1>
             <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleString("en-IN")}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 ml-10 sm:ml-0">
           {order.status === "cancelled" ? (
             <span className="px-2 py-1 text-xs rounded font-medium bg-red-100 text-red-700">{t.cancelled}</span>
           ) : order.paymentStatus === "partial" ? (
@@ -398,7 +398,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Order & Customer Info */}
-          <div className="grid grid-cols-2 gap-3 px-5 py-3 border-b border-gray-100 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-3 sm:px-5 py-3 border-b border-gray-100 text-xs">
             <div className="space-y-0.5">
               <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">{t.billTo}</p>
               <p className="font-semibold text-gray-800">{order.customer?.name || order.customerName || "Walk-in Customer"}</p>
@@ -406,7 +406,7 @@ export default function OrderDetail() {
                 <p className="text-gray-500">{t.phone}: {order.customer.phone}</p>
               )}
             </div>
-            <div className="text-right space-y-0.5">
+            <div className="sm:text-right space-y-0.5">
               <div className="flex justify-between">
                 <span className="text-gray-500">{t.orderNo}:</span>
                 <span className="font-semibold">{order.orderNo}</span>
@@ -423,8 +423,9 @@ export default function OrderDetail() {
           </div>
 
           {/* Items */}
-          <div className="p-5">
-            <table className="w-full text-xs mb-4">
+          <div className="p-3 sm:p-5">
+            <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-[600px] mb-4">
               <thead>
                 <tr className="border-b border-gray-200 bg-slate-50">
                   <th className="text-left py-2 px-2">{t.slNo}</th>
@@ -454,6 +455,7 @@ export default function OrderDetail() {
                 ))}
               </tbody>
             </table>
+            </div>
 
             {/* Totals with GST */}
             <div className="space-y-1.5 bg-slate-50 rounded-md p-4">

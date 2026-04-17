@@ -25,7 +25,7 @@ export default function Layout() {
         </header>
 
         {/* Page Content */}
-        <div className="p-4 lg:p-6">
+        <div className="p-3 sm:p-4 lg:p-6">
           <Outlet />
         </div>
       </main>

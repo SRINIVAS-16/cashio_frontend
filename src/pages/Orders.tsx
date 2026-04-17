@@ -273,8 +273,8 @@ export default function Orders() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <div className="flex flex-wrap items-end gap-3">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4">
+        <div className="flex flex-wrap items-end gap-2 sm:gap-3">
           <div>
             <label className="block text-[11px] font-medium text-gray-400 mb-1"><Calendar className="w-3 h-3 inline mr-1" />{t.date}</label>
             <select value={datePreset} onChange={(e) => changePreset(e.target.value as DatePreset)} className={inp}>
@@ -375,41 +375,41 @@ export default function Orders() {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center">
-            <IndianRupee className="w-4 h-4 text-primary-600" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
+            <IndianRupee className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-primary-600" />
           </div>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium">{t.totalOrderAmount}</p>
-            <p className="text-lg font-bold text-gray-800">{fmt(summary.totalAmount)}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-            <IndianRupee className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium">{t.totalPaid}</p>
-            <p className="text-lg font-bold text-emerald-700">{fmt(summary.paidAmount)}</p>
+          <div className="min-w-0">
+            <p className="text-[10px] sm:text-[11px] text-gray-400 font-medium">{t.totalOrderAmount}</p>
+            <p className="text-sm sm:text-lg font-bold text-gray-800 truncate">{fmt(summary.totalAmount)}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
-            <IndianRupee className="w-4 h-4 text-red-500" />
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+            <IndianRupee className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-600" />
           </div>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium">{t.totalDueAmount}</p>
-            <p className="text-lg font-bold text-red-600">{fmt(summary.dueAmount)}</p>
+          <div className="min-w-0">
+            <p className="text-[10px] sm:text-[11px] text-gray-400 font-medium">{t.totalPaid}</p>
+            <p className="text-sm sm:text-lg font-bold text-emerald-700 truncate">{fmt(summary.paidAmount)}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
-            <Users className="w-4 h-4 text-purple-600" />
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+            <IndianRupee className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-red-500" />
           </div>
-          <div>
-            <p className="text-[11px] text-gray-400 font-medium">{t.uniqueCustomers}</p>
-            <p className="text-lg font-bold text-purple-700">{summary.uniqueCustomers}</p>
+          <div className="min-w-0">
+            <p className="text-[10px] sm:text-[11px] text-gray-400 font-medium">{t.totalDueAmount}</p>
+            <p className="text-sm sm:text-lg font-bold text-red-600 truncate">{fmt(summary.dueAmount)}</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+            <Users className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] sm:text-[11px] text-gray-400 font-medium">{t.uniqueCustomers}</p>
+            <p className="text-sm sm:text-lg font-bold text-purple-700">{summary.uniqueCustomers}</p>
           </div>
         </div>
       </div>

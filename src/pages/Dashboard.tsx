@@ -72,7 +72,7 @@ export default function Dashboard() {
       <h1 className="text-xl font-bold text-gray-800">{t.dashboard}</h1>
 
       {/* ─── Shop Info Card ─────────────────────────────────── */}
-      <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-primary-500">
+      <div className="bg-white rounded-lg p-3 sm:p-5 shadow-sm border-l-4 border-primary-500">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           {/* Left: Logo + Name + Type + Address */}
           <div className="flex items-start gap-3">
@@ -108,7 +108,7 @@ export default function Dashboard() {
       </div>
 
       {/* ─── Summary Cards ──────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {/* Today's Sales */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
@@ -226,12 +226,12 @@ export default function Dashboard() {
                   data={productDist}
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={65}
                   fill="#8884d8"
                   dataKey="count"
                   nameKey="category"
                   label={({ category, count }) => `${category} (${count})`}
-                  fontSize={11}
+                  fontSize={10}
                 >
                   {productDist.map((_, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />

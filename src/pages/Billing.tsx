@@ -245,11 +245,11 @@ export default function Billing() {
   const cartQty = cart.reduce((s, c) => s + c.quantity, 0);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)]">
-      <h1 className="text-xl font-bold text-gray-800 mb-4 shrink-0">{t.createBill}</h1>
+    <div className="flex flex-col h-[calc(100vh-6rem)] lg:h-[calc(100vh-3rem)]">
+      <h1 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 shrink-0">{t.createBill}</h1>
 
       {/* ─── Step Indicator ─────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 sm:gap-0 sm:justify-between bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-100 shrink-0 mb-3">
+      <div className="flex items-center gap-1.5 sm:gap-0 sm:justify-between bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm border border-gray-100 shrink-0 mb-3 overflow-x-auto">
         {steps.map((s, idx) => (
           <div key={s.num} className="flex items-center gap-1.5">
             <button
@@ -287,32 +287,31 @@ export default function Billing() {
             </div>
             <div className="p-3">
               {selectedCustomer ? (
-                <div className="flex gap-2 items-center">
-                  <div className="w-1/4 shrink-0">
+                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                  <div className="sm:w-1/4 shrink-0">
                     <input type="date" value={orderDate}
                       onChange={(e) => setOrderDate(e.target.value)}
                       max={new Date().toISOString().split("T")[0]}
                       className="w-full px-2.5 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs" />
                   </div>
-                  <div className="w-1/2 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2 flex items-center justify-between">
+                  <div className="flex-1 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2 flex items-center justify-between">
                     <div>
                       <p className="font-medium text-emerald-800 text-xs">{selectedCustomer.name}</p>
                       <p className="text-[10px] text-emerald-600">{selectedCustomer.phone} {selectedCustomer.village ? `• ${selectedCustomer.village}` : ""}</p>
                     </div>
                     <button onClick={() => { setSelectedCustomer(null); setPhoneSearch(""); }} className="text-emerald-500 hover:text-red-500 transition text-xs font-medium">✕</button>
                   </div>
-                  <div className="w-1/4 shrink-0" />
                 </div>
               ) : (
                 <div className="space-y-2">
-                <div className="flex gap-2">
-                  <div className="w-1/4 shrink-0">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="sm:w-1/4 shrink-0">
                     <input type="date" value={orderDate}
                       onChange={(e) => setOrderDate(e.target.value)}
                       max={new Date().toISOString().split("T")[0]}
                       className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs" />
                   </div>
-                  <div className="relative w-1/2">
+                  <div className="relative flex-1">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                     <input
                       type="text" value={phoneSearch} onChange={(e) => setPhoneSearch(e.target.value)}
@@ -321,7 +320,7 @@ export default function Billing() {
                     />
                   </div>
                   <button onClick={() => { setQuickForm({ name: "", phone: "", village: "" }); setShowQuickAdd(true); }}
-                    className="w-1/4 flex items-center justify-center gap-1 px-2 py-1.5 bg-primary-50 text-primary-700 rounded-md text-[10px] font-medium hover:bg-primary-100 border border-primary-200 transition whitespace-nowrap">
+                    className="sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-md text-[10px] font-medium hover:bg-primary-100 border border-primary-200 transition whitespace-nowrap">
                     <UserPlus className="w-3 h-3" /> Add New
                   </button>
                 </div>
@@ -363,9 +362,9 @@ export default function Billing() {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 flex-1 min-h-0">
+          <div className="flex flex-col lg:grid lg:grid-cols-5 gap-3 flex-1 min-h-0">
             {/* Product List */}
-            <div className="lg:col-span-3 space-y-1.5 overflow-y-auto pr-1">
+            <div className="lg:col-span-3 space-y-1.5 overflow-y-auto pr-1 max-h-[40vh] lg:max-h-none">
               {filteredProducts.map((p) => {
                 const inCartItems = cart.filter((c) => c.product.id === p.id);
                 const inCartTotal = inCartItems.reduce((s, c) => s + c.quantity, 0);
@@ -401,7 +400,7 @@ export default function Billing() {
             </div>
 
             {/* Cart Summary Panel */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex flex-col max-h-[35vh] lg:max-h-none">
               <div className="bg-slate-50 px-4 py-2.5 border-b border-gray-100">
                 <h3 className="font-medium text-slate-700 text-xs flex items-center gap-1.5">
                   <ShoppingCart className="w-3.5 h-3.5 text-primary-600" /> Cart
@@ -471,7 +470,7 @@ export default function Billing() {
         <div className="flex flex-col flex-1 min-h-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-y-auto flex-1 min-h-0">
           {/* Shop header */}
-          <div className="text-center px-5 py-3 border-b border-gray-100 bg-slate-50">
+          <div className="text-center px-3 sm:px-5 py-3 border-b border-gray-100 bg-slate-50">
             <p className="font-bold text-primary-800 text-sm">{shopConfig.name}</p>
             <p className="text-[10px] text-gray-500">{shopConfig.nameTe}</p>
             <p className="text-[10px] text-gray-400 mt-0.5">{shopConfig.address}</p>
@@ -480,7 +479,7 @@ export default function Billing() {
           </div>
 
           {/* Customer info banner */}
-          <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2.5">
+          <div className="px-3 sm:px-5 py-3 border-b border-gray-100 flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
               <User className="w-4 h-4 text-primary-700" />
             </div>
@@ -495,12 +494,12 @@ export default function Billing() {
             </div>
           </div>
 
-          <div className="p-5 space-y-4">
+          <div className="p-3 sm:p-5 space-y-4">
             {/* Items table */}
             <div>
               <h3 className="font-medium text-gray-700 text-xs mb-2">{t.addItems} ({cart.length} {cart.length > 1 ? "lines" : "line"})</h3>
-              <div className="border border-gray-100 rounded-md overflow-hidden">
-                <table className="w-full text-xs">
+              <div className="border border-gray-100 rounded-md overflow-x-auto">
+                <table className="w-full text-xs min-w-[600px]">
                   <thead>
                     <tr className="bg-slate-50 text-left text-gray-500">
                       <th className="px-3 py-2 font-medium">{t.productName}</th>
