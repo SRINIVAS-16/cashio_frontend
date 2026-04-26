@@ -1,6 +1,6 @@
 // ─── Sidebar Navigation (Permission-Aware) ──────────────────────
 import { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -19,6 +19,7 @@ import {
   BookOpen,
   ChevronDown,
   Check,
+  ChevronUp,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { usePermissions } from "../context/PermissionContext";
@@ -35,8 +36,21 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   const { hasPermission } = usePermissions();
   const { t, lang, setLang, languages } = useLang();
   const { shop: shopConfig } = useShopConfig();
+  const location = useLocation();
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+
+  // Profile sub-menu items (Custom Fields, Users, Role Permissions, Settings)
+  const profileSubItems: { to: string; icon: any; label: string; permission: string }[] = [
+    { to: "/custom-fields", icon: Settings2, label: t.customFields || "Custom Fields", permission: "custom-fields" },
+    { to: "/users", icon: UserCog, label: "Users", permission: "users" },
+    { to: "/role-permissions", icon: Shield, label: "Role Permissions", permission: "roles" },
+    { to: "/settings", icon: Sliders, label: t.settings || "Settings", permission: "settings" },
+  ];
+  const visibleProfileSubItems = profileSubItems.filter((i) => hasPermission(i.permission));
+  const isProfileRouteActive = visibleProfileSubItems.some((i) => location.pathname.startsWith(i.to));
+  // Collapsed by default; user must click their name to expand.
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -57,9 +71,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     { to: "/customers", icon: Users, label: t.customers, permission: "customers" },
     { to: "/dealers", icon: Store, label: t.dealers || "Dealers", permission: "dealers" },
     { to: "/products", icon: Package, label: t.products, permission: "products" },
-    { to: "/custom-fields", icon: Settings2, label: t.customFields || "Custom Fields", permission: "custom-fields" },
-    { to: "/users", icon: UserCog, label: "Users", permission: "users" },
-    { to: "/role-permissions", icon: Shield, label: "Role Permissions", permission: "roles" },
   ];
 
   // Filter nav items based on dynamic permissions
@@ -70,6 +81,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       isActive
         ? "bg-primary-50 text-primary-700 border-l-[3px] border-primary-600"
         : "text-gray-600 hover:bg-gray-50 hover:text-gray-800 border-l-[3px] border-transparent"
+    }`;
+
+  const subLinkClasses = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
+      isActive
+        ? "bg-primary-50 text-primary-700"
+        : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
     }`;
 
   return (
@@ -119,13 +137,49 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="p-2 border-t border-gray-100 space-y-0.5">
-          {/* User role badge */}
+          {/* User profile (collapsible — contains Custom Fields, Users, Role Permissions, Settings) */}
           {user && (
-            <div className="px-3 py-1.5 mb-0.5">
-              <p className="text-xs text-gray-500 truncate">{user.name}</p>
-              <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-primary-50 text-primary-700 capitalize">
-                {user.role}
-              </span>
+            <div>
+              <button
+                onClick={() => setProfileOpen((v) => !v)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-md w-full text-left transition-all ${
+                  isProfileRouteActive
+                    ? "bg-primary-50 text-primary-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <div className="w-7 h-7 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0 uppercase">
+                  {(user.name || user.username || "?").charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-800 truncate leading-tight">{user.name}</p>
+                  <span className="text-[10px] font-semibold text-primary-700 capitalize">
+                    {user.role}
+                  </span>
+                </div>
+                {visibleProfileSubItems.length > 0 && (
+                  profileOpen
+                    ? <ChevronUp className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    : <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                )}
+              </button>
+
+              {/* Sub-menu items */}
+              {profileOpen && visibleProfileSubItems.length > 0 && (
+                <div className="mt-0.5 space-y-0.5">
+                  {visibleProfileSubItems.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      className={subLinkClasses}
+                      onClick={onClose}
+                    >
+                      <item.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{item.label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -162,14 +216,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               </div>
             )}
           </div>
-
-          {/* Settings */}
-          {hasPermission("settings") && (
-            <NavLink to="/settings" className={linkClasses} onClick={onClose}>
-              <Sliders className="w-4 h-4 flex-shrink-0" />
-              <span>{t.settings || "Settings"}</span>
-            </NavLink>
-          )}
 
           {/* Logout */}
           <button

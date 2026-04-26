@@ -126,16 +126,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // browser, this completes login with zero clicks. If not, it
           // throws InteractionRequiredAuthError silently and we stay on
           // the Login page (without auto-redirecting, which would loop).
-          try {
-            const sso = await msalInstance.ssoSilent(loginRequest);
-            if (sso?.account && sso.accessToken) {
-              await resolveUserFromBackend(sso.accessToken, sso.account);
-              setIsLoading(false);
-              initializingRef.current = false;
-              return;
+          // Skip this immediately after a logout, otherwise the user gets
+          // signed straight back in because the Microsoft session is still
+          // alive in the browser.
+          const justLoggedOut = sessionStorage.getItem("justLoggedOut") === "1";
+          sessionStorage.removeItem("justLoggedOut");
+          if (!justLoggedOut) {
+            try {
+              const sso = await msalInstance.ssoSilent(loginRequest);
+              if (sso?.account && sso.accessToken) {
+                await resolveUserFromBackend(sso.accessToken, sso.account);
+                setIsLoading(false);
+                initializingRef.current = false;
+                return;
+              }
+            } catch {
+              // No active Microsoft session — user must click "Login"
             }
-          } catch {
-            // No active Microsoft session — user must click "Login"
           }
         } catch (err) {
           console.error("MSAL initialization error:", err);
@@ -183,6 +190,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const authMethod = localStorage.getItem("authMethod");
 
     if (authMethod === "oauth" && msalInstance) {
+      // Mark that we're logging out so the next page-load init skips
+      // ssoSilent (which would otherwise sign the user back in using their
+      // still-active Microsoft browser session).
+      sessionStorage.setItem("justLoggedOut", "1");
       // Keep the loading spinner visible during the redirect to Microsoft —
       // otherwise React unmounts the protected page, the Login form flashes
       // for a frame, then the browser navigates away.
@@ -191,6 +202,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .logoutRedirect({ postLogoutRedirectUri: window.location.origin })
         .catch((err) => {
           console.error(err);
+          // Redirect failed — fall back to clearing state locally so the
+          // user at least lands on /login.
+          setToken(null);
+          setUser(null);
           setIsLoading(false);
         });
       // Clear local storage but DON'T null out user/token yet — the redirect
