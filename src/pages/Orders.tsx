@@ -307,7 +307,7 @@ export default function Orders() {
           <div className="relative" ref={custDropdownRef}>
             <label className="block text-[11px] font-medium text-gray-400 mb-1"><Filter className="w-3 h-3 inline mr-1" />{t.customer}</label>
             <button type="button" onClick={() => setCustDropdownOpen((v) => !v)}
-              className={`${inp} flex items-center gap-1 min-w-[180px] max-w-[320px] text-left ${
+              className={`${inp} flex items-center justify-start gap-1 min-w-[180px] max-w-[320px] text-left ${
                 customerFilter.length > 0
                   ? "border-primary-400 bg-primary-50 ring-1 ring-primary-200 text-primary-700"
                   : custDropdownOpen

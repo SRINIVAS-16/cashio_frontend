@@ -334,9 +334,9 @@ export default function Billing() {
                       ) : customers.length > 0 ? (
                         customers.map((c) => (
                           <button key={c.id} onClick={() => setSelectedCustomer(c)}
-                            className="w-full text-left rounded-md px-3 py-2 hover:bg-primary-50 border border-gray-100 hover:border-primary-200 transition-all">
+                            className="w-full flex flex-col items-start text-left rounded-md px-3 py-2 hover:bg-primary-50 border border-gray-100 hover:border-primary-200 transition-all">
                             <p className="font-medium text-gray-800 text-xs">{c.name}</p>
-                            <p className="text-[10px] text-gray-500">{c.phone} {c.village ? `• ${c.village}` : ""}</p>
+                            <p className="text-[10px] text-gray-500">{c.phone}{c.village ? ` • ${c.village}` : ""}</p>
                           </button>
                         ))
                       ) : (

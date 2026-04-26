@@ -86,6 +86,46 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ─── Icon alignment ─────────────────────────────────────────
+ * Lucide icons render as inline SVGs with vertical-align:middle, which
+ * conflicts with the text baseline inside flex containers and causes the
+ * icon to sit a pixel or two below the text. Forcing display:block makes
+ * the parent's `items-center` (flexbox cross-axis centering) the single
+ * source of truth for vertical alignment. Apply to icons that are direct
+ * children of flex containers so we don't break standalone inline usage.
+ */
+.flex > svg,
+.inline-flex > svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ─── Button text alignment ──────────────────────────────────
+ * Buttons in this app mix three layout strategies:
+ *   1. plain text (relies on line-height + padding)
+ *   2. `flex items-center` with an icon
+ *   3. `inline-flex items-center` chips
+ * Strategies (1) vs (2)/(3) compute the vertical text position via
+ * different formulas, producing 1-2 px offsets between sibling buttons.
+ * Forcing inline-flex normalises (1) so a Cancel + Save pair lines up.
+ *
+ * `:where()` keeps specificity at 0 so any Tailwind utility (e.g. block,
+ * flex, w-full, justify-start) on the element still wins.
+ *
+ * `:not(:has(...))` skips buttons that contain block-level children
+ * (search results, card-style buttons, etc.) — those need their stacked
+ * layout preserved and should set their own flex direction explicitly.
+ *
+ * NOTE: buttons that need their content left/right aligned (e.g. dropdown
+ * triggers with `text-left`) MUST add an explicit Tailwind `justify-start`
+ * /`justify-between` utility — `text-align` does not affect flex layout.
+ */
+:where(button:not(:has(p, div, h1, h2, h3, h4, h5, h6, ul, ol, table))) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Print styles */
 @media print {
   body * {
