@@ -5,6 +5,7 @@ React frontend for the Fertilizer Shop Management System. Built with a Telugu-fr
 
 ---
 
+
 ## 🏗️ Tech Stack
 
 | Layer       | Technology                       |
