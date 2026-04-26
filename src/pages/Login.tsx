@@ -5,6 +5,7 @@ import { Sprout, Eye, EyeOff, Phone, MapPin, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useShopConfig } from "../context/ShopConfigContext";
+import { isLocalAuthEnabled } from "../config/authConfig";
 import toast from "react-hot-toast";
 
 export default function Login() {
@@ -26,6 +27,17 @@ export default function Login() {
       navigate("/", { replace: true });
     }
   }, [authLoading, user, navigate]);
+
+  // Don't render the login form while auth is still loading or when the user
+  // is already signed in — prevents the form from flashing for a frame after
+  // a successful OAuth redirect, before the navigate effect fires.
+  if (authLoading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +88,9 @@ export default function Login() {
           onSubmit={handleSubmit}
           className="bg-white rounded-lg shadow-lg shadow-gray-200/50 p-6 space-y-4"
         >
-          <h2 className="text-sm font-semibold text-gray-700 text-center">{t.loginTitle}</h2>
+          {isLocalAuthEnabled && (
+            <h2 className="text-sm font-semibold text-gray-700 text-center">{t.loginTitle}</h2>
+          )}
 
           {/* OAuth Login Button */}
           {isOAuthAvailable && (
@@ -85,71 +99,79 @@ export default function Login() {
                 type="button"
                 onClick={handleOAuthLogin}
                 disabled={oauthLoading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
-                <Shield className="w-4 h-4 text-blue-600" />
-                {oauthLoading ? "Signing in..." : "Sign in with Microsoft"}
+                <Shield className="w-4 h-4" />
+                {oauthLoading ? "Signing in..." : "Login"}
               </button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
+              {isLocalAuthEnabled && (
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="px-2 bg-white text-gray-400">or</span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-white text-gray-400">or</span>
-                </div>
-              </div>
+              )}
             </>
           )}
 
-          {/* Username */}
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t.username}</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition"
-              placeholder="admin"
-              required
-              autoFocus
-            />
-          </div>
+          {isLocalAuthEnabled && (
+            <>
+              {/* Username */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">{t.username}</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition"
+                  placeholder="admin"
+                  required
+                  autoFocus
+                />
+              </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t.password}</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition pr-10"
-                placeholder="••••••"
-                required
-              />
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">{t.password}</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition pr-10"
+                    placeholder="••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit */}
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {loading ? "..." : t.loginButton}
               </button>
-            </div>
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-          >
-            {loading ? "..." : t.loginButton}
-          </button>
+            </>
+          )}
         </form>
 
-        <p className="text-center text-[11px] text-gray-400 mt-4">
-          Default: admin / admin123
-        </p>
+        {isLocalAuthEnabled && (
+          <p className="text-center text-[11px] text-gray-400 mt-4">
+            Default: admin / admin123
+          </p>
+        )}
       </div>
     </div>
   );

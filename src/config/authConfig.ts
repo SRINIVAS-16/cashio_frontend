@@ -47,3 +47,9 @@ export const apiTokenRequest = {
 
 // Whether OAuth is enabled (true when Azure client ID is configured)
 export const isOAuthEnabled = !!clientId;
+
+// Whether local username/password login is enabled. Defaults to false in
+// production so only Microsoft sign-in is shown. Set
+// VITE_LOCAL_AUTH_ENABLED=true (e.g. in .env.local) to re-enable for dev.
+export const isLocalAuthEnabled =
+  String(import.meta.env.VITE_LOCAL_AUTH_ENABLED ?? "").toLowerCase() === "true";

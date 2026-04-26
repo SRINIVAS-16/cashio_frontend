@@ -23,6 +23,9 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return;
     }
+    // Reset loading on every refetch so ProtectedRoute keeps showing the
+    // spinner instead of flashing "Access Denied" while permissions load.
+    setIsLoading(true);
     try {
       const res = await permissionApi.getMyPermissions();
       setPermissions(res.data.permissions || []);

@@ -120,6 +120,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               return;
             }
           }
+
+          // 3. No MSAL cache — try silent SSO using the Microsoft browser
+          // session. If the user is already signed in to Entra ID in this
+          // browser, this completes login with zero clicks. If not, it
+          // throws InteractionRequiredAuthError silently and we stay on
+          // the Login page (without auto-redirecting, which would loop).
+          try {
+            const sso = await msalInstance.ssoSilent(loginRequest);
+            if (sso?.account && sso.accessToken) {
+              await resolveUserFromBackend(sso.accessToken, sso.account);
+              setIsLoading(false);
+              initializingRef.current = false;
+              return;
+            }
+          } catch {
+            // No active Microsoft session — user must click "Login"
+          }
         } catch (err) {
           console.error("MSAL initialization error:", err);
         }
@@ -164,17 +181,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout (both OAuth and local)
   const logout = () => {
     const authMethod = localStorage.getItem("authMethod");
+
+    if (authMethod === "oauth" && msalInstance) {
+      // Keep the loading spinner visible during the redirect to Microsoft —
+      // otherwise React unmounts the protected page, the Login form flashes
+      // for a frame, then the browser navigates away.
+      setIsLoading(true);
+      msalInstance
+        .logoutRedirect({ postLogoutRedirectUri: window.location.origin })
+        .catch((err) => {
+          console.error(err);
+          setIsLoading(false);
+        });
+      // Clear local storage but DON'T null out user/token yet — the redirect
+      // is about to replace the document, so leaving state intact prevents
+      // any in-between render of /login.
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("authMethod");
+      return;
+    }
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("authMethod");
     setToken(null);
     setUser(null);
-
-    if (authMethod === "oauth" && msalInstance) {
-      msalInstance.logoutRedirect({
-        postLogoutRedirectUri: window.location.origin,
-      }).catch(console.error);
-    }
   };
 
   // Role check helper
