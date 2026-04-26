@@ -157,8 +157,8 @@ export const stockBookApi = {
 export const permissionApi = {
   getMyPermissions: () => api.get("/auth/permissions"),
   getMatrix: () => api.get("/permissions/matrix"),
-  updateRolePermissions: (role: string, permissions: string[]) =>
-    api.put(`/permissions/role/${role}`, { permissions }),
+  updateRolePermissions: (role: string, entries: { code: string; action: string }[]) =>
+    api.put(`/permissions/role/${role}`, { entries }),
   seed: () => api.post("/permissions/seed"),
 };
 

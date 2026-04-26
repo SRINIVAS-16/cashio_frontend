@@ -92,31 +92,6 @@ export default function Login() {
             <h2 className="text-sm font-semibold text-gray-700 text-center">{t.loginTitle}</h2>
           )}
 
-          {/* OAuth Login Button */}
-          {isOAuthAvailable && (
-            <>
-              <button
-                type="button"
-                onClick={handleOAuthLogin}
-                disabled={oauthLoading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-              >
-                <Shield className="w-4 h-4" />
-                {oauthLoading ? "Signing in..." : "Login"}
-              </button>
-              {isLocalAuthEnabled && (
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center text-xs">
-                    <span className="px-2 bg-white text-gray-400">or</span>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
           {isLocalAuthEnabled && (
             <>
               {/* Username */}
@@ -162,6 +137,35 @@ export default function Login() {
                 className="w-full py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 {loading ? "..." : t.loginButton}
+              </button>
+            </>
+          )}
+
+          {/* OAuth Login Button */}
+          {isOAuthAvailable && (
+            <>
+              {isLocalAuthEnabled && (
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="px-2 bg-white text-gray-400 uppercase tracking-wide">or</span>
+                  </div>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handleOAuthLogin}
+                disabled={oauthLoading}
+                className={
+                  isLocalAuthEnabled
+                    ? "w-full flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 hover:border-primary-500 hover:text-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    : "w-full flex items-center justify-center gap-2 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                }
+              >
+                <Shield className={`w-4 h-4 ${isLocalAuthEnabled ? "text-primary-600" : ""}`} />
+                {oauthLoading ? "Signing in..." : "Login with Microsoft"}
               </button>
             </>
           )}

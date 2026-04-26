@@ -3,9 +3,17 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { useAuth } from "./AuthContext";
 import { permissionApi } from "../api/client";
 
+/**
+ * Permissions are stored as a Set of "code:action" strings, e.g.
+ *   "products:read", "products:create", "dashboard:access".
+ *
+ * `hasPermission(code)` (no action) → true if the user has ANY action on that code.
+ * `hasPermission(code, action)` → true if exact match.
+ */
+
 interface PermissionContextType {
-  permissions: string[];
-  hasPermission: (code: string) => boolean;
+  permissions: Set<string>;
+  hasPermission: (code: string, action?: string) => boolean;
   isLoading: boolean;
   refresh: () => Promise<void>;
 }
@@ -14,23 +22,22 @@ const PermissionContext = createContext<PermissionContextType | undefined>(undef
 
 export function PermissionProvider({ children }: { children: ReactNode }) {
   const { user, token } = useAuth();
-  const [permissions, setPermissions] = useState<string[]>([]);
+  const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPermissions = useCallback(async () => {
     if (!user || !token) {
-      setPermissions([]);
+      setPermissions(new Set());
       setIsLoading(false);
       return;
     }
-    // Reset loading on every refetch so ProtectedRoute keeps showing the
-    // spinner instead of flashing "Access Denied" while permissions load.
     setIsLoading(true);
     try {
       const res = await permissionApi.getMyPermissions();
-      setPermissions(res.data.permissions || []);
+      const list: string[] = res.data.permissions || [];
+      setPermissions(new Set(list));
     } catch {
-      setPermissions([]);
+      setPermissions(new Set());
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +48,15 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
   }, [fetchPermissions]);
 
   const hasPermission = useCallback(
-    (code: string) => permissions.includes(code),
+    (code: string, action?: string) => {
+      // Allow "code:action" as a single argument.
+      if (code.includes(":")) return permissions.has(code);
+      if (action) return permissions.has(`${code}:${action}`);
+      // No action specified — match any action on this code.
+      const prefix = `${code}:`;
+      for (const p of permissions) if (p.startsWith(prefix)) return true;
+      return false;
+    },
     [permissions]
   );
 
