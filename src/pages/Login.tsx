@@ -1,14 +1,14 @@
-// ─── Login Page ──────────────────────────────────────────────────
-import { useState } from "react";
+// ─── Login Page (Username/Password + OAuth 2.0) ─────────────────
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sprout, Eye, EyeOff, Phone, MapPin } from "lucide-react";
+import { Sprout, Eye, EyeOff, Phone, MapPin, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useShopConfig } from "../context/ShopConfigContext";
 import toast from "react-hot-toast";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { user, isLoading: authLoading, login, loginWithOAuth, isOAuthAvailable } = useAuth();
   const { t } = useLang();
   const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
@@ -16,6 +16,16 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
+
+  // If already authenticated (e.g. after OAuth redirect callback resolves),
+  // navigate to the dashboard. Without this the page would stay on /login
+  // even though /auth/me + /auth/permissions succeeded.
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +38,17 @@ export default function Login() {
       toast.error(err.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOAuthLogin = async () => {
+    setOauthLoading(true);
+    try {
+      await loginWithOAuth();
+      // loginWithOAuth redirects the browser — code below only runs on error
+    } catch (err: any) {
+      toast.error(err.message || "OAuth login failed");
+      setOauthLoading(false);
     }
   };
 
@@ -56,6 +77,29 @@ export default function Login() {
           className="bg-white rounded-lg shadow-lg shadow-gray-200/50 p-6 space-y-4"
         >
           <h2 className="text-sm font-semibold text-gray-700 text-center">{t.loginTitle}</h2>
+
+          {/* OAuth Login Button */}
+          {isOAuthAvailable && (
+            <>
+              <button
+                type="button"
+                onClick={handleOAuthLogin}
+                disabled={oauthLoading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Shield className="w-4 h-4 text-blue-600" />
+                {oauthLoading ? "Signing in..." : "Sign in with Microsoft"}
+              </button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-white text-gray-400">or</span>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Username */}
           <div>

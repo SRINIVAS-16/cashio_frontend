@@ -1,10 +1,15 @@
 // ─── TypeScript Types ────────────────────────────────────────────
 
+export type UserRole = "admin" | "manager" | "cashier" | "viewer";
+
+export const ALL_ROLES: UserRole[] = ["admin", "manager", "cashier", "viewer"];
+
 export interface User {
   id: number;
   username: string;
   name: string;
-  role: string;
+  email?: string;
+  role: UserRole;
 }
 
 export interface AuthResponse {

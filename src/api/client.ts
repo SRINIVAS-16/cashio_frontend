@@ -8,7 +8,13 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT token to every request
+// Callback for auth errors — set by AuthContext to clear React state
+let onAuthError: (() => void) | null = null;
+export function setAuthErrorHandler(handler: () => void) {
+  onAuthError = handler;
+}
+
+// Attach JWT / OAuth token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -17,14 +23,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 errors globally
+// Handle 401 errors globally — clear session and notify AuthContext
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      localStorage.removeItem("authMethod");
+      // Notify AuthContext to clear React state (triggers ProtectedRoute → /login)
+      if (onAuthError) onAuthError();
+    }
+    if (error.response?.status === 403) {
+      console.warn("Access denied: insufficient permissions");
     }
     return Promise.reject(error);
   }
@@ -140,6 +151,26 @@ export const stockBookApi = {
     api.get(`/stock-book/${productId}`),
   getAvailableBatches: (productId: number) =>
     api.get(`/stock-book/${productId}/batches`),
+};
+
+// ─── Permission APIs ─────────────────────────────────────────────
+export const permissionApi = {
+  getMyPermissions: () => api.get("/auth/permissions"),
+  getMatrix: () => api.get("/permissions/matrix"),
+  updateRolePermissions: (role: string, permissions: string[]) =>
+    api.put(`/permissions/role/${role}`, { permissions }),
+  seed: () => api.post("/permissions/seed"),
+};
+
+// ─── User Management APIs ────────────────────────────────────────
+export const userApi = {
+  getAll: () => api.get("/users"),
+  getById: (id: number) => api.get(`/users/${id}`),
+  create: (data: { username: string; password: string; name: string; role?: string }) =>
+    api.post("/users", data),
+  update: (id: number, data: { name?: string; role?: string; password?: string }) =>
+    api.put(`/users/${id}`, data),
+  delete: (id: number) => api.delete(`/users/${id}`),
 };
 
 export default api;

@@ -1,10 +1,11 @@
-// ─── Sidebar Navigation ──────────────────────────────────────────
+// ─── Sidebar Navigation (Permission-Aware) ──────────────────────
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
   Users,
+  UserCog,
   Receipt,
   ShoppingCart,
   Truck,
@@ -14,11 +15,13 @@ import {
   X,
   Settings2,
   Sliders,
+  Shield,
   BookOpen,
   ChevronDown,
   Check,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { usePermissions } from "../context/PermissionContext";
 import { useLang } from "../context/LanguageContext";
 import { useShopConfig } from "../context/ShopConfigContext";
 
@@ -29,6 +32,7 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
+  const { hasPermission } = usePermissions();
   const { t, lang, setLang, languages } = useLang();
   const { shop: shopConfig } = useShopConfig();
   const [langOpen, setLangOpen] = useState(false);
@@ -44,17 +48,22 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   const currentLang = languages.find((l) => l.code === lang);
 
-  const navItems = [
-    { to: "/", icon: LayoutDashboard, label: t.dashboard },
-    { to: "/billing", icon: ShoppingCart, label: t.billing },
-    { to: "/stock-book", icon: BookOpen, label: t.stockBook || "Stock Book" },
-    { to: "/orders", icon: Receipt, label: t.orders },
-    { to: "/purchases", icon: Truck, label: t.purchases || "Purchases" },
-    { to: "/customers", icon: Users, label: t.customers },
-    { to: "/dealers", icon: Store, label: t.dealers || "Dealers" },
-    { to: "/products", icon: Package, label: t.products },
-    { to: "/custom-fields", icon: Settings2, label: t.customFields || "Custom Fields" },
+  const allNavItems: { to: string; icon: any; label: string; permission: string }[] = [
+    { to: "/", icon: LayoutDashboard, label: t.dashboard, permission: "dashboard" },
+    { to: "/billing", icon: ShoppingCart, label: t.billing, permission: "billing" },
+    { to: "/stock-book", icon: BookOpen, label: t.stockBook || "Stock Book", permission: "stock-book" },
+    { to: "/orders", icon: Receipt, label: t.orders, permission: "orders" },
+    { to: "/purchases", icon: Truck, label: t.purchases || "Purchases", permission: "purchases" },
+    { to: "/customers", icon: Users, label: t.customers, permission: "customers" },
+    { to: "/dealers", icon: Store, label: t.dealers || "Dealers", permission: "dealers" },
+    { to: "/products", icon: Package, label: t.products, permission: "products" },
+    { to: "/custom-fields", icon: Settings2, label: t.customFields || "Custom Fields", permission: "custom-fields" },
+    { to: "/users", icon: UserCog, label: "Users", permission: "users" },
+    { to: "/role-permissions", icon: Shield, label: "Role Permissions", permission: "roles" },
   ];
+
+  // Filter nav items based on dynamic permissions
+  const navItems = allNavItems.filter((item) => hasPermission(item.permission));
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-all ${
@@ -110,6 +119,16 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="p-2 border-t border-gray-100 space-y-0.5">
+          {/* User role badge */}
+          {user && (
+            <div className="px-3 py-1.5 mb-0.5">
+              <p className="text-xs text-gray-500 truncate">{user.name}</p>
+              <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-primary-50 text-primary-700 capitalize">
+                {user.role}
+              </span>
+            </div>
+          )}
+
           {/* Language Picker */}
           <div className="relative" ref={langRef}>
             <button
@@ -145,10 +164,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </div>
 
           {/* Settings */}
-          <NavLink to="/settings" className={linkClasses} onClick={onClose}>
-            <Sliders className="w-4 h-4 flex-shrink-0" />
-            <span>{t.settings || "Settings"}</span>
-          </NavLink>
+          {hasPermission("settings") && (
+            <NavLink to="/settings" className={linkClasses} onClick={onClose}>
+              <Sliders className="w-4 h-4 flex-shrink-0" />
+              <span>{t.settings || "Settings"}</span>
+            </NavLink>
+          )}
 
           {/* Logout */}
           <button

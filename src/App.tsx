@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
+import { PermissionProvider } from "./context/PermissionContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ShopConfigProvider } from "./context/ShopConfigContext";
@@ -23,6 +24,8 @@ import Dealers from "./pages/Dealers";
 import StockBook from "./pages/StockBook";
 import ProductStock from "./pages/ProductStock";
 import Settings from "./pages/Settings";
+import UserManagement from "./pages/UserManagement";
+import RolePermissions from "./pages/RolePermissions";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +40,7 @@ export default function App() {
       <ShopConfigProvider>
       <LanguageProvider>
         <AuthProvider>
+          <PermissionProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -49,25 +53,28 @@ export default function App() {
                 }
               >
                 <Route index element={<Dashboard />} />
-                <Route path="products" element={<Products />} />
-                <Route path="products/new" element={<ProductForm />} />
-                <Route path="products/:id/edit" element={<ProductForm />} />
-                <Route path="customers" element={<Customers />} />
-                <Route path="billing" element={<Billing />} />
-                <Route path="orders" element={<Orders />} />
-                <Route path="orders/:id" element={<OrderDetail />} />
-                <Route path="purchases" element={<Purchases />} />
-                <Route path="purchases/new" element={<PurchaseForm />} />
-                <Route path="purchases/:id" element={<PurchaseForm />} />
-                <Route path="dealers" element={<Dealers />} />
-                <Route path="stock-book" element={<StockBook />} />
-                <Route path="stock-book/:productId" element={<ProductStock />} />
-                <Route path="custom-fields" element={<CustomFields />} />
-                <Route path="settings" element={<Settings />} />
+                <Route path="billing" element={<ProtectedRoute permission="billing"><Billing /></ProtectedRoute>} />
+                <Route path="orders" element={<ProtectedRoute permission="orders"><Orders /></ProtectedRoute>} />
+                <Route path="orders/:id" element={<ProtectedRoute permission="orders"><OrderDetail /></ProtectedRoute>} />
+                <Route path="customers" element={<ProtectedRoute permission="customers"><Customers /></ProtectedRoute>} />
+                <Route path="products" element={<ProtectedRoute permission="products"><Products /></ProtectedRoute>} />
+                <Route path="products/new" element={<ProtectedRoute permission="products"><ProductForm /></ProtectedRoute>} />
+                <Route path="products/:id/edit" element={<ProtectedRoute permission="products"><ProductForm /></ProtectedRoute>} />
+                <Route path="purchases" element={<ProtectedRoute permission="purchases"><Purchases /></ProtectedRoute>} />
+                <Route path="purchases/new" element={<ProtectedRoute permission="purchases"><PurchaseForm /></ProtectedRoute>} />
+                <Route path="purchases/:id" element={<ProtectedRoute permission="purchases"><PurchaseForm /></ProtectedRoute>} />
+                <Route path="dealers" element={<ProtectedRoute permission="dealers"><Dealers /></ProtectedRoute>} />
+                <Route path="stock-book" element={<ProtectedRoute permission="stock-book"><StockBook /></ProtectedRoute>} />
+                <Route path="stock-book/:productId" element={<ProtectedRoute permission="stock-book"><ProductStock /></ProtectedRoute>} />
+                <Route path="custom-fields" element={<ProtectedRoute permission="custom-fields"><CustomFields /></ProtectedRoute>} />
+                <Route path="settings" element={<ProtectedRoute permission="settings"><Settings /></ProtectedRoute>} />
+                <Route path="users" element={<ProtectedRoute permission="users"><UserManagement /></ProtectedRoute>} />
+                <Route path="role-permissions" element={<ProtectedRoute permission="roles"><RolePermissions /></ProtectedRoute>} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
+          </PermissionProvider>
           <Toaster
             position="top-right"
             toastOptions={{
