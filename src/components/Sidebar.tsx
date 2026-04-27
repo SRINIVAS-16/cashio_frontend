@@ -220,7 +220,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           {/* Logout */}
           <button
             onClick={logout}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 w-full transition-all"
+            className="flex items-center justify-start gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 w-full transition-all"
           >
             <LogOut className="w-4 h-4" />
             <span>{t.logout}</span>

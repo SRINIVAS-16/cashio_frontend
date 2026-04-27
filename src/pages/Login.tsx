@@ -18,6 +18,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // If already authenticated (e.g. after OAuth redirect callback resolves),
   // navigate to the dashboard. Without this the page would stay on /login
@@ -42,12 +43,21 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
     try {
       await login(username, password);
       toast.success(t.welcomeBack);
       navigate("/");
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Login failed");
+      const status = err.response?.status;
+      const serverMsg = err.response?.data?.error;
+      // For auth failures (401/400), show a friendly inline message rather
+      // than leaking the raw backend string (e.g. "Invalid credentials").
+      const friendly =
+        status === 401 || status === 400
+          ? "Incorrect username or password. Please try again."
+          : serverMsg || "Login failed. Please try again.";
+      setErrorMsg(friendly);
     } finally {
       setLoading(false);
     }
@@ -55,11 +65,12 @@ export default function Login() {
 
   const handleOAuthLogin = async () => {
     setOauthLoading(true);
+    setErrorMsg(null);
     try {
       await loginWithOAuth();
       // loginWithOAuth redirects the browser — code below only runs on error
     } catch (err: any) {
-      toast.error(err.message || "OAuth login failed");
+      setErrorMsg(err.message || "Microsoft sign-in failed. Please try again.");
       setOauthLoading(false);
     }
   };
@@ -92,6 +103,24 @@ export default function Login() {
             <h2 className="text-sm font-semibold text-gray-700 text-center">{t.loginTitle}</h2>
           )}
 
+          {errorMsg && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className="flex items-start gap-2 px-3 py-2 rounded-md border border-red-200 bg-red-50 text-red-700 text-xs"
+            >
+              <span className="flex-1">{errorMsg}</span>
+              <button
+                type="button"
+                onClick={() => setErrorMsg(null)}
+                aria-label="Dismiss"
+                className="text-red-400 hover:text-red-600 leading-none"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {isLocalAuthEnabled && (
             <>
               {/* Username */}
@@ -100,7 +129,7 @@ export default function Login() {
                 <input
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => { setUsername(e.target.value); if (errorMsg) setErrorMsg(null); }}
                   className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition"
                   placeholder="admin"
                   required
@@ -115,7 +144,7 @@ export default function Login() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); if (errorMsg) setErrorMsg(null); }}
                     className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition pr-10"
                     placeholder="••••••"
                     required
