@@ -27,6 +27,7 @@ jobs:
           VITE_AZURE_TENANT_ID: ${{ secrets.VITE_AZURE_TENANT_ID }}
           VITE_AZURE_REDIRECT_URI: ${{ secrets.VITE_AZURE_REDIRECT_URI }}
           VITE_AZURE_API_SCOPE: ${{ secrets.VITE_AZURE_API_SCOPE }}
+          VITE_LOCAL_AUTH_ENABLED: ${{ vars.VITE_LOCAL_AUTH_ENABLED || 'true' }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_BAY_0B8084910 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
