@@ -3,11 +3,16 @@ import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Search, Phone, MapPin, FileText } from "lucide-react";
 import { dealerApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { Dealer } from "../types";
 import toast from "react-hot-toast";
 
 export default function Dealers() {
   const { t } = useLang();
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission("dealers", "create");
+  const canUpdate = hasPermission("dealers", "update");
+  const canDelete = hasPermission("dealers", "delete");
   const [dealers, setDealers] = useState<Dealer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -83,10 +88,12 @@ export default function Dealers() {
           <h1 className="text-xl font-bold text-gray-800">{t.dealers || "Dealers"}</h1>
           <p className="text-xs text-gray-500 mt-0.5">{t.dealersDesc || "Manage your suppliers and dealers"}</p>
         </div>
-        <button onClick={openAdd}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary-600 text-white text-xs font-medium hover:bg-primary-700 transition shadow-sm">
-          <Plus className="w-3.5 h-3.5" /> {t.addDealer}
-        </button>
+        {canCreate && (
+          <button onClick={openAdd}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary-600 text-white text-xs font-medium hover:bg-primary-700 transition shadow-sm">
+            <Plus className="w-3.5 h-3.5" /> {t.addDealer}
+          </button>
+        )}
       </div>
 
       {/* Search */}
@@ -127,8 +134,8 @@ export default function Dealers() {
                     <td className="px-3 py-2.5 text-gray-500 max-w-[200px] truncate">{d.address || "-"}</td>
                     <td className="px-3 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => openEdit(d)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3 h-3" /></button>
-                        <button onClick={() => handleDelete(d.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3 h-3" /></button>
+                        {canUpdate && <button onClick={() => openEdit(d)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3 h-3" /></button>}
+                        {canDelete && <button onClick={() => handleDelete(d.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3 h-3" /></button>}
                       </div>
                     </td>
                   </tr>
@@ -163,8 +170,8 @@ export default function Dealers() {
                     </div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
-                    <button onClick={() => openEdit(d)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDelete(d.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                    {canUpdate && <button onClick={() => openEdit(d)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3.5 h-3.5" /></button>}
+                    {canDelete && <button onClick={() => handleDelete(d.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>}
                   </div>
                 </div>
               </div>

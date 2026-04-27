@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { orderApi, paymentApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { useShopConfig } from "../context/ShopConfigContext";
 import { Order } from "../types";
 import toast from "react-hot-toast";
@@ -17,6 +18,9 @@ export default function OrderDetail() {
   const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { hasPermission } = usePermissions();
+  const canCancelOrder = hasPermission("orders", "update");
+  const canRecordPayment = hasPermission("payments", "create");
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -561,13 +565,13 @@ export default function OrderDetail() {
               className="w-full py-2 rounded-md bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 text-xs shadow-sm">
               <Printer className="w-3.5 h-3.5" /> {t.print}
             </button>
-            {order.status === "completed" && Number(order.dueAmount) > 0 && (
+            {canRecordPayment && order.status === "completed" && Number(order.dueAmount) > 0 && (
               <button onClick={openPaymentModal}
                 className="w-full py-2 rounded-md bg-amber-50 text-amber-700 font-medium hover:bg-amber-100 transition flex items-center justify-center gap-1.5 text-xs border border-amber-200">
                 <IndianRupee className="w-3.5 h-3.5" /> {t.recordPayment}
               </button>
             )}
-            {order.status === "completed" && (
+            {canCancelOrder && order.status === "completed" && (
               <button onClick={handleCancel}
                 className="w-full py-2 rounded-md bg-red-50 text-red-600 font-medium hover:bg-red-100 transition flex items-center justify-center gap-1.5 text-xs">
                 <XCircle className="w-3.5 h-3.5" /> {t.cancelOrder}

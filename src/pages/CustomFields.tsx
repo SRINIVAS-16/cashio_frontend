@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Search, Filter } from "lucide-react";
 import { customFieldApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { CustomFieldDefinition } from "../types";
 import toast from "react-hot-toast";
 
@@ -19,6 +20,10 @@ const typeColors: Record<string, string> = {
 
 export default function CustomFields() {
   const { t, lang } = useLang();
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission("custom-fields", "create");
+  const canUpdate = hasPermission("custom-fields", "update");
+  const canDelete = hasPermission("custom-fields", "delete");
   const [fields, setFields] = useState<CustomFieldDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtering, setFiltering] = useState(false);
@@ -120,10 +125,12 @@ export default function CustomFields() {
           <h1 className="text-xl font-bold text-gray-800">{t.customFields}</h1>
           <p className="text-xs text-gray-500 mt-0.5">{t.customFieldsDesc}</p>
         </div>
-        <button onClick={openAdd}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary-600 text-white text-xs font-medium hover:bg-primary-700 transition shadow-sm">
-          <Plus className="w-3.5 h-3.5" /> {t.addField}
-        </button>
+        {canCreate && (
+          <button onClick={openAdd}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary-600 text-white text-xs font-medium hover:bg-primary-700 transition shadow-sm">
+            <Plus className="w-3.5 h-3.5" /> {t.addField}
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -160,7 +167,7 @@ export default function CustomFields() {
 
       {/* Global Fields */}
       {globalFields.length > 0 && (
-        <FieldSection title={t.globalFields} fields={globalFields} t={t} lang={lang} onEdit={openEdit} onDelete={handleDelete} />
+        <FieldSection title={t.globalFields} fields={globalFields} t={t} lang={lang} onEdit={openEdit} onDelete={handleDelete} canUpdate={canUpdate} canDelete={canDelete} />
       )}
 
       {/* Category Fields - grouped */}
@@ -173,7 +180,7 @@ export default function CustomFields() {
               return acc;
             }, {})
           ).map(([cat, catFields]) => (
-            <FieldSection key={cat} title={`${(t as any)[cat] || cat}`} fields={catFields} t={t} lang={lang} onEdit={openEdit} onDelete={handleDelete} />
+            <FieldSection key={cat} title={`${(t as any)[cat] || cat}`} fields={catFields} t={t} lang={lang} onEdit={openEdit} onDelete={handleDelete} canUpdate={canUpdate} canDelete={canDelete} />
           ))}
         </>
       )}
@@ -269,9 +276,10 @@ export default function CustomFields() {
 }
 
 // ─── Field Section Component ─────────────────────────────────────
-function FieldSection({ title, fields, t, lang, onEdit, onDelete }: {
+function FieldSection({ title, fields, t, lang, onEdit, onDelete, canUpdate, canDelete }: {
   title: string; fields: CustomFieldDefinition[]; t: any; lang: string;
   onEdit: (f: CustomFieldDefinition) => void; onDelete: (id: number) => void;
+  canUpdate: boolean; canDelete: boolean;
 }) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
@@ -307,8 +315,8 @@ function FieldSection({ title, fields, t, lang, onEdit, onDelete }: {
                 <td className="px-3 py-2 text-center text-gray-400">{f.sortOrder}</td>
                 <td className="px-3 py-2 text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => onEdit(f)} className="p-1 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3 h-3" /></button>
-                    <button onClick={() => onDelete(f.id)} className="p-1 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3 h-3" /></button>
+                    {canUpdate && <button onClick={() => onEdit(f)} className="p-1 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3 h-3" /></button>}
+                    {canDelete && <button onClick={() => onDelete(f.id)} className="p-1 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3 h-3" /></button>}
                   </div>
                 </td>
               </tr>
@@ -331,8 +339,8 @@ function FieldSection({ title, fields, t, lang, onEdit, onDelete }: {
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => onEdit(f)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => onDelete(f.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+              {canUpdate && <button onClick={() => onEdit(f)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Pencil className="w-3.5 h-3.5" /></button>}
+              {canDelete && <button onClick={() => onDelete(f.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>}
             </div>
           </div>
         ))}

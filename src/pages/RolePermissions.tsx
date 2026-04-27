@@ -1,8 +1,9 @@
 // ─── Role Permissions Configuration ──────────────────────────────
 import { useState, useEffect, useMemo } from "react";
-import { Shield, Save, RefreshCw, Loader2, Check } from "lucide-react";
+import { Shield, Save, RefreshCw, Loader2, Check, Lock } from "lucide-react";
 import { permissionApi } from "../api/client";
 import { ALL_ROLES } from "../types";
+import { usePermissions } from "../context/PermissionContext";
 import toast from "react-hot-toast";
 
 interface Permission {
@@ -32,6 +33,8 @@ const ACTION_META: Record<string, { label: string; short: string }> = {
 type Draft = Record<string, Record<string, Set<string>>>;
 
 export default function RolePermissions() {
+  const { hasPermission } = usePermissions();
+  const canEdit = hasPermission("roles", "update");
   const [matrix, setMatrix] = useState<PermissionMatrix | null>(null);
   const [draft, setDraft] = useState<Draft>({});
   const [loading, setLoading] = useState(true);
@@ -68,6 +71,7 @@ export default function RolePermissions() {
   }, []);
 
   const toggle = (role: string, code: string, action: string) => {
+    if (!canEdit) return;
     setDraft((prev) => {
       const next: Draft = { ...prev, [role]: { ...prev[role] } };
       const set = new Set(next[role][code]);
@@ -79,6 +83,7 @@ export default function RolePermissions() {
   };
 
   const setAllActions = (role: string, code: string, actions: readonly string[], on: boolean) => {
+    if (!canEdit) return;
     setDraft((prev) => {
       const next: Draft = { ...prev, [role]: { ...prev[role] } };
       next[role][code] = on ? new Set(actions) : new Set();
@@ -183,10 +188,17 @@ export default function RolePermissions() {
           <div>
             <h1 className="text-lg font-bold text-gray-800">Role Permissions</h1>
             <p className="text-xs text-gray-500">
-              Configure CRUD actions per role. Changes apply only after saving.
+              {canEdit
+                ? "Configure CRUD actions per role. Changes apply only after saving."
+                : "Read-only view. You don’t have permission to modify roles."}
             </p>
           </div>
         </div>
+        {!canEdit && (
+          <span className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md">
+            <Lock className="w-3 h-3" /> View only
+          </span>
+        )}
         <button
           onClick={fetchMatrix}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -270,7 +282,7 @@ export default function RolePermissions() {
                           </div>
                           <div className="text-[11px] text-gray-400 mt-0.5 line-clamp-2">{perm.description}</div>
                         </div>
-                        {perm.isEntity && (
+                        {perm.isEntity && canEdit && (
                           <button
                             type="button"
                             onClick={() => setAllActions(activeRole, perm.code, actions, !allOn)}
@@ -297,11 +309,16 @@ export default function RolePermissions() {
                               key={a}
                               type="button"
                               onClick={() => toggle(activeRole, perm.code, a)}
+                              disabled={!canEdit}
                               className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-medium transition-all border ${
                                 on
-                                  ? "bg-primary-600 border-primary-600 text-white shadow-sm hover:bg-primary-700"
-                                  : "bg-white border-gray-200 text-gray-500 hover:border-primary-400 hover:text-primary-600"
-                              }`}
+                                  ? canEdit
+                                    ? "bg-primary-600 border-primary-600 text-white shadow-sm hover:bg-primary-700"
+                                    : "bg-primary-100 border-primary-200 text-primary-700"
+                                  : canEdit
+                                  ? "bg-white border-gray-200 text-gray-500 hover:border-primary-400 hover:text-primary-600"
+                                  : "bg-gray-50 border-gray-200 text-gray-400"
+                              } ${!canEdit ? "cursor-not-allowed" : ""}`}
                             >
                               {on ? (
                                 <Check className="w-3 h-3 shrink-0" strokeWidth={3} />
@@ -325,7 +342,8 @@ export default function RolePermissions() {
       </div>
 
       {/* ── Save bar (sticky-like, bottom) ────────────────────── */}
-      <div className="sticky bottom-0 -mx-2 px-2 py-3 bg-gradient-to-t from-white via-white to-transparent">
+      {canEdit && (
+        <div className="sticky bottom-0 -mx-2 px-2 py-3 bg-gradient-to-t from-white via-white to-transparent">
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm px-4 py-3 flex items-center justify-between">
           <div className="text-xs text-gray-500">
             {isDirty ? (
@@ -364,6 +382,7 @@ export default function RolePermissions() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

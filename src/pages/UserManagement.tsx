@@ -4,6 +4,7 @@ import { UserCog, Plus, Pencil, Trash2, Loader2, X, Eye, EyeOff } from "lucide-r
 import { userApi } from "../api/client";
 import { ALL_ROLES, UserRole } from "../types";
 import { useAuth } from "../context/AuthContext";
+import { usePermissions } from "../context/PermissionContext";
 import toast from "react-hot-toast";
 
 interface ManagedUser {
@@ -27,6 +28,10 @@ const emptyForm: UserForm = { username: "", password: "", name: "", email: "", r
 
 export default function UserManagement() {
   const { user: currentUser } = useAuth();
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission("users", "create");
+  const canUpdate = hasPermission("users", "update");
+  const canDelete = hasPermission("users", "delete");
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -120,12 +125,14 @@ export default function UserManagement() {
             <p className="text-xs text-gray-500">{users.length} user{users.length !== 1 ? "s" : ""}</p>
           </div>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 shadow-sm"
-        >
-          <Plus className="w-4 h-4" /> Add User
-        </button>
+        {canCreate && (
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Add User
+          </button>
+        )}
       </div>
 
       {/* Users Table */}
@@ -165,14 +172,16 @@ export default function UserManagement() {
                   <td className="px-4 py-2.5 text-gray-400 text-xs capitalize">{u.provider || "local"}</td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-1 justify-end">
-                      <button
-                        onClick={() => openEdit(u)}
-                        className="p-1.5 rounded-md text-gray-400 hover:text-primary-600 hover:bg-primary-50"
-                        title="Edit"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      {u.id !== currentUser?.id && (
+                      {canUpdate && (
+                        <button
+                          onClick={() => openEdit(u)}
+                          className="p-1.5 rounded-md text-gray-400 hover:text-primary-600 hover:bg-primary-50"
+                          title="Edit"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {canDelete && u.id !== currentUser?.id && (
                         <button
                           onClick={() => handleDelete(u)}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50"

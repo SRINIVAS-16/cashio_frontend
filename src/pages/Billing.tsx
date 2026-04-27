@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { productApi, customerApi, orderApi, stockBookApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { Product, Customer, CartItem, AvailableBatch } from "../types";
 import { useShopConfig } from "../context/ShopConfigContext";
 import toast from "react-hot-toast";
@@ -19,6 +20,8 @@ export default function Billing() {
   const { t } = useLang();
   const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+  const canCreateCustomer = hasPermission("customers", "create");
   const [step, setStep] = useState(1);
 
   // Step 1: Customer
@@ -319,10 +322,12 @@ export default function Billing() {
                       className="w-full pl-8 pr-3 py-1.5 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs"
                     />
                   </div>
-                  <button onClick={() => { setQuickForm({ name: "", phone: "", village: "" }); setShowQuickAdd(true); }}
-                    className="sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-md text-[10px] font-medium hover:bg-primary-100 border border-primary-200 transition whitespace-nowrap">
-                    <UserPlus className="w-3 h-3" /> Add New
-                  </button>
+                  {canCreateCustomer && (
+                    <button onClick={() => { setQuickForm({ name: "", phone: "", village: "" }); setShowQuickAdd(true); }}
+                      className="sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-md text-[10px] font-medium hover:bg-primary-100 border border-primary-200 transition whitespace-nowrap">
+                      <UserPlus className="w-3 h-3" /> Add New
+                    </button>
+                  )}
                 </div>
 
                   {phoneSearch.length >= 3 && (

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { productApi, stockBookApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { Product, ProductStockDetail, StockBatch } from "../types";
 import toast from "react-hot-toast";
 
@@ -15,6 +16,10 @@ const fmtDate = (d?: string | null) => d ? new Date(d).toLocaleDateString("en-IN
 export default function Products() {
   const { t } = useLang();
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission("products", "create");
+  const canUpdate = hasPermission("products", "update");
+  const canDelete = hasPermission("products", "delete");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -87,9 +92,11 @@ export default function Products() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h1 className="text-xl font-bold text-gray-800">{t.products} / {t.inventory}</h1>
-        <button onClick={() => navigate("/products/new")} className="flex items-center gap-1.5 px-3.5 py-2 bg-primary-600 text-white rounded-md text-xs font-medium hover:bg-primary-700 transition shadow-sm">
-          <Plus className="w-3.5 h-3.5" /> {t.addProduct}
-        </button>
+        {canCreate && (
+          <button onClick={() => navigate("/products/new")} className="flex items-center gap-1.5 px-3.5 py-2 bg-primary-600 text-white rounded-md text-xs font-medium hover:bg-primary-700 transition shadow-sm">
+            <Plus className="w-3.5 h-3.5" /> {t.addProduct}
+          </button>
+        )}
       </div>
 
       {/* Search & Filter */}
@@ -152,12 +159,16 @@ export default function Products() {
                       <button onClick={() => openHistory(p.id)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title={t.purchaseHistory || "Purchase History"}>
                         <History className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title={t.editProduct}>
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600" title={t.deleteProduct || "Delete"}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canUpdate && (
+                        <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title={t.editProduct}>
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600" title={t.deleteProduct || "Delete"}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -189,8 +200,8 @@ export default function Products() {
                     </div>
                     <div className="flex items-center gap-0.5">
                       <button onClick={() => openHistory(p.id)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><History className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Edit2 className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                      {canUpdate && <button onClick={() => navigate(`/products/${p.id}/edit`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600"><Edit2 className="w-3.5 h-3.5" /></button>}
+                      {canDelete && <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>}
                     </div>
                   </div>
                 </div>

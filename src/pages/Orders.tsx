@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, XCircle, IndianRupee, Calendar, Filter, FileDown, Printer, Users, Search, X, ChevronDown } from "lucide-react";
 import { orderApi, customerApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { OrdersResponse, Order, Customer } from "../types";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -28,6 +29,8 @@ export default function Orders() {
   const { t } = useLang();
   const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+  const canCancel = hasPermission("orders", "update");
   const [data, setData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -465,7 +468,7 @@ export default function Orders() {
                         <button onClick={() => navigate(`/orders/${o.id}`)} className="p-1.5 rounded hover:bg-primary-50 text-primary-600" title={t.viewBill}>
                           <Eye className="w-3.5 h-3.5" />
                         </button>
-                        {o.status === "completed" && (
+                        {canCancel && o.status === "completed" && (
                           <button onClick={() => handleCancel(o.id)} className="p-1.5 rounded hover:bg-red-50 text-red-600" title={t.cancelOrder}>
                             <XCircle className="w-3.5 h-3.5" />
                           </button>

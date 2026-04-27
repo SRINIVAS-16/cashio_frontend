@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Eye, IndianRupee, Calendar, Filter, FileDown, Printer, Search } from "lucide-react";
 import { purchaseApi, dealerApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { PurchasesResponse, Dealer, Purchase } from "../types";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -28,6 +29,8 @@ export default function Purchases() {
   const { t } = useLang();
   const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission("purchases", "create");
   const [data, setData] = useState<PurchasesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -225,10 +228,12 @@ export default function Purchases() {
             className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 text-gray-600 rounded-md text-xs font-medium hover:bg-gray-50 transition">
             <Printer className="w-3.5 h-3.5" /> {t.print}
           </button>
-          <button onClick={() => navigate("/purchases/new")}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-primary-600 text-white rounded-md text-xs font-medium hover:bg-primary-700 transition shadow-sm">
-            <Plus className="w-3.5 h-3.5" /> {t.addPurchase}
-          </button>
+          {canCreate && (
+            <button onClick={() => navigate("/purchases/new")}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-primary-600 text-white rounded-md text-xs font-medium hover:bg-primary-700 transition shadow-sm">
+              <Plus className="w-3.5 h-3.5" /> {t.addPurchase}
+            </button>
+          )}
         </div>
       </div>
 

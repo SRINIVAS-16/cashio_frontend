@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Plus, Trash2, X, IndianRupee, Package, Calendar, Hash, FileText } from "lucide-react";
 import { purchaseApi, dealerApi, productApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
+import { usePermissions } from "../context/PermissionContext";
 import { Product, Dealer, Purchase } from "../types";
 import toast from "react-hot-toast";
 
@@ -40,6 +41,8 @@ export default function PurchaseForm() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const isView = isEdit; // view mode for existing purchases
+  const { hasPermission } = usePermissions();
+  const canRecordPayment = hasPermission("purchases", "update");
 
   const [loading, setLoading] = useState(isEdit);
   const [products, setProducts] = useState<Product[]>([]);
@@ -230,7 +233,7 @@ export default function PurchaseForm() {
                 {purchase.paymentStatus}
               </span>
             )}
-            {purchase && Number(purchase.dueAmount) > 0 && (
+            {canRecordPayment && purchase && Number(purchase.dueAmount) > 0 && (
               <button onClick={() => { setPayAmount(Number(purchase.dueAmount)); setShowPayment(true); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-xs font-medium hover:bg-primary-100 border border-primary-200 transition">
                 <IndianRupee className="w-3 h-3" /> {t.recordPayment}
