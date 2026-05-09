@@ -71,7 +71,8 @@ describe('CustomFields page', () => {
     await waitFor(() => expect(customFieldApi.getAll).toHaveBeenCalled());
     fireEvent.click(screen.getByRole('button', { name: 'addField' }));
     fireEvent.change(screen.getByText('label *').parentElement!.querySelector('input') as HTMLInputElement, { target: { value: 'Variety Name' } });
-    fireEvent.change(screen.getAllByText('fieldType').at(-1)!.parentElement!.querySelector('select') as HTMLSelectElement, { target: { value: 'select' } });
+    const fieldTypeEls = screen.getAllByText('fieldType');
+    fireEvent.change(fieldTypeEls[fieldTypeEls.length - 1]!.parentElement!.querySelector('select') as HTMLSelectElement, { target: { value: 'select' } });
     fireEvent.change(screen.getByPlaceholderText('["Option 1","Option 2"]'), { target: { value: '["Hybrid","Native"]' } });
     fireEvent.change(screen.getByText('scopeLabel').parentElement!.querySelector('select') as HTMLSelectElement, { target: { value: 'category' } });
     fireEvent.change(screen.getByDisplayValue('-- Select --'), { target: { value: 'seeds' } });
@@ -113,7 +114,8 @@ describe('CustomFields page', () => {
 
     await waitFor(() => expect(customFieldApi.getAll).toHaveBeenCalled());
     fireEvent.click(screen.getByRole('button', { name: 'addField' }));
-    fireEvent.change(screen.getAllByText('fieldType').at(-1)!.parentElement!.querySelector('select') as HTMLSelectElement, { target: { value: 'select' } });
+    const fieldTypeEls2 = screen.getAllByText('fieldType');
+    fireEvent.change(fieldTypeEls2[fieldTypeEls2.length - 1]!.parentElement!.querySelector('select') as HTMLSelectElement, { target: { value: 'select' } });
     fireEvent.change(screen.getByPlaceholderText('["Option 1","Option 2"]'), { target: { value: 'not-json' } });
     fireEvent.click(screen.getByRole('button', { name: 'save' }));
 

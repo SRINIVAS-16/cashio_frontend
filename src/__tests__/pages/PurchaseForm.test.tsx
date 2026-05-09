@@ -123,7 +123,8 @@ describe('PurchaseForm page', () => {
 
     fireEvent.change(screen.getByPlaceholderText('dealerName *'), { target: { value: 'Dealer B' } });
     fireEvent.change(screen.getByPlaceholderText('dealerPhone'), { target: { value: '9999999999' } });
-    fireEvent.click(screen.getAllByRole('button', { name: 'save' }).at(-1)!);
+    const saveBtns = screen.getAllByRole('button', { name: 'save' });
+    fireEvent.click(saveBtns[saveBtns.length - 1]!);
 
     await waitFor(() => expect(dealerApi.create).toHaveBeenCalledWith({ name: 'Dealer B', phone: '9999999999', gst: '', address: '' }));
     expect(container).toHaveTextContent('Dealer B');
