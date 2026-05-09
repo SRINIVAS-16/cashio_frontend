@@ -66,7 +66,7 @@ describe('ProductStock page', () => {
   it('renders stock summary and toggles batch history', async () => {
     renderPage();
 
-    await waitFor(() => expect(stockBookApi.getProductDetail).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(stockBookApi.getProductDetail).toHaveBeenCalledWith(1, expect.objectContaining({ signal: expect.any(AbortSignal) })));
     expect(screen.getByText('Urea')).toBeInTheDocument();
     expect(screen.getByText('20')).toBeInTheDocument();
     expect(screen.getByText('Expiring Soon')).toBeInTheDocument();

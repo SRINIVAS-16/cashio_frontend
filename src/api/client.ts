@@ -1,5 +1,5 @@
 // ─── API Client (Axios) ──────────────────────────────────────────
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -52,10 +52,10 @@ export const authApi = {
 
 // ─── Product APIs ────────────────────────────────────────────────
 export const productApi = {
-  getAll: (search?: string, category?: string) =>
-    api.get("/products", { params: { search, category } }),
-  getById: (id: number) => api.get(`/products/${id}`),
-  getCategories: () => api.get("/products/categories"),
+  getAll: (search?: string, category?: string, config?: AxiosRequestConfig) =>
+    api.get("/products", { params: { search, category }, ...config }),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/products/${id}`, config),
+  getCategories: (config?: AxiosRequestConfig) => api.get("/products/categories", config),
   create: (data: any) => api.post("/products", data),
   update: (id: number, data: any) => api.put(`/products/${id}`, data),
   delete: (id: number) => api.delete(`/products/${id}`),
@@ -63,9 +63,9 @@ export const productApi = {
 
 // ─── Customer APIs ───────────────────────────────────────────────
 export const customerApi = {
-  getAll: (search?: string) => api.get("/customers", { params: { search } }),
-  getById: (id: number) => api.get(`/customers/${id}`),
-  findByPhone: (phone: string) => api.get(`/customers/phone/${phone}`),
+  getAll: (search?: string, config?: AxiosRequestConfig) => api.get("/customers", { params: { search }, ...config }),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/customers/${id}`, config),
+  findByPhone: (phone: string, config?: AxiosRequestConfig) => api.get(`/customers/phone/${phone}`, config),
   create: (data: any) => api.post("/customers", data),
   update: (id: number, data: any) => api.put(`/customers/${id}`, data),
   delete: (id: number) => api.delete(`/customers/${id}`),
@@ -73,9 +73,9 @@ export const customerApi = {
 
 // ─── Order APIs ──────────────────────────────────────────────────
 export const orderApi = {
-  getAll: (page = 1, limit = 20, startDate?: string, endDate?: string, customerIds?: number[]) =>
-    api.get("/orders", { params: { page, limit, startDate, endDate, customerIds: customerIds?.length ? customerIds.join(",") : undefined } }),
-  getById: (id: number) => api.get(`/orders/${id}`),
+  getAll: (page = 1, limit = 20, startDate?: string, endDate?: string, customerIds?: number[], config?: AxiosRequestConfig) =>
+    api.get("/orders", { params: { page, limit, startDate, endDate, customerIds: customerIds?.length ? customerIds.join(",") : undefined }, ...config }),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/orders/${id}`, config),
   create: (data: any) => api.post("/orders", data),
   cancel: (id: number) => api.patch(`/orders/${id}/cancel`),
 };
@@ -92,11 +92,11 @@ export const paymentApi = {
 
 // ─── Dashboard APIs ──────────────────────────────────────────────
 export const customFieldApi = {
-  getAll: (scope?: string, category?: string) =>
-    api.get("/custom-fields", { params: { scope, category } }),
-  getForCategory: (category: string) =>
-    api.get(`/custom-fields/for-category/${category}`),
-  getById: (id: number) => api.get(`/custom-fields/${id}`),
+  getAll: (scope?: string, category?: string, config?: AxiosRequestConfig) =>
+    api.get("/custom-fields", { params: { scope, category }, ...config }),
+  getForCategory: (category: string, config?: AxiosRequestConfig) =>
+    api.get(`/custom-fields/for-category/${category}`, config),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/custom-fields/${id}`, config),
   create: (data: any) => api.post("/custom-fields", data),
   update: (id: number, data: any) => api.put(`/custom-fields/${id}`, data),
   delete: (id: number) => api.delete(`/custom-fields/${id}`),
@@ -107,10 +107,10 @@ export const customFieldApi = {
 };
 
 export const dashboardApi = {
-  getDashboard: () => api.get("/dashboard"),
-  getSalesTrend: (days = 30) =>
-    api.get("/dashboard/sales-trend", { params: { days } }),
-  getProductDistribution: () => api.get("/dashboard/product-distribution"),
+  getDashboard: (config?: AxiosRequestConfig) => api.get("/dashboard", config),
+  getSalesTrend: (days = 30, config?: AxiosRequestConfig) =>
+    api.get("/dashboard/sales-trend", { params: { days }, ...config }),
+  getProductDistribution: (config?: AxiosRequestConfig) => api.get("/dashboard/product-distribution", config),
   exportSalesReport: (startDate: string, endDate: string) =>
     api.get("/dashboard/export", {
       params: { startDate, endDate },
@@ -124,9 +124,9 @@ export const dashboardApi = {
 
 // ─── Purchase APIs ───────────────────────────────────────────────
 export const purchaseApi = {
-  getAll: (page = 1, limit = 20, dealerId?: number, startDate?: string, endDate?: string) =>
-    api.get("/purchases", { params: { page, limit, dealerId, startDate, endDate } }),
-  getById: (id: number) => api.get(`/purchases/${id}`),
+  getAll: (page = 1, limit = 20, dealerId?: number, startDate?: string, endDate?: string, config?: AxiosRequestConfig) =>
+    api.get("/purchases", { params: { page, limit, dealerId, startDate, endDate }, ...config }),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/purchases/${id}`, config),
   create: (data: any) => api.post("/purchases", data),
   recordPayment: (id: number, amount: number, paymentMode = "cash", notes?: string) =>
     api.post(`/purchases/${id}/payment`, { amount, paymentMode, notes }),
@@ -136,8 +136,8 @@ export const purchaseApi = {
 
 // ─── Dealer APIs ─────────────────────────────────────────────────
 export const dealerApi = {
-  getAll: (search?: string) => api.get("/dealers", { params: { search } }),
-  getById: (id: number) => api.get(`/dealers/${id}`),
+  getAll: (search?: string, config?: AxiosRequestConfig) => api.get("/dealers", { params: { search }, ...config }),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/dealers/${id}`, config),
   create: (data: any) => api.post("/dealers", data),
   update: (id: number, data: any) => api.put(`/dealers/${id}`, data),
   delete: (id: number) => api.delete(`/dealers/${id}`),
@@ -145,18 +145,18 @@ export const dealerApi = {
 
 // ─── Stock Book APIs ─────────────────────────────────────────────
 export const stockBookApi = {
-  getAll: (search?: string, category?: string) =>
-    api.get("/stock-book", { params: { search, category } }),
-  getProductDetail: (productId: number) =>
-    api.get(`/stock-book/${productId}`),
-  getAvailableBatches: (productId: number) =>
-    api.get(`/stock-book/${productId}/batches`),
+  getAll: (search?: string, category?: string, config?: AxiosRequestConfig) =>
+    api.get("/stock-book", { params: { search, category }, ...config }),
+  getProductDetail: (productId: number, config?: AxiosRequestConfig) =>
+    api.get(`/stock-book/${productId}`, config),
+  getAvailableBatches: (productId: number, config?: AxiosRequestConfig) =>
+    api.get(`/stock-book/${productId}/batches`, config),
 };
 
 // ─── Permission APIs ─────────────────────────────────────────────
 export const permissionApi = {
-  getMyPermissions: () => api.get("/auth/permissions"),
-  getMatrix: () => api.get("/permissions/matrix"),
+  getMyPermissions: (config?: AxiosRequestConfig) => api.get("/auth/permissions", config),
+  getMatrix: (config?: AxiosRequestConfig) => api.get("/permissions/matrix", config),
   updateRolePermissions: (role: string, entries: { code: string; action: string }[]) =>
     api.put(`/permissions/role/${role}`, { entries }),
   seed: () => api.post("/permissions/seed"),
@@ -164,8 +164,8 @@ export const permissionApi = {
 
 // ─── User Management APIs ────────────────────────────────────────
 export const userApi = {
-  getAll: () => api.get("/users"),
-  getById: (id: number) => api.get(`/users/${id}`),
+  getAll: (config?: AxiosRequestConfig) => api.get("/users", config),
+  getById: (id: number, config?: AxiosRequestConfig) => api.get(`/users/${id}`, config),
   create: (data: { username: string; password: string; name: string; role?: string }) =>
     api.post("/users", data),
   update: (id: number, data: { name?: string; role?: string; password?: string }) =>

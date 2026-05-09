@@ -84,13 +84,13 @@ describe('StockBook page', () => {
     fireEvent.change(screen.getByPlaceholderText('search products...'), { target: { value: 'DAP' } });
 
     await waitFor(() => {
-      expect(mocks.stockBookApi.getAll).toHaveBeenLastCalledWith('DAP', undefined);
+      expect(mocks.stockBookApi.getAll).toHaveBeenLastCalledWith('DAP', undefined, expect.objectContaining({ signal: expect.any(AbortSignal) }));
     });
 
     fireEvent.change(screen.getByDisplayValue('allCategories'), { target: { value: 'fertilizer' } });
 
     await waitFor(() => {
-      expect(mocks.stockBookApi.getAll).toHaveBeenLastCalledWith('DAP', 'fertilizer');
+      expect(mocks.stockBookApi.getAll).toHaveBeenLastCalledWith('DAP', 'fertilizer', expect.objectContaining({ signal: expect.any(AbortSignal) }));
     });
   });
 

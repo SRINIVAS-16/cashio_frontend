@@ -143,21 +143,21 @@ describe("api client", () => {
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(2, "/auth/register", registerData);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(1, "/auth/me");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(2, "/products", { params: { search: "seed", category: "fertilizer" } });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(3, "/products/7");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(4, "/products/categories");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(3, "/products/7", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(4, "/products/categories", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(3, "/products", productData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(1, "/products/7", productData);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(1, "/products/7");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(5, "/customers", { params: { search: "alice" } });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(6, "/customers/3");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/customers/phone/9999999999");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(6, "/customers/3", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/customers/phone/9999999999", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(4, "/customers", customerData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(2, "/customers/3", customerData);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(2, "/customers/3");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(8, "/orders", {
       params: { page: 2, limit: 50, startDate: "2024-01-01", endDate: "2024-01-31", customerIds: "1,2" },
     });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/orders/9");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/orders/9", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(5, "/orders", orderData);
     expect(axiosState.instance.patch).toHaveBeenCalledWith("/orders/9/cancel");
   });
@@ -194,16 +194,16 @@ describe("api client", () => {
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(3, "/payments/dues/customers");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(4, "/payments/dues/summary");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(5, "/custom-fields", { params: { scope: "global", category: "fertilizer" } });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(6, "/custom-fields/for-category/fertilizer");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/custom-fields/2");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(6, "/custom-fields/for-category/fertilizer", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/custom-fields/2", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(2, "/custom-fields", customFieldData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(1, "/custom-fields/2", customFieldData);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(1, "/custom-fields/2");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(8, "/custom-fields/product/11");
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(3, "/custom-fields/product/11", { values: customFieldValues });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/dashboard");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/dashboard", undefined);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(10, "/dashboard/sales-trend", { params: { days: 14 } });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(11, "/dashboard/product-distribution");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(11, "/dashboard/product-distribution", undefined);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(12, "/dashboard/export", {
       params: { startDate: "2024-01-01", endDate: "2024-01-31" },
       responseType: "blob",
@@ -245,7 +245,7 @@ describe("api client", () => {
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(1, "/purchases", {
       params: { page: 3, limit: 10, dealerId: 5, startDate: "2024-03-01", endDate: "2024-03-31" },
     });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(2, "/purchases/6");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(2, "/purchases/6", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(1, "/purchases", purchaseData);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(2, "/purchases/6/payment", {
       amount: 400,
@@ -254,21 +254,21 @@ describe("api client", () => {
     });
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(3, "/purchases/product/11");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(4, "/dealers", { params: { search: "dealer" } });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(5, "/dealers/8");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(5, "/dealers/8", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(3, "/dealers", dealerData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(1, "/dealers/8", dealerData);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(1, "/dealers/8");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(6, "/stock-book", { params: { search: "urea", category: "fertilizer" } });
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/stock-book/11");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(8, "/stock-book/11/batches");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/auth/permissions");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(10, "/permissions/matrix");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/stock-book/11", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(8, "/stock-book/11/batches", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/auth/permissions", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(10, "/permissions/matrix", undefined);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(2, "/permissions/role/manager", {
       entries: [{ code: "products", action: "read" }],
     });
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(4, "/permissions/seed");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(11, "/users");
-    expect(axiosState.instance.get).toHaveBeenNthCalledWith(12, "/users/12");
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(11, "/users", undefined);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(12, "/users/12", undefined);
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(5, "/users", userData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(3, "/users/12", userUpdate);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(2, "/users/12");

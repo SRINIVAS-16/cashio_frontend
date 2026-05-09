@@ -139,7 +139,7 @@ export default function Products() {
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2.5">
                       {p.photo ? (
-                        <img src={p.photo} alt={p.name} className="w-8 h-8 rounded-md object-cover flex-shrink-0" />
+                        <img src={p.photo} alt={p.name} loading="lazy" className="w-8 h-8 rounded-md object-cover flex-shrink-0" />
                       ) : (
                         <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold flex-shrink-0">{p.name.charAt(0)}</div>
                       )}
@@ -184,7 +184,7 @@ export default function Products() {
             <div key={p.id} className="p-3">
               <div className="flex items-center gap-2.5">
                 {p.photo ? (
-                  <img src={p.photo} alt={p.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                  <img src={p.photo} alt={p.name} loading="lazy" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-10 h-10 rounded-md bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold flex-shrink-0">{p.name.charAt(0)}</div>
                 )}

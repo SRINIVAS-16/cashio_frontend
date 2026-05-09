@@ -16,19 +16,20 @@ export default function StockBook() {
   const [category, setCategory] = useState("all");
 
   useEffect(() => {
+    const controller = new AbortController();
     const load = async () => {
       try {
         setLoading(true);
-        const res = await stockBookApi.getAll(search || undefined, category !== "all" ? category : undefined);
+        const res = await stockBookApi.getAll(search || undefined, category !== "all" ? category : undefined, { signal: controller.signal });
         setProducts(res.data);
-      } catch {
-        toast.error("Failed to load stock data");
+      } catch (err: any) {
+        if (err?.name !== "CanceledError") toast.error("Failed to load stock data");
       } finally {
         setLoading(false);
       }
     };
     const timer = setTimeout(load, 300);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); controller.abort(); };
   }, [search, category]);
 
   const categories = ["all", ...new Set(products.map((p) => p.category))];

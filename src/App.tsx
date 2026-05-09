@@ -9,23 +9,32 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { ShopConfigProvider } from "./context/ShopConfigContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Products from "./pages/Products";
-import Customers from "./pages/Customers";
-import Billing from "./pages/Billing";
-import Orders from "./pages/Orders";
-import CustomFields from "./pages/CustomFields";
-import ProductForm from "./pages/ProductForm";
-import OrderDetail from "./pages/OrderDetail";
-import Purchases from "./pages/Purchases";
-import PurchaseForm from "./pages/PurchaseForm";
-import Dealers from "./pages/Dealers";
-import StockBook from "./pages/StockBook";
-import ProductStock from "./pages/ProductStock";
-import Settings from "./pages/Settings";
-import UserManagement from "./pages/UserManagement";
-import RolePermissions from "./pages/RolePermissions";
+import { lazy, Suspense } from "react";
+
+// Lazy-loaded pages for code splitting
+const Login = lazy(() => import("./pages/Login"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Products = lazy(() => import("./pages/Products"));
+const Customers = lazy(() => import("./pages/Customers"));
+const Billing = lazy(() => import("./pages/Billing"));
+const Orders = lazy(() => import("./pages/Orders"));
+const CustomFields = lazy(() => import("./pages/CustomFields"));
+const ProductForm = lazy(() => import("./pages/ProductForm"));
+const OrderDetail = lazy(() => import("./pages/OrderDetail"));
+const Purchases = lazy(() => import("./pages/Purchases"));
+const PurchaseForm = lazy(() => import("./pages/PurchaseForm"));
+const Dealers = lazy(() => import("./pages/Dealers"));
+const StockBook = lazy(() => import("./pages/StockBook"));
+const ProductStock = lazy(() => import("./pages/ProductStock"));
+const Settings = lazy(() => import("./pages/Settings"));
+const UserManagement = lazy(() => import("./pages/UserManagement"));
+const RolePermissions = lazy(() => import("./pages/RolePermissions"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+  </div>
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +51,7 @@ export default function App() {
         <AuthProvider>
           <PermissionProvider>
           <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
@@ -73,6 +83,7 @@ export default function App() {
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
           </PermissionProvider>
           <Toaster

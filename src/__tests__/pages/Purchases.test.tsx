@@ -92,7 +92,7 @@ describe('Purchases page', () => {
   it('renders purchases, filters by invoice and dealer, and paginates', async () => {
     renderPage();
 
-    await waitFor(() => expect(purchaseApi.getAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined));
+    await waitFor(() => expect(purchaseApi.getAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined, expect.objectContaining({ signal: expect.any(AbortSignal) })));
     expect(screen.getAllByText('INV-1').length).toBeGreaterThan(0);
     expect(screen.getAllByText('partial').length).toBeGreaterThan(0);
 
@@ -101,10 +101,10 @@ describe('Purchases page', () => {
     expect(screen.getAllByText('INV-2').length).toBeGreaterThan(0);
 
     fireEvent.change(screen.getByDisplayValue('allDealers'), { target: { value: '1' } });
-    await waitFor(() => expect(purchaseApi.getAll).toHaveBeenLastCalledWith(1, 20, 1, undefined, undefined));
+    await waitFor(() => expect(purchaseApi.getAll).toHaveBeenLastCalledWith(1, 20, 1, undefined, undefined, expect.objectContaining({ signal: expect.any(AbortSignal) })));
 
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-    await waitFor(() => expect(purchaseApi.getAll).toHaveBeenCalledWith(2, 20, 1, undefined, undefined));
+    await waitFor(() => expect(purchaseApi.getAll).toHaveBeenCalledWith(2, 20, 1, undefined, undefined, expect.objectContaining({ signal: expect.any(AbortSignal) })));
   });
 
   it('exports excel and prints the filtered report', async () => {

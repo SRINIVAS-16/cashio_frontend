@@ -52,22 +52,24 @@ export default function RolePermissions() {
     return d;
   };
 
-  const fetchMatrix = async () => {
+  const fetchMatrix = async (signal?: AbortSignal) => {
     setLoading(true);
     try {
-      const res = await permissionApi.getMatrix();
+      const res = await permissionApi.getMatrix(signal ? { signal } : undefined);
       const data: PermissionMatrix = res.data;
       setMatrix(data);
       setDraft(buildDraft(data));
-    } catch {
-      toast.error("Failed to load permissions");
+    } catch (err: any) {
+      if (err?.name !== "CanceledError") toast.error("Failed to load permissions");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMatrix();
+    const controller = new AbortController();
+    fetchMatrix(controller.signal);
+    return () => controller.abort();
   }, []);
 
   const toggle = (role: string, code: string, action: string) => {

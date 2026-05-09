@@ -124,7 +124,7 @@ export default function Customers() {
             {/* Customer Photo — left side */}
             <div className="relative w-28 sm:w-36 flex-shrink-0 bg-gradient-to-br from-primary-50 to-primary-50">
               {c.photo ? (
-                <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
+                <img src={c.photo} alt={c.name} loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <span className="text-4xl font-bold text-primary-300">{c.name.charAt(0).toUpperCase()}</span>
@@ -175,7 +175,7 @@ export default function Customers() {
               {/* Photo Upload */}
               <div className="flex flex-col items-center gap-2">
                 {form.photo ? (
-                  <img src={form.photo} alt="Preview" className="w-32 h-32 rounded-full object-cover border-2 border-primary-200 shadow" />
+                  <img src={form.photo} alt="Preview" loading="lazy" className="w-32 h-32 rounded-full object-cover border-2 border-primary-200 shadow" />
                 ) : (
                   <div className="w-32 h-32 rounded-full bg-slate-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
                     <ImagePlus className="w-8 h-8 text-gray-300 mb-1" />
@@ -226,7 +226,7 @@ export default function Customers() {
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-3">
                 {selectedCustomer.photo ? (
-                  <img src={selectedCustomer.photo} alt={selectedCustomer.name} className="w-14 h-14 rounded-full object-cover" />
+                  <img src={selectedCustomer.photo} alt={selectedCustomer.name} loading="lazy" className="w-14 h-14 rounded-full object-cover" />
                 ) : (
                   <div className="w-14 h-14 rounded-full bg-primary-50 flex items-center justify-center text-primary-700 text-xl font-bold">{selectedCustomer.name.charAt(0).toUpperCase()}</div>
                 )}

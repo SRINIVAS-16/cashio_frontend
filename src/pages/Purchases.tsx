@@ -44,11 +44,16 @@ export default function Purchases() {
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const reqId = useRef(0);
 
-  useEffect(() => { dealerApi.getAll().then((r) => setDealers(r.data)).catch(() => {}); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    dealerApi.getAll(undefined, { signal: controller.signal }).then((r) => setDealers(r.data)).catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Single effect — loads purchases whenever any filter or page changes
   useEffect(() => {
     const currentReq = ++reqId.current;
+    const controller = new AbortController();
     const load = async () => {
       try {
         setLoading(true);
@@ -62,16 +67,17 @@ export default function Purchases() {
           startDate = range.startDate;
           endDate = range.endDate;
         }
-        const res = await purchaseApi.getAll(page, 20, dealerFilter, startDate, endDate);
+        const res = await purchaseApi.getAll(page, 20, dealerFilter, startDate, endDate, { signal: controller.signal });
         if (currentReq !== reqId.current) return; // stale response
         setData(res.data);
-      } catch {
-        if (currentReq === reqId.current) toast.error("Failed to load purchases");
+      } catch (err: any) {
+        if (currentReq === reqId.current && err?.name !== "CanceledError") toast.error("Failed to load purchases");
       } finally {
         if (currentReq === reqId.current) setLoading(false);
       }
     };
     load();
+    return () => controller.abort();
   }, [page, datePreset, customStart, customEnd, dealerFilter]);
 
   // Reset page to 1 when filters change (called from onChange handlers)

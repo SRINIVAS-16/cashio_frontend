@@ -40,19 +40,23 @@ export default function UserManagement() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (signal?: AbortSignal) => {
     setLoading(true);
     try {
-      const res = await userApi.getAll();
+      const res = await userApi.getAll(signal ? { signal } : undefined);
       setUsers(res.data);
-    } catch {
-      toast.error("Failed to load users");
+    } catch (err: any) {
+      if (err?.name !== "CanceledError") toast.error("Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchUsers(controller.signal);
+    return () => controller.abort();
+  }, []);
 
   const openCreate = () => {
     setEditId(null);

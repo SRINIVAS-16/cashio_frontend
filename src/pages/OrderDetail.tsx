@@ -37,9 +37,11 @@ export default function OrderDetail() {
     try {
       const res = await orderApi.getById(Number(id));
       setOrder(res.data);
-    } catch {
-      toast.error("Failed to load order");
-      navigate("/orders");
+    } catch (err: any) {
+      if (err?.name !== "CanceledError") {
+        toast.error("Failed to load order");
+        navigate("/orders");
+      }
     } finally {
       setLoading(false);
     }

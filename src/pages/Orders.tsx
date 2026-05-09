@@ -47,7 +47,11 @@ export default function Orders() {
   const custDropdownRef = useRef<HTMLDivElement>(null);
   const reqId = useRef(0);
 
-  useEffect(() => { customerApi.getAll().then((r) => setCustomers(r.data)).catch(() => {}); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    customerApi.getAll(undefined, { signal: controller.signal }).then((r) => setCustomers(r.data)).catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -66,20 +70,22 @@ export default function Orders() {
 
   useEffect(() => {
     const currentReq = ++reqId.current;
+    const controller = new AbortController();
     const load = async () => {
       try {
         setLoading(true);
         const { startDate, endDate } = getCurrentDates();
-        const res = await orderApi.getAll(page, 20, startDate, endDate, customerFilter.length > 0 ? customerFilter : undefined);
+        const res = await orderApi.getAll(page, 20, startDate, endDate, customerFilter.length > 0 ? customerFilter : undefined, { signal: controller.signal });
         if (currentReq !== reqId.current) return;
         setData(res.data);
-      } catch {
-        if (currentReq === reqId.current) toast.error("Failed to load orders");
+      } catch (err: any) {
+        if (currentReq === reqId.current && err?.name !== "CanceledError") toast.error("Failed to load orders");
       } finally {
         if (currentReq === reqId.current) setLoading(false);
       }
     };
     load();
+    return () => controller.abort();
   }, [page, datePreset, customStart, customEnd, customerFilter]);
 
   const changePreset = (v: DatePreset) => { setDatePreset(v); setPage(1); };

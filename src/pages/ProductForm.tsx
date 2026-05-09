@@ -160,7 +160,7 @@ export default function ProductForm() {
           {/* Photo Upload - spans full width on top */}
           <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-4">
             {form.photo ? (
-              <img src={form.photo} alt="Preview" className="w-24 h-24 rounded-lg object-cover border-2 border-primary-200 shadow flex-shrink-0" />
+              <img src={form.photo} alt="Preview" loading="lazy" className="w-24 h-24 rounded-lg object-cover border-2 border-primary-200 shadow flex-shrink-0" />
             ) : (
               <div className="w-24 h-24 rounded-lg bg-slate-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center flex-shrink-0">
                 <ImagePlus className="w-6 h-6 text-gray-300 mb-1" />

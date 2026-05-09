@@ -48,21 +48,26 @@ export default function Dashboard() {
   const [distLoading, setDistLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     // Load each section independently so tiles render as data arrives
-    dashboardApi.getDashboard()
+    dashboardApi.getDashboard({ signal })
       .then((res) => setData(res.data))
-      .catch((err) => console.error("Dashboard summary error:", err))
-      .finally(() => setDashLoading(false));
+      .catch((err) => { if (!signal.aborted) console.error("Dashboard summary error:", err); })
+      .finally(() => { if (!signal.aborted) setDashLoading(false); });
 
-    dashboardApi.getSalesTrend(30)
+    dashboardApi.getSalesTrend(30, { signal })
       .then((res) => setSalesTrend(res.data))
-      .catch((err) => console.error("Sales trend error:", err))
-      .finally(() => setTrendLoading(false));
+      .catch((err) => { if (!signal.aborted) console.error("Sales trend error:", err); })
+      .finally(() => { if (!signal.aborted) setTrendLoading(false); });
 
-    dashboardApi.getProductDistribution()
+    dashboardApi.getProductDistribution({ signal })
       .then((res) => setProductDist(res.data))
-      .catch((err) => console.error("Product distribution error:", err))
-      .finally(() => setDistLoading(false));
+      .catch((err) => { if (!signal.aborted) console.error("Product distribution error:", err); })
+      .finally(() => { if (!signal.aborted) setDistLoading(false); });
+
+    return () => controller.abort();
   }, []);
 
   const formatCurrency = (val: number) => `₹${val.toLocaleString("en-IN")}`;

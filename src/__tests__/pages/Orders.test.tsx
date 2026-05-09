@@ -138,7 +138,7 @@ describe('Orders page', () => {
   it('renders orders, filters by search and customers, and paginates', async () => {
     renderPage();
 
-    await waitFor(() => expect(orderApi.getAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined));
+    await waitFor(() => expect(orderApi.getAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined, expect.objectContaining({ signal: expect.any(AbortSignal) })));
     expect(screen.getAllByText('ORD-1001').length).toBeGreaterThan(0);
     expect(screen.getAllByText('partial').length).toBeGreaterThan(0);
 
@@ -150,10 +150,10 @@ describe('Orders page', () => {
     fireEvent.click(screen.getByRole('button', { name: 'allCustomers' }));
     const aliceOption = screen.getAllByText('Alice').find((node) => node.closest('label'))!.closest('label')!.querySelector('input') as HTMLInputElement;
     fireEvent.click(aliceOption);
-    await waitFor(() => expect(orderApi.getAll).toHaveBeenLastCalledWith(1, 20, undefined, undefined, [1]));
+    await waitFor(() => expect(orderApi.getAll).toHaveBeenLastCalledWith(1, 20, undefined, undefined, [1], expect.objectContaining({ signal: expect.any(AbortSignal) })));
 
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-    await waitFor(() => expect(orderApi.getAll).toHaveBeenCalledWith(2, 20, undefined, undefined, [1]));
+    await waitFor(() => expect(orderApi.getAll).toHaveBeenCalledWith(2, 20, undefined, undefined, [1], expect.objectContaining({ signal: expect.any(AbortSignal) })));
   });
 
   it('applies custom dates, exports excel and prints report', async () => {
@@ -165,7 +165,7 @@ describe('Orders page', () => {
     fireEvent.change(dateInputs[0], { target: { value: '2025-01-01' } });
     fireEvent.change(dateInputs[1], { target: { value: '2025-01-31' } });
 
-    await waitFor(() => expect(orderApi.getAll).toHaveBeenLastCalledWith(1, 20, '2025-01-01', '2025-01-31', undefined));
+    await waitFor(() => expect(orderApi.getAll).toHaveBeenLastCalledWith(1, 20, '2025-01-01', '2025-01-31', undefined, expect.objectContaining({ signal: expect.any(AbortSignal) })));
 
     fireEvent.click(screen.getByRole('button', { name: 'Excel' }));
     await waitFor(() => expect(XLSX.writeFile).toHaveBeenCalled());

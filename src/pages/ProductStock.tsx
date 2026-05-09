@@ -17,18 +17,20 @@ export default function ProductStock() {
   const [expandedBatch, setExpandedBatch] = useState<number | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const load = async () => {
       try {
         setLoading(true);
-        const res = await stockBookApi.getProductDetail(Number(productId));
+        const res = await stockBookApi.getProductDetail(Number(productId), { signal: controller.signal });
         setData(res.data);
-      } catch {
-        toast.error("Failed to load product stock data");
+      } catch (err: any) {
+        if (err?.name !== "CanceledError") toast.error("Failed to load product stock data");
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     load();
+    return () => controller.abort();
   }, [productId]);
 
   const toggleBatch = (id: number) => {

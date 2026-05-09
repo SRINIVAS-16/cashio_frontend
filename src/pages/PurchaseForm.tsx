@@ -67,9 +67,15 @@ export default function PurchaseForm() {
   const [payNotes, setPayNotes] = useState("");
 
   useEffect(() => {
-    loadProducts();
-    loadDealers();
-    if (isEdit) loadPurchase();
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const loadAll = async () => {
+      try { const res = await productApi.getAll(undefined, undefined, { signal }); setProducts(res.data); } catch {}
+      try { const res = await dealerApi.getAll(undefined, { signal }); setDealers(res.data); } catch {}
+      if (isEdit) loadPurchase();
+    };
+    loadAll();
+    return () => controller.abort();
   }, [id]);
 
   const loadProducts = async () => {
