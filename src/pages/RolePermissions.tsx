@@ -202,7 +202,7 @@ export default function RolePermissions() {
           </span>
         )}
         <button
-          onClick={fetchMatrix}
+          onClick={() => fetchMatrix()}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
