@@ -268,6 +268,11 @@ const en = {
   settingsSaved: "Settings saved!",
   allChangesSaved: "All changes saved",
   language: "Language",
+
+  // Quotation
+  quotation: "Quotation",
+  printQuotation: "Print Quotation",
+  downloadQuotation: "Download Quotation",
 };
 
 export default en;

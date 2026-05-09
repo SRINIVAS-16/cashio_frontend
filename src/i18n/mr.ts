@@ -251,6 +251,11 @@ const mr: typeof en = {
   availableQty: "उपलब्ध प्रमाण",
   noBatches: "बॅचेस उपलब्ध नाहीत",
   remainingStock: "शिल्लक",
+
+  // Quotation
+  quotation: "कोटेशन",
+  printQuotation: "कोटेशन प्रिंट करा",
+  downloadQuotation: "कोटेशन डाउनलोड करा",
 };
 
 export default mr;

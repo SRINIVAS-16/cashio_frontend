@@ -251,6 +251,11 @@ const bn: typeof en = {
   availableQty: "উপলব্ধ পরিমাণ",
   noBatches: "কোনো ব্যাচ নেই",
   remainingStock: "অবশিষ্ট",
+
+  // Quotation
+  quotation: "কোটেশন",
+  printQuotation: "কোটেশন প্রিন্ট করুন",
+  downloadQuotation: "কোটেশন ডাউনলোড করুন",
 };
 
 export default bn;

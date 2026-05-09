@@ -2,8 +2,11 @@
 import { useEffect, useState } from "react";
 import {
   Search, Plus, Minus, Trash2, User, ShoppingCart, Receipt,
-  ArrowRight, ArrowLeft, Check, Phone, UserPlus, Package
+  ArrowRight, ArrowLeft, Check, Phone, UserPlus, Package,
+  Printer, Download,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { productApi, customerApi, orderApi, stockBookApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
 import { usePermissions } from "../context/PermissionContext";
@@ -237,6 +240,233 @@ export default function Billing() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // ─── Quotation PDF Generation ────────────────────────────
+  const generateQuotationPDF = (format: "a4" | "receipt" = "a4") => {
+    if (!selectedCustomer || cart.length === 0) return null;
+
+    const isReceipt = format === "receipt";
+    const doc = new jsPDF({
+      orientation: isReceipt ? "portrait" : "landscape",
+      unit: "mm",
+      format: isReceipt ? [80, 250] : "a4",
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = isReceipt ? 5 : 15;
+    const innerLeft = margin + (isReceipt ? 0 : 3);
+    const innerRight = pageWidth - margin - (isReceipt ? 0 : 3);
+    const contentWidth = innerRight - innerLeft;
+    const fontSize = isReceipt ? 7 : 10;
+    let y = margin;
+
+    if (!isReceipt) {
+      doc.setDrawColor(120, 120, 120);
+      doc.setLineWidth(0.6);
+      doc.rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
+      y = margin + 8;
+    }
+
+    const getTextHeight = (text: string, maxW: number) => {
+      const lines = doc.splitTextToSize(text, maxW);
+      return lines.length * doc.getLineHeight() / doc.internal.scaleFactor;
+    };
+
+    // Shop header
+    doc.setFontSize(isReceipt ? 12 : 13);
+    doc.setFont("helvetica", "bold");
+    doc.text(shopConfig.name, pageWidth / 2, y, { align: "center", maxWidth: contentWidth });
+    y += getTextHeight(shopConfig.name, contentWidth) + 2;
+
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", "normal");
+    doc.text(shopConfig.address, pageWidth / 2, y, { align: "center", maxWidth: contentWidth });
+    y += getTextHeight(shopConfig.address, contentWidth) + 2;
+
+    doc.text(`Phone: ${shopConfig.phone}  |  ${shopConfig.altPhone}`, pageWidth / 2, y, { align: "center" });
+    y += isReceipt ? 3 : 5;
+    doc.text(`Email: ${shopConfig.email}`, pageWidth / 2, y, { align: "center" });
+    y += isReceipt ? 3 : 5;
+    doc.setFont("helvetica", "bold");
+    doc.text(`GSTIN: ${shopConfig.gst}`, pageWidth / 2, y, { align: "center" });
+    y += isReceipt ? 5 : 8;
+
+    // Title: QUOTATION
+    doc.setFontSize(isReceipt ? 10 : 12);
+    doc.text("QUOTATION", pageWidth / 2, y, { align: "center" });
+    y += isReceipt ? 4 : 6;
+
+    doc.setDrawColor(80, 80, 80);
+    doc.setLineWidth(0.4);
+    doc.line(innerLeft, y, innerRight, y);
+    y += isReceipt ? 4 : 7;
+
+    // Customer info
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", "normal");
+
+    const infoLeftX = innerLeft;
+    const infoRightX = pageWidth / 2 + 10;
+    const billY = y;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Customer:", infoLeftX, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(selectedCustomer.name, infoLeftX + 22, y);
+    y += 5;
+
+    if (selectedCustomer.phone) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Phone:", infoLeftX, y);
+      doc.setFont("helvetica", "normal");
+      doc.text(selectedCustomer.phone, infoLeftX + 22, y);
+      y += 5;
+    }
+
+    if (selectedCustomer.village) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Village:", infoLeftX, y);
+      doc.setFont("helvetica", "normal");
+      doc.text(selectedCustomer.village, infoLeftX + 22, y);
+      y += 5;
+    }
+
+    let ry = billY;
+    if (!isReceipt) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Date:", infoRightX, ry);
+      doc.setFont("helvetica", "normal");
+      doc.text(new Date(orderDate).toLocaleDateString("en-IN"), infoRightX + 22, ry);
+      ry += 5;
+    } else {
+      doc.text(`Date: ${new Date(orderDate).toLocaleDateString("en-IN")}`, infoLeftX, y);
+      y += 4;
+    }
+
+    y = Math.max(y, ry) + (isReceipt ? 2 : 6);
+    doc.setLineWidth(0.3);
+    doc.line(innerLeft, y, innerRight, y);
+    y += isReceipt ? 3 : 4;
+
+    // Items table
+    const fmtDate = (d: string | null | undefined) => d ? new Date(d).toLocaleDateString("en-IN") : "-";
+
+    const items = isReceipt
+      ? cart.map((item, idx) => {
+          const details = [
+            item.hsnCode ? `HSN:${item.hsnCode}` : "",
+            item.expiryDate ? `EXP:${fmtDate(item.expiryDate)}` : "",
+          ].filter(Boolean).join(" | ");
+          return [
+            (idx + 1).toString(),
+            details ? `${item.product.name}\n${details}` : item.product.name,
+            item.batchNo || "-",
+            item.quantity.toString(),
+            item.price.toLocaleString("en-IN"),
+            item.total.toLocaleString("en-IN"),
+          ];
+        })
+      : cart.map((item, idx) => [
+          (idx + 1).toString(),
+          item.product.name,
+          item.batchNo || "-",
+          item.hsnCode || "-",
+          fmtDate(item.mfgDate),
+          fmtDate(item.expiryDate),
+          item.quantity.toString(),
+          item.price.toLocaleString("en-IN"),
+          item.total.toLocaleString("en-IN"),
+        ]);
+
+    const tableHead = isReceipt
+      ? [["#", "Item", "Batch", "Qty", "Rate", "Total"]]
+      : [["S.No", "Item", "Batch", "HSN", "MFG", "Expiry", "Qty", "Rate", "Total"]];
+
+    autoTable(doc, {
+      startY: y,
+      head: tableHead,
+      body: items,
+      theme: isReceipt ? "plain" : "grid",
+      styles: { fontSize: isReceipt ? 6 : 8, cellPadding: isReceipt ? 1 : 2, lineColor: [180, 180, 180], lineWidth: 0.3 },
+      headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: isReceipt ? 6 : 8, halign: "center" },
+      bodyStyles: { fontSize: isReceipt ? 6 : 8 },
+      columnStyles: isReceipt
+        ? { 0: { cellWidth: 4 }, 1: { cellWidth: 28 }, 2: { cellWidth: 10 }, 3: { cellWidth: 6, halign: "center" }, 4: { cellWidth: 10, halign: "right" }, 5: { cellWidth: 12, halign: "right" } }
+        : { 0: { cellWidth: 12, halign: "center" }, 1: { cellWidth: "auto" }, 6: { halign: "center" }, 7: { halign: "right" }, 8: { halign: "right" } },
+      margin: { left: innerLeft, right: pageWidth - innerRight },
+    });
+
+    y = (doc as any).lastAutoTable.finalY + (isReceipt ? 3 : 8);
+
+    // Totals
+    const totalsX = isReceipt ? innerLeft : pageWidth / 2 + 5;
+    const valuesX = innerRight;
+
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", "normal");
+    doc.text("Taxable Amount:", totalsX, y);
+    doc.text(`Rs.${totalBase.toLocaleString("en-IN")}`, valuesX, y, { align: "right" });
+    y += 5;
+    doc.text("CGST:", totalsX, y);
+    doc.text(`Rs.${totalCgst.toLocaleString("en-IN")}`, valuesX, y, { align: "right" });
+    y += 5;
+    doc.text("SGST:", totalsX, y);
+    doc.text(`Rs.${totalSgst.toLocaleString("en-IN")}`, valuesX, y, { align: "right" });
+    y += 6;
+
+    doc.setLineWidth(0.4);
+    doc.line(totalsX, y, valuesX, y);
+    y += 5;
+
+    doc.setFontSize(isReceipt ? 10 : 12);
+    doc.setFont("helvetica", "bold");
+    doc.text("GRAND TOTAL:", totalsX, y);
+    doc.text(`Rs.${total.toLocaleString("en-IN")}`, valuesX, y, { align: "right" });
+    y += isReceipt ? 5 : 8;
+
+    // Notes
+    if (notes) {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Notes: ${notes}`, innerLeft, y);
+      y += isReceipt ? 4 : 6;
+    }
+
+    y += isReceipt ? 2 : 4;
+
+    if (!isReceipt) {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", "italic");
+      doc.text("This is a quotation and not a confirmed order.", innerLeft, y);
+      y += 15;
+      doc.setFont("helvetica", "bold");
+      doc.text("Authorized Signatory", innerRight, y, { align: "right" });
+      doc.setLineWidth(0.3);
+      doc.line(innerRight - 45, y + 2, innerRight, y + 2);
+      y += 12;
+    }
+
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", "normal");
+    doc.text("Thank you for your business!", pageWidth / 2, y, { align: "center" });
+
+    return doc;
+  };
+
+  const downloadQuotation = () => {
+    const doc = generateQuotationPDF("a4");
+    if (!doc) return;
+    const dateStr = orderDate.replace(/-/g, "");
+    doc.save(`Quotation_${selectedCustomer?.name || "Customer"}_${dateStr}.pdf`);
+  };
+
+  const printQuotation = () => {
+    const doc = generateQuotationPDF("receipt");
+    if (!doc) return;
+    doc.autoPrint();
+    window.open(doc.output("bloburl"), "_blank");
   };
 
   // ─── Step indicator ────────────────────────────────────
@@ -474,8 +704,18 @@ export default function Billing() {
       {step === 2 && (
         <div className="flex flex-col flex-1 min-h-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-y-auto flex-1 min-h-0">
-          {/* Shop header */}
-          <div className="text-center px-3 sm:px-5 py-3 border-b border-gray-100 bg-slate-50">
+          {/* Shop header + Quotation actions */}
+          <div className="relative text-center px-3 sm:px-5 py-3 border-b border-gray-100 bg-slate-50">
+            <div className="absolute top-2 right-2 flex gap-1">
+              <button onClick={printQuotation} title={(t as any).printQuotation || "Print Quotation"}
+                className="p-1.5 rounded-md border border-amber-300 bg-amber-50 text-amber-600 hover:bg-amber-100 transition">
+                <Printer className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={downloadQuotation} title={(t as any).downloadQuotation || "Download Quotation"}
+                className="p-1.5 rounded-md border border-amber-300 bg-amber-50 text-amber-600 hover:bg-amber-100 transition">
+                <Download className="w-3.5 h-3.5" />
+              </button>
+            </div>
             <p className="font-bold text-primary-800 text-sm">{shopConfig.name}</p>
             <p className="text-[10px] text-gray-500">{shopConfig.nameTe}</p>
             <p className="text-[10px] text-gray-400 mt-0.5">{shopConfig.address}</p>

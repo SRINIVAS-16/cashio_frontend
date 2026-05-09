@@ -220,6 +220,11 @@ const ta: typeof en = {
   availableQty: "கிடைக்கும் அளவு",
   noBatches: "தொகுதிகள் இல்லை",
   remainingStock: "மீதமுள்ள",
+
+  // Quotation
+  quotation: "மேற்கோள்",
+  printQuotation: "மேற்கோள் அச்சிடு",
+  downloadQuotation: "மேற்கோள் பதிவிறக்கம்",
 };
 
 export default ta;

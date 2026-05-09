@@ -251,6 +251,11 @@ const pa: typeof en = {
   availableQty: "ਉਪਲਬਧ ਮਾਤਰਾ",
   noBatches: "ਕੋਈ ਬੈਚ ਉਪਲਬਧ ਨਹੀਂ",
   remainingStock: "ਬਾਕੀ",
+
+  // Quotation
+  quotation: "ਕੋਟੇਸ਼ਨ",
+  printQuotation: "ਕੋਟੇਸ਼ਨ ਪ੍ਰਿੰਟ ਕਰੋ",
+  downloadQuotation: "ਕੋਟੇਸ਼ਨ ਡਾਊਨਲੋਡ ਕਰੋ",
 };
 
 export default pa;

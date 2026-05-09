@@ -220,6 +220,11 @@ const hi: typeof en = {
   availableQty: "उपलब्ध मात्रा",
   noBatches: "कोई बैच उपलब्ध नहीं",
   remainingStock: "शेष",
+
+  // Quotation
+  quotation: "कोटेशन",
+  printQuotation: "कोटेशन प्रिंट करें",
+  downloadQuotation: "कोटेशन डाउनलोड करें",
 };
 
 export default hi;

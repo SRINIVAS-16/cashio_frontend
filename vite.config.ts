@@ -5,6 +5,22 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [react()],
+    test: {
+      globals: true,
+      environment: "jsdom",
+      setupFiles: ["./src/setupTests.ts"],
+      include: ["src/**/*.test.{ts,tsx}"],
+      testTimeout: 10000,
+      hookTimeout: 10000,
+      teardownTimeout: 5000,
+      pool: "threads",
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "text-summary", "lcov"],
+        include: ["src/**/*.{ts,tsx}"],
+        exclude: ["src/**/*.test.{ts,tsx}", "src/setupTests.ts", "src/main.tsx", "src/vite-env.d.ts"],
+      },
+    },
     build: {
       rollupOptions: {
         output: {

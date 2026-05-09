@@ -220,6 +220,11 @@ const kn: typeof en = {
   availableQty: "ಲಭ್ಯವಿರುವ ಪ್ರಮಾಣ",
   noBatches: "ಬ್ಯಾಚ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ",
   remainingStock: "ಉಳಿದಿದೆ",
+
+  // Quotation
+  quotation: "ಕೋಟೇಶನ್",
+  printQuotation: "ಕೋಟೇಶನ್ ಮುದ್ರಿಸಿ",
+  downloadQuotation: "ಕೋಟೇಶನ್ ಡೌನ್‌ಲೋಡ್",
 };
 
 export default kn;

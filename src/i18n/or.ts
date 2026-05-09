@@ -251,6 +251,11 @@ const or_: typeof en = {
   availableQty: "ଉପಲବ୍ଧ ପରିମାଣ",
   noBatches: "କୌଣସି ବ୍ୟାଚ ଉପଲବ୍ଧ ନାହିଁ",
   remainingStock: "ଅବଶିଷ୍ଟ",
+
+  // Quotation
+  quotation: "କୋଟେସନ",
+  printQuotation: "କୋଟେସନ ପ୍ରିଣ୍ଟ କରନ୍ତୁ",
+  downloadQuotation: "କୋଟେସନ ଡାଉନଲୋଡ୍ କରନ୍ତୁ",
 };
 
 export default or_;

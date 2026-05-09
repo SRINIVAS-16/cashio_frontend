@@ -251,6 +251,11 @@ const ml: typeof en = {
   availableQty: "ലഭ്യമായ അളവ്",
   noBatches: "ബാച്ചുകൾ ലഭ്യമല്ല",
   remainingStock: "ശേഷിക്കുന്നത്",
+
+  // Quotation
+  quotation: "കൊട്ടേഷൻ",
+  printQuotation: "കൊട്ടേഷൻ പ്രിന്റ് ചെയ്യുക",
+  downloadQuotation: "കൊട്ടേഷൻ ഡൗൺലോഡ് ചെയ്യുക",
 };
 
 export default ml;

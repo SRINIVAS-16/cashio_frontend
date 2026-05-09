@@ -251,6 +251,11 @@ const gu: typeof en = {
   availableQty: "ઉપલબ્ધ જથ્થો",
   noBatches: "કોઈ બેચ ઉપલબ્ધ નથી",
   remainingStock: "બાકી",
+
+  // Quotation
+  quotation: "કોટેશન",
+  printQuotation: "કોટેશન પ્રિન્ટ કરો",
+  downloadQuotation: "કોટેશન ડાઉનલોડ કરો",
 };
 
 export default gu;

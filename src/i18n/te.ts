@@ -268,6 +268,11 @@ const te = {
   settingsSaved: "సెట్టింగ్‌లు సేవ్ అయ్యాయి!",
   allChangesSaved: "అన్ని మార్పులు సేవ్ అయ్యాయి",
   language: "భాష",
+
+  // Quotation
+  quotation: "కోటేషన్",
+  printQuotation: "కోటేషన్ ప్రింట్",
+  downloadQuotation: "కోటేషన్ డౌన్‌లోడ్",
 };
 
 export default te;
