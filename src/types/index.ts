@@ -10,11 +10,24 @@ export interface User {
   name: string;
   email?: string;
   role: UserRole;
+  tenantId: number;
 }
 
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+export interface Tenant {
+  id: number;
+  name: string;
+  slug: string;
+  phone?: string | null;
+  address?: string | null;
+  gstNo?: string | null;
+  plan: string;
+  isActive: boolean;
+  createdAt?: string;
 }
 
 export interface Product {

@@ -9,6 +9,7 @@ const mockUser: User = {
   name: "Alice",
   email: "alice@example.com",
   role: "admin",
+  tenantId: 1,
 };
 
 type AuthTestOptions = {

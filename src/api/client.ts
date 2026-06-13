@@ -162,6 +162,17 @@ export const permissionApi = {
   seed: () => api.post("/permissions/seed"),
 };
 
+// ─── Tenant APIs ─────────────────────────────────────────────────
+export const tenantApi = {
+  register: (data: {
+    shopName: string; slug: string; phone?: string; address?: string; gstNo?: string;
+    adminUsername: string; adminPassword: string; adminName: string;
+  }) => api.post("/tenants/register", data),
+  getMyTenant: (config?: AxiosRequestConfig) => api.get("/tenants/me", config),
+  updateMyTenant: (data: { name?: string; phone?: string; address?: string; gstNo?: string }) =>
+    api.put("/tenants/me", data),
+};
+
 // ─── User Management APIs ────────────────────────────────────────
 export const userApi = {
   getAll: (config?: AxiosRequestConfig) => api.get("/users", config),

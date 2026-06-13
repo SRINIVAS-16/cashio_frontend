@@ -50,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: account.name || account.username,
       email: account.username,
       role: role || (account.idTokenClaims?.roles?.[0] as UserRole) || "viewer",
+      tenantId: 0, // Will be resolved from backend
     };
   }, []);
 
@@ -85,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const backendUser = profileRes.data as User;
       appUser.role = backendUser.role;
       appUser.id = backendUser.id;
+      appUser.tenantId = backendUser.tenantId;
     } catch {
       // Backend unreachable or user not provisioned — use role from token claims
     }
