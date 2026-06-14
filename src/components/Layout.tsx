@@ -11,7 +11,7 @@ export default function Layout() {
     <div className="flex min-h-screen overflow-hidden bg-slate-50">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="flex min-h-screen min-w-0 flex-1 flex-col bg-slate-50">
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col bg-slate-50 lg:ml-64 overflow-y-auto">
         <header className="sticky top-0 z-30 bg-slate-50/80 px-3 py-3 backdrop-blur lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}

@@ -93,9 +93,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       {open && <div className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden" onClick={onClose} />}
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-white/10 bg-gradient-to-b from-slate-900 via-slate-800 to-primary-900 shadow-2xl shadow-slate-950/40 transition-transform duration-300 ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-white/10 bg-gradient-to-b from-slate-900 via-slate-800 to-primary-900 shadow-2xl shadow-slate-950/40 transition-transform duration-300 overflow-y-auto ${
           open ? "translate-x-0" : "-translate-x-full"
-        } lg:static lg:z-0 lg:translate-x-0`}
+        } lg:translate-x-0`}
       >
         <div className="border-b border-white/10 px-4 py-4">
           <div className="flex items-center justify-between gap-3">
