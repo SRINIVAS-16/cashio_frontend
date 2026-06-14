@@ -77,26 +77,15 @@ export default function SuperAdminLayout() {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
-          <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="rounded-md p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">Platform Admin</h2>
-                <p className="text-sm text-gray-500">Manage tenants across the platform</p>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-right">
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Signed in as</p>
-              <p className="text-sm font-semibold text-gray-800">{user?.name || user?.username}</p>
-            </div>
+        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur lg:hidden">
+          <div className="flex items-center px-4 py-3">
+            <button
+              type="button"
+              className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
         </header>
 
