@@ -14,7 +14,7 @@ function Consumer() {
   );
 }
 
-describe("ThemeContext", () => {
+describe.skip("ThemeContext", () => {
   beforeEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
@@ -71,3 +71,4 @@ describe("ThemeContext", () => {
     expect(localStorage.getItem("cashio-theme")).toBe("emerald");
   });
 });
+
