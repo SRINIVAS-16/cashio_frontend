@@ -8,24 +8,21 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-50">
+    <div className="flex min-h-screen overflow-hidden bg-slate-50">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
-        {/* Top Bar (mobile) */}
-        <header className="lg:hidden bg-white border-b border-gray-200 px-3 py-2 flex items-center gap-2 sticky top-0 z-30">
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col bg-slate-50">
+        <header className="sticky top-0 z-30 bg-slate-50/80 px-3 py-3 backdrop-blur lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-1.5 rounded-md hover:bg-gray-100 text-gray-600"
+            className="rounded-lg border border-slate-200 bg-white/80 p-2 text-slate-700 shadow-sm transition hover:bg-white"
+            aria-label="Open navigation"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="h-5 w-5" />
           </button>
-          <h1 className="text-sm font-semibold text-primary-800">Amrutha Lakshmi Fertilisers</h1>
         </header>
 
-        {/* Page Content */}
-        <div className="p-3 sm:p-4 lg:p-6">
+        <div className="flex-1 bg-slate-50 p-3 sm:p-4 lg:p-6">
           <Outlet />
         </div>
       </main>
