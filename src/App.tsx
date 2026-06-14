@@ -54,9 +54,8 @@ export default function App() {
             <AuthProvider>
               <PermissionProvider>
                 <BrowserRouter>
-                  <Suspense fallback={<PageLoader />}>
                     <Routes>
-                      <Route path="/login" element={<Login />} />
+                      <Route path="/login" element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
                       <Route
                         path="/super-admin"
                         element={
@@ -65,8 +64,8 @@ export default function App() {
                           </ProtectedRoute>
                         }
                       >
-                        <Route index element={<SuperAdminDashboard />} />
-                        <Route path="tenants" element={<ManageTenants />} />
+                        <Route index element={<Suspense fallback={<PageLoader />}><SuperAdminDashboard /></Suspense>} />
+                        <Route path="tenants" element={<Suspense fallback={<PageLoader />}><ManageTenants /></Suspense>} />
                       </Route>
                       <Route
                         path="/"
@@ -76,28 +75,27 @@ export default function App() {
                           </ProtectedRoute>
                         }
                       >
-                        <Route index element={<Dashboard />} />
-                        <Route path="billing" element={<ProtectedRoute permission="billing"><Billing /></ProtectedRoute>} />
-                        <Route path="orders" element={<ProtectedRoute permission="orders"><Orders /></ProtectedRoute>} />
-                        <Route path="orders/:id" element={<ProtectedRoute permission="orders"><OrderDetail /></ProtectedRoute>} />
-                        <Route path="customers" element={<ProtectedRoute permission="customers"><Customers /></ProtectedRoute>} />
-                        <Route path="products" element={<ProtectedRoute permission="products"><Products /></ProtectedRoute>} />
-                        <Route path="products/new" element={<ProtectedRoute permission="products"><ProductForm /></ProtectedRoute>} />
-                        <Route path="products/:id/edit" element={<ProtectedRoute permission="products"><ProductForm /></ProtectedRoute>} />
-                        <Route path="purchases" element={<ProtectedRoute permission="purchases"><Purchases /></ProtectedRoute>} />
-                        <Route path="purchases/new" element={<ProtectedRoute permission="purchases"><PurchaseForm /></ProtectedRoute>} />
-                        <Route path="purchases/:id" element={<ProtectedRoute permission="purchases"><PurchaseForm /></ProtectedRoute>} />
-                        <Route path="dealers" element={<ProtectedRoute permission="dealers"><Dealers /></ProtectedRoute>} />
-                        <Route path="stock-book" element={<ProtectedRoute permission="stock-book"><StockBook /></ProtectedRoute>} />
-                        <Route path="stock-book/:productId" element={<ProtectedRoute permission="stock-book"><ProductStock /></ProtectedRoute>} />
-                        <Route path="custom-fields" element={<ProtectedRoute permission="custom-fields"><CustomFields /></ProtectedRoute>} />
-                        <Route path="settings" element={<ProtectedRoute permission="settings"><Settings /></ProtectedRoute>} />
-                        <Route path="users" element={<ProtectedRoute permission="users"><UserManagement /></ProtectedRoute>} />
-                        <Route path="role-permissions" element={<ProtectedRoute permission="roles"><RolePermissions /></ProtectedRoute>} />
+                        <Route index element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+                        <Route path="billing" element={<ProtectedRoute permission="billing"><Suspense fallback={<PageLoader />}><Billing /></Suspense></ProtectedRoute>} />
+                        <Route path="orders" element={<ProtectedRoute permission="orders"><Suspense fallback={<PageLoader />}><Orders /></Suspense></ProtectedRoute>} />
+                        <Route path="orders/:id" element={<ProtectedRoute permission="orders"><Suspense fallback={<PageLoader />}><OrderDetail /></Suspense></ProtectedRoute>} />
+                        <Route path="customers" element={<ProtectedRoute permission="customers"><Suspense fallback={<PageLoader />}><Customers /></Suspense></ProtectedRoute>} />
+                        <Route path="products" element={<ProtectedRoute permission="products"><Suspense fallback={<PageLoader />}><Products /></Suspense></ProtectedRoute>} />
+                        <Route path="products/new" element={<ProtectedRoute permission="products"><Suspense fallback={<PageLoader />}><ProductForm /></Suspense></ProtectedRoute>} />
+                        <Route path="products/:id/edit" element={<ProtectedRoute permission="products"><Suspense fallback={<PageLoader />}><ProductForm /></Suspense></ProtectedRoute>} />
+                        <Route path="purchases" element={<ProtectedRoute permission="purchases"><Suspense fallback={<PageLoader />}><Purchases /></Suspense></ProtectedRoute>} />
+                        <Route path="purchases/new" element={<ProtectedRoute permission="purchases"><Suspense fallback={<PageLoader />}><PurchaseForm /></Suspense></ProtectedRoute>} />
+                        <Route path="purchases/:id" element={<ProtectedRoute permission="purchases"><Suspense fallback={<PageLoader />}><PurchaseForm /></Suspense></ProtectedRoute>} />
+                        <Route path="dealers" element={<ProtectedRoute permission="dealers"><Suspense fallback={<PageLoader />}><Dealers /></Suspense></ProtectedRoute>} />
+                        <Route path="stock-book" element={<ProtectedRoute permission="stock-book"><Suspense fallback={<PageLoader />}><StockBook /></Suspense></ProtectedRoute>} />
+                        <Route path="stock-book/:productId" element={<ProtectedRoute permission="stock-book"><Suspense fallback={<PageLoader />}><ProductStock /></Suspense></ProtectedRoute>} />
+                        <Route path="custom-fields" element={<ProtectedRoute permission="custom-fields"><Suspense fallback={<PageLoader />}><CustomFields /></Suspense></ProtectedRoute>} />
+                        <Route path="settings" element={<ProtectedRoute permission="settings"><Suspense fallback={<PageLoader />}><Settings /></Suspense></ProtectedRoute>} />
+                        <Route path="users" element={<ProtectedRoute permission="users"><Suspense fallback={<PageLoader />}><UserManagement /></Suspense></ProtectedRoute>} />
+                        <Route path="role-permissions" element={<ProtectedRoute permission="roles"><Suspense fallback={<PageLoader />}><RolePermissions /></Suspense></ProtectedRoute>} />
                       </Route>
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
-                  </Suspense>
                 </BrowserRouter>
               </PermissionProvider>
               <Toaster
