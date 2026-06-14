@@ -87,13 +87,13 @@ export default function Dashboard() {
               className="w-14 h-14 rounded-lg bg-primary-50 p-0.5 flex-shrink-0"
             />
             <div>
-              <h2 className="text-base font-bold text-gray-800">{lang === "te" ? shopConfig.nameLocal : shopConfig.name}</h2>
+              <h2 className="text-base font-bold text-gray-800">{lang !== "en" && shopConfig.nameLocal ? shopConfig.nameLocal : shopConfig.name}</h2>
               <p className="text-primary-600 text-xs mt-0.5">
-                {lang === "te" ? shopConfig.taglineLocal : shopConfig.tagline}
+                {lang !== "en" && shopConfig.taglineLocal ? shopConfig.taglineLocal : shopConfig.tagline}
               </p>
               <div className="flex items-start gap-1.5 text-gray-500 text-xs mt-2">
                 <MapPin className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>{lang === "te" ? shopConfig.addressLocal : shopConfig.address}</span>
+                <span>{lang !== "en" && shopConfig.addressLocal ? shopConfig.addressLocal : shopConfig.address}</span>
               </div>
             </div>
           </div>

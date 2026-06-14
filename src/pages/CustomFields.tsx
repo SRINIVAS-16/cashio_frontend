@@ -329,7 +329,7 @@ function FieldSection({ title, fields, t, lang, onEdit, onDelete, canUpdate, can
         {fields.map((f) => (
           <div key={f.id} className="p-3 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-800">{lang === "te" && f.labelTe ? f.labelTe : f.label}</p>
+              <p className="text-sm font-medium text-gray-800">{lang !== "en" && f.labelTe ? f.labelTe : f.label}</p>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="font-mono text-[10px] text-gray-400">{f.name}</span>
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${typeColors[f.fieldType] || "bg-gray-100 text-gray-600"}`}>

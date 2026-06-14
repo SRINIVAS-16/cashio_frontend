@@ -109,7 +109,7 @@ export default function ProductForm() {
   };
 
   const fieldLabel = (def: CustomFieldDefinition) =>
-    lang === "te" && def.labelTe ? def.labelTe : def.label;
+    lang !== "en" && def.labelTe ? def.labelTe : def.label;
 
   const renderCustomField = (def: CustomFieldDefinition) => (
     <>
