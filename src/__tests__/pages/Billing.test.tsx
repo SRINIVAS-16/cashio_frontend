@@ -17,7 +17,7 @@ vi.mock('../../context/PermissionContext', () => ({
   usePermissions: () => ({ hasPermission: () => true, permissions: new Set() }),
 }));
 vi.mock('../../context/ShopConfigContext', () => ({
-  useShopConfig: () => ({ shop: { name: 'Test Shop', nameTe: '', address: '', phone: '', altPhone: '', gst: '', email: '' }, updateShop: vi.fn() }),
+  useShopConfig: () => ({ shop: { name: 'Test Shop', nameLocal: '', address: '', phone: '', altPhone: '', gst: '', email: '' }, updateShop: vi.fn() }),
 }));
 vi.mock('react-hot-toast', () => ({ default: { success: vi.fn(), error: vi.fn() }, toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('react-router-dom', async () => {

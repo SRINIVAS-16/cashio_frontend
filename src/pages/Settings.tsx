@@ -20,10 +20,14 @@ export default function Settings() {
     setDirty(true);
   };
 
-  const handleSave = () => {
-    updateShop(form);
-    setDirty(false);
-    toast.success(t.settingsSaved || "Settings saved!");
+  const handleSave = async () => {
+    try {
+      await updateShop(form);
+      setDirty(false);
+      toast.success(t.settingsSaved || "Settings saved!");
+    } catch {
+      toast.error("Failed to save settings");
+    }
   };
 
   const handleReset = () => {
@@ -33,17 +37,17 @@ export default function Settings() {
 
   const fields: { key: keyof ShopConfig; label: string; rows?: number }[] = [
     { key: "name", label: t.shopName || "Shop Name" },
-    { key: "nameTe", label: t.shopNameTe || "Shop Name (Telugu)" },
+    { key: "nameLocal", label: t.shopNameTe || "Shop Name (Local)" },
     { key: "tagline", label: t.tagline || "Tagline" },
-    { key: "taglineTe", label: t.taglineTe || "Tagline (Telugu)" },
+    { key: "taglineLocal", label: t.taglineTe || "Tagline (Local)" },
     { key: "phone", label: t.phone || "Phone" },
     { key: "altPhone", label: t.altPhone || "Alternate Phone" },
     { key: "email", label: t.email || "Email" },
     { key: "gst", label: t.gstin || "GSTIN" },
     { key: "address", label: t.addressLabel || "Address", rows: 2 },
-    { key: "addressTe", label: t.addressLabelTe || "Address (Telugu)", rows: 2 },
+    { key: "addressLocal", label: t.addressLabelTe || "Address (Local)", rows: 2 },
     { key: "district", label: t.district || "District" },
-    { key: "districtTe", label: t.districtTe || "District (Telugu)" },
+    { key: "districtLocal", label: t.districtTe || "District (Local)" },
   ];
 
   return (

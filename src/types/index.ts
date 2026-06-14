@@ -21,10 +21,19 @@ export interface AuthResponse {
 export interface Tenant {
   id: string;
   name: string;
+  nameLocal?: string | null;
   slug: string;
   phone?: string | null;
+  altPhone?: string | null;
+  email?: string | null;
   address?: string | null;
+  addressLocal?: string | null;
+  district?: string | null;
+  districtLocal?: string | null;
   gstNo?: string | null;
+  tagline?: string | null;
+  taglineLocal?: string | null;
+  logo?: string | null;
   plan: string;
   isActive: boolean;
   createdAt?: string;

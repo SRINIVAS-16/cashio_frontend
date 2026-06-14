@@ -396,7 +396,7 @@ export default function OrderDetail() {
           {/* Shop Header */}
           <div className="text-center px-5 py-3 border-b border-gray-100 bg-slate-50">
             <h2 className="text-base font-bold text-primary-800">{shopConfig.name}</h2>
-            <p className="text-[11px] text-gray-500">{shopConfig.nameTe}</p>
+            <p className="text-[11px] text-gray-500">{shopConfig.nameLocal}</p>
             <p className="text-[10px] text-gray-400 mt-0.5">{shopConfig.address}</p>
             <p className="text-[10px] text-gray-400">{t.phone}: {shopConfig.phone} | {shopConfig.altPhone}</p>
             <p className="text-[10px] font-semibold text-gray-500 mt-0.5">{t.gstin}: {shopConfig.gst}</p>

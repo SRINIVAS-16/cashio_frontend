@@ -84,8 +84,8 @@ export default function Login() {
             <Sprout className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-lg font-bold text-gray-800 leading-tight">{shopConfig.name}</h1>
-          <p className="text-primary-600 text-xs font-medium mt-0.5">{shopConfig.nameTe}</p>
-          <p className="text-[11px] text-gray-400 mt-1">{shopConfig.taglineTe}</p>
+          <p className="text-primary-600 text-xs font-medium mt-0.5">{shopConfig.nameLocal}</p>
+          <p className="text-[11px] text-gray-400 mt-1">{shopConfig.taglineLocal}</p>
           <div className="flex items-center justify-center gap-1 text-[11px] text-gray-400 mt-2">
             <Phone className="w-3 h-3 flex-shrink-0" /> {shopConfig.phone}
           </div>

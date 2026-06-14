@@ -17,13 +17,13 @@ vi.mock('../../context/ShopConfigContext', () => ({
   useShopConfig: () => ({
     shop: {
       name: 'Test Shop',
-      nameTe: '',
+      nameLocal: '',
       tagline: 'Best inputs',
-      taglineTe: '',
+      taglineLocal: '',
       address: 'Main road',
-      addressTe: '',
+      addressLocal: '',
       district: 'East Godavari',
-      districtTe: '',
+      districtLocal: '',
       phone: '9999999999',
       altPhone: '',
       gst: 'GST123',

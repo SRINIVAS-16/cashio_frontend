@@ -114,7 +114,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               />
               <div className="min-w-0">
                 <h1 className="text-[13px] font-bold text-white leading-tight tracking-tight">
-                  {lang === "te" ? shopConfig.nameTe : shopConfig.name}
+                  {lang === "te" ? shopConfig.nameLocal : shopConfig.name}
                 </h1>
                 <p className="text-[10px] text-primary-200 truncate mt-0.5">{shopConfig.phone}</p>
               </div>

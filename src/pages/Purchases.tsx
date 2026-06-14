@@ -162,7 +162,7 @@ export default function Purchases() {
       </style></head><body>
       <div class="shop-header">
         <h1>${shopConfig.name}</h1>
-        <div class="name-te">${shopConfig.nameTe}</div>
+        <div class="name-te">${shopConfig.nameLocal}</div>
         <div class="addr">${shopConfig.address}</div>
         <div class="contact">Phone: ${shopConfig.phone} | Email: ${shopConfig.email}</div>
         <div class="gst">GSTIN: ${shopConfig.gst}</div>

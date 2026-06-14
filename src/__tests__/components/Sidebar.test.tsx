@@ -36,7 +36,7 @@ const sidebarState = vi.hoisted(() => ({
   shop: {
     shop: {
       name: "Cashio Shop",
-      nameTe: "క్యాషియో షాప్",
+      nameLocal: "క్యాషియో షాప్",
       phone: "9999999999",
       logo: "/logo.svg",
     },

@@ -4,16 +4,16 @@ import { defaultShopConfig, shopConfig } from "../../config/shopConfig";
 describe("shopConfig", () => {
   const requiredFields = [
     "name",
-    "nameTe",
+    "nameLocal",
     "tagline",
-    "taglineTe",
+    "taglineLocal",
     "phone",
     "altPhone",
     "gst",
     "address",
-    "addressTe",
+    "addressLocal",
     "district",
-    "districtTe",
+    "districtLocal",
     "email",
     "logo",
   ] as const;

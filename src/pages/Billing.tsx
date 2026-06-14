@@ -717,7 +717,7 @@ export default function Billing() {
               </button>
             </div>
             <p className="font-bold text-primary-800 text-sm">{shopConfig.name}</p>
-            <p className="text-[10px] text-gray-500">{shopConfig.nameTe}</p>
+            <p className="text-[10px] text-gray-500">{shopConfig.nameLocal}</p>
             <p className="text-[10px] text-gray-400 mt-0.5">{shopConfig.address}</p>
             <p className="text-[10px] text-gray-400">{t.phone}: {shopConfig.phone}</p>
             <p className="text-[10px] font-semibold text-gray-500 mt-0.5">{t.gstin}: {shopConfig.gst}</p>
