@@ -797,24 +797,24 @@ export default function Billing() {
                         </td>
                         <td className="px-3 py-2.5 text-center text-gray-600">{item.quantity}</td>
                         <td className="px-3 py-2.5 text-right">
-                          <input type="text" inputMode="decimal" value={item.price}
-                            onChange={(e) => updateCartItemPrice(key, parseFloat(e.target.value) || 0)}
-                            className="w-20 px-1.5 py-1 rounded border border-gray-200 text-right text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" step="1" />
+                          <input type="text" inputMode="decimal" defaultValue={item.price} key={`price-${key}-${item.total}`}
+                            onBlur={(e) => updateCartItemPrice(key, parseFloat(e.target.value) || 0)}
+                            className="w-20 px-1.5 py-1 rounded border border-gray-200 text-right text-xs focus:ring-1 focus:ring-primary-500 outline-none" />
                         </td>
                         <td className="px-3 py-2.5 text-center">
-                          <input type="text" inputMode="decimal" value={item.cgstPercent}
-                            onChange={(e) => updateCartItemTax(key, "cgstPercent", parseFloat(e.target.value) || 0)}
-                            className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" max="100" step="0.5" />
+                          <input type="text" inputMode="decimal" defaultValue={item.cgstPercent} key={`cgst-${key}-${item.total}`}
+                            onBlur={(e) => updateCartItemTax(key, "cgstPercent", parseFloat(e.target.value) || 0)}
+                            className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" />
                         </td>
                         <td className="px-3 py-2.5 text-center">
-                          <input type="text" inputMode="decimal" value={item.sgstPercent}
-                            onChange={(e) => updateCartItemTax(key, "sgstPercent", parseFloat(e.target.value) || 0)}
-                            className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" max="100" step="0.5" />
+                          <input type="text" inputMode="decimal" defaultValue={item.sgstPercent} key={`sgst-${key}-${item.total}`}
+                            onBlur={(e) => updateCartItemTax(key, "sgstPercent", parseFloat(e.target.value) || 0)}
+                            className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" />
                         </td>
                         <td className="px-3 py-2.5 text-right">
-                          <input type="text" inputMode="decimal" value={item.total}
-                            onChange={(e) => updateCartItemTotal(key, parseFloat(e.target.value) || 0)}
-                            className="w-24 px-1.5 py-1 rounded border border-gray-200 text-right text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none" min="0" step="1" />
+                          <input type="text" inputMode="decimal" defaultValue={item.total} key={`total-${key}-${item.price}`}
+                            onBlur={(e) => updateCartItemTotal(key, parseFloat(e.target.value) || 0)}
+                            className="w-24 px-1.5 py-1 rounded border border-gray-200 text-right text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none" />
                         </td>
                       </tr>
                     );
@@ -829,12 +829,12 @@ export default function Billing() {
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">{t.paidAmount} (₹)</label>
                 <input type="text" inputMode="decimal"
-                  value={paidAmount ?? total}
-                  onChange={(e) => {
+                  defaultValue={paidAmount ?? total} key={`paid-${total}`}
+                  onBlur={(e) => {
                     const val = parseFloat(e.target.value);
                     setPaidAmount(isNaN(val) ? 0 : val);
                   }}
-                  className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm" min="0" max={total} />
+                  className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm" />
                 {(paidAmount !== null && paidAmount < total) && (
                   <p className="text-[10px] text-amber-600 mt-1">
                     {t.dueAmount}: ₹{(total - paidAmount).toLocaleString("en-IN")}
