@@ -3,13 +3,14 @@ import { useState } from "react";
 import { Save, RotateCcw, Store, Palette, Check } from "lucide-react";
 import { useLang } from "../context/LanguageContext";
 import { useShopConfig } from "../context/ShopConfigContext";
+import { languages as allLanguages } from "../i18n";
 import { useTheme, themes } from "../context/ThemeContext";
 import { defaultShopConfig, type ShopConfig } from "../config/shopConfig";
 import toast from "react-hot-toast";
 
 export default function Settings() {
   const { t, lang, setLang, languages } = useLang();
-  const { shop, updateShop } = useShopConfig();
+  const { shop, updateShop, localLanguage, updateLocalLanguage } = useShopConfig();
   const { theme, setTheme } = useTheme();
 
   const [form, setForm] = useState<ShopConfig>({ ...shop });
@@ -90,11 +91,46 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* ─── Language ─────────────────────────────────────── */}
+      {/* ─── Local Language (Tenant Setting) ─────────────── */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
+          <span className="text-sm">🏪</span>
+          <h2 className="text-sm font-semibold text-gray-800">{"Local Language (for all users)"}</h2>
+        </div>
+        <div className="p-5">
+          <p className="text-xs text-gray-500 mb-3">Choose the local language for your shop. All users in this tenant will see English + this language.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {allLanguages.filter((l) => l.code !== "en").map((l) => (
+              <button
+                key={l.code}
+                onClick={async () => {
+                  try {
+                    await updateLocalLanguage(l.code);
+                    toast.success(`Local language set to ${l.nameEn}`);
+                  } catch { toast.error("Failed to update"); }
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
+                  l.code === localLanguage
+                    ? "border-primary-500 bg-primary-50 text-primary-700 font-medium"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <span className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
+                  {l.script}
+                </span>
+                <span className="truncate">{l.name}</span>
+                {l.code === localLanguage && <Check className="w-3 h-3 ml-auto" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Display Language (User Toggle) ────────────────── */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
           <span className="text-sm">🌐</span>
-          <h2 className="text-sm font-semibold text-gray-800">{t.language || "Language"}</h2>
+          <h2 className="text-sm font-semibold text-gray-800">{t.language || "Display Language"}</h2>
         </div>
         <div className="p-5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

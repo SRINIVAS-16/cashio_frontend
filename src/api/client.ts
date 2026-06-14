@@ -174,6 +174,7 @@ export const tenantApi = {
     email?: string; address?: string; addressLocal?: string;
     district?: string; districtLocal?: string;
     gstNo?: string; tagline?: string; taglineLocal?: string; logo?: string;
+    localLanguage?: string;
   }) => api.put("/tenants/me", data),
 };
 

@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { defaultShopConfig, type ShopConfig } from "../config/shopConfig";
 import { tenantApi } from "../api/client";
+import type { LangCode } from "../i18n";
 
 interface ShopConfigCtx {
   shop: ShopConfig;
+  localLanguage: LangCode;
   updateShop: (updates: Partial<ShopConfig>) => Promise<void>;
+  updateLocalLanguage: (lang: LangCode) => Promise<void>;
   loading: boolean;
   reload: () => Promise<void>;
 }
@@ -29,13 +32,16 @@ function mapTenantToShopConfig(tenant: any): ShopConfig {
 
 const ShopConfigContext = createContext<ShopConfigCtx>({
   shop: defaultShopConfig,
+  localLanguage: "te",
   updateShop: async () => {},
+  updateLocalLanguage: async () => {},
   loading: true,
   reload: async () => {},
 });
 
 export function ShopConfigProvider({ children }: { children: ReactNode }) {
   const [shop, setShop] = useState<ShopConfig>(defaultShopConfig);
+  const [localLanguage, setLocalLanguage] = useState<LangCode>("te");
   const [loading, setLoading] = useState(true);
 
   const loadFromApi = useCallback(async () => {
@@ -47,6 +53,7 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
       }
       const res = await tenantApi.getMyTenant();
       setShop(mapTenantToShopConfig(res.data));
+      setLocalLanguage((res.data.localLanguage || "te") as LangCode);
     } catch {
       // Not logged in or API unavailable — use defaults
     } finally {
@@ -59,7 +66,6 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
   }, [loadFromApi]);
 
   const updateShop = async (updates: Partial<ShopConfig>) => {
-    // Map ShopConfig keys back to API field names
     const apiData: any = {};
     if (updates.name !== undefined) apiData.name = updates.name;
     if (updates.nameLocal !== undefined) apiData.nameLocal = updates.nameLocal;
@@ -79,8 +85,13 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
     setShop(mapTenantToShopConfig(res.data));
   };
 
+  const updateLocalLanguage = async (lang: LangCode) => {
+    const res = await tenantApi.updateMyTenant({ localLanguage: lang });
+    setLocalLanguage((res.data.localLanguage || "te") as LangCode);
+  };
+
   return (
-    <ShopConfigContext.Provider value={{ shop, updateShop, loading, reload: loadFromApi }}>
+    <ShopConfigContext.Provider value={{ shop, localLanguage, updateShop, updateLocalLanguage, loading, reload: loadFromApi }}>
       {children}
     </ShopConfigContext.Provider>
   );

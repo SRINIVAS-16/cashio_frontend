@@ -34,6 +34,7 @@ export interface Tenant {
   tagline?: string | null;
   taglineLocal?: string | null;
   logo?: string | null;
+  localLanguage: string; // e.g. "te", "hi", "ta", "kn"
   plan: string;
   isActive: boolean;
   createdAt?: string;
