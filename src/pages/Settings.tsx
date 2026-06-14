@@ -9,7 +9,7 @@ import { defaultShopConfig, type ShopConfig } from "../config/shopConfig";
 import toast from "react-hot-toast";
 
 export default function Settings() {
-  const { t, lang, setLang, languages } = useLang();
+  const { t } = useLang();
   const { shop, updateShop, localLanguage, updateLocalLanguage } = useShopConfig();
   const { theme, setTheme } = useTheme();
 
@@ -120,34 +120,6 @@ export default function Settings() {
                 </span>
                 <span className="truncate">{l.name}</span>
                 {l.code === localLanguage && <Check className="w-3 h-3 ml-auto" />}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Display Language (User Toggle) ────────────────── */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
-          <span className="text-sm">🌐</span>
-          <h2 className="text-sm font-semibold text-gray-800">{t.language || "Display Language"}</h2>
-        </div>
-        <div className="p-5">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {languages.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
-                  l.code === lang
-                    ? "border-primary-500 bg-primary-50 text-primary-700 font-medium"
-                    : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                <span className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
-                  {l.script}
-                </span>
-                <span className="truncate">{l.name}</span>
               </button>
             ))}
           </div>
