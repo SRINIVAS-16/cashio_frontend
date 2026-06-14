@@ -7,8 +7,10 @@ import type { ShopDetails, TenantSettings, User } from "../types";
 interface ShopConfigCtx {
   shop: ShopConfig;
   localLanguage: LangCode;
+  themeColor: string;
   updateShop: (updates: Partial<ShopConfig>) => Promise<void>;
   updateLocalLanguage: (lang: LangCode) => Promise<void>;
+  updateThemeColor: (theme: string) => Promise<void>;
   loading: boolean;
   reload: () => Promise<void>;
 }
@@ -34,8 +36,10 @@ function mapShopDetailsToShopConfig(shopDetails?: ShopDetails | null): ShopConfi
 const ShopConfigContext = createContext<ShopConfigCtx>({
   shop: defaultShopConfig,
   localLanguage: "te",
+  themeColor: "blue",
   updateShop: async () => {},
   updateLocalLanguage: async () => {},
+  updateThemeColor: async () => {},
   loading: true,
   reload: async () => {},
 });
@@ -52,6 +56,7 @@ function getStoredUser(): User | null {
 export function ShopConfigProvider({ children }: { children: ReactNode }) {
   const [shop, setShop] = useState<ShopConfig>(defaultShopConfig);
   const [localLanguage, setLocalLanguage] = useState<LangCode>("te");
+  const [themeColor, setThemeColor] = useState<string>("blue");
   const [loading, setLoading] = useState(true);
   const [tokenVersion, setTokenVersion] = useState(0);
 
@@ -63,6 +68,7 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
       if (!token || storedUser?.role === "superadmin" || storedUser?.tenantId === "__super__") {
         setShop(defaultShopConfig);
         setLocalLanguage("te");
+        setThemeColor("blue");
         setLoading(false);
         return;
       }
@@ -73,7 +79,9 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
       ]);
 
       setShop(mapShopDetailsToShopConfig(shopDetailsRes.data));
-      setLocalLanguage(((settingsRes.data as TenantSettings | null)?.localLanguage || "te") as LangCode);
+      const settings = settingsRes.data as TenantSettings | null;
+      setLocalLanguage((settings?.localLanguage || "te") as LangCode);
+      setThemeColor(settings?.themeColor || "blue");
     } catch {
       setShop(defaultShopConfig);
       setLocalLanguage("te");
@@ -136,8 +144,13 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
     setLocalLanguage((res.data.localLanguage || "te") as LangCode);
   };
 
+  const updateThemeColor = async (theme: string) => {
+    const res = await tenantApi.updateSettings({ themeColor: theme });
+    setThemeColor(res.data.themeColor || "blue");
+  };
+
   return (
-    <ShopConfigContext.Provider value={{ shop, localLanguage, updateShop, updateLocalLanguage, loading, reload: loadFromApi }}>
+    <ShopConfigContext.Provider value={{ shop, localLanguage, themeColor, updateShop, updateLocalLanguage, updateThemeColor, loading, reload: loadFromApi }}>
       {children}
     </ShopConfigContext.Provider>
   );

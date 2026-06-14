@@ -48,8 +48,8 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
         <ShopConfigProvider>
+          <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
               <PermissionProvider>
@@ -111,8 +111,8 @@ export default function App() {
               />
             </AuthProvider>
           </LanguageProvider>
+          </ThemeProvider>
         </ShopConfigProvider>
-      </ThemeProvider>
     </QueryClientProvider>
   );
 }

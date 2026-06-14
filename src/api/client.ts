@@ -189,6 +189,7 @@ export const tenantApi = {
   getSettings: (config?: AxiosRequestConfig) => api.get("/tenants/me/settings", config),
   updateSettings: (data: {
     localLanguage?: string;
+    themeColor?: string;
     currency?: string;
     billPrefix?: string;
     thermalPrintEnabled?: boolean;

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useShopConfig } from "./ShopConfigContext";
 
 export type ThemeKey = "blue" | "emerald" | "purple" | "orange" | "rose";
 
@@ -23,21 +24,30 @@ interface ThemeCtx {
 
 const ThemeContext = createContext<ThemeCtx>({ theme: "blue", setTheme: () => {} });
 
-const STORAGE_KEY = "cashio-theme";
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  const { themeColor, updateThemeColor } = useShopConfig();
   const [theme, setThemeState] = useState<ThemeKey>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return themes.some((t) => t.key === saved) ? (saved as ThemeKey) : "blue";
+    return themes.some((t) => t.key === themeColor) ? (themeColor as ThemeKey) : "blue";
   });
+
+  // Sync with DB value when it changes (e.g., tenant switch)
+  useEffect(() => {
+    const validTheme = themes.some((t) => t.key === themeColor) ? (themeColor as ThemeKey) : "blue";
+    setThemeState(validTheme);
+  }, [themeColor]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
+  const setTheme = (t: ThemeKey) => {
+    setThemeState(t);
+    document.documentElement.setAttribute("data-theme", t);
+    updateThemeColor(t).catch(() => {});
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme: setThemeState }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

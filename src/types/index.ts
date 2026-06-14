@@ -37,6 +37,7 @@ export interface ShopDetails {
 
 export interface TenantSettings {
   localLanguage: string;
+  themeColor: string;
   currency: string;
   billPrefix: string;
   thermalPrintEnabled: boolean;
