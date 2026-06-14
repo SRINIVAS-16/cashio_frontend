@@ -24,11 +24,13 @@ vi.mock("../../context/PermissionContext", () => ({
 
 import ProtectedRoute from "../../components/ProtectedRoute";
 
-function renderRoute(element: React.ReactNode) {
+function renderRoute(element: React.ReactNode, initialEntries = ["/protected"]) {
   return render(
-    <MemoryRouter initialEntries={["/protected"]}>
+    <MemoryRouter initialEntries={initialEntries}>
       <Routes>
         <Route path="/login" element={<div>Login Page</div>} />
+        <Route path="/" element={<div>Home Page</div>} />
+        <Route path="/super-admin" element={<div>Super Admin Page</div>} />
         <Route path="/protected" element={element} />
       </Routes>
     </MemoryRouter>
@@ -76,6 +78,30 @@ describe("ProtectedRoute", () => {
     );
 
     expect(screen.getByText("Secret")).toBeInTheDocument();
+  });
+
+  it("redirects super admins away from regular app routes", () => {
+    routeState.auth.user = { role: "superadmin" };
+
+    renderRoute(
+      <ProtectedRoute redirectSuperAdmin>
+        <div>Secret</div>
+      </ProtectedRoute>
+    );
+
+    expect(screen.getByText("Super Admin Page")).toBeInTheDocument();
+  });
+
+  it("blocks non-super-admin users from super admin routes", () => {
+    routeState.auth.user = { role: "admin" };
+
+    renderRoute(
+      <ProtectedRoute superAdminOnly>
+        <div>Secret</div>
+      </ProtectedRoute>
+    );
+
+    expect(screen.getByText("Home Page")).toBeInTheDocument();
   });
 
   it("shows an access denied state when the user lacks permission", () => {

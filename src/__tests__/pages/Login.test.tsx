@@ -120,6 +120,16 @@ describe("Login page", () => {
     });
   });
 
+  it("redirects super admins to the super admin console after login", async () => {
+    mocks.authState.user = { id: 99, name: "Platform Admin", role: "superadmin" } as any;
+
+    renderWithRouter(<Login />);
+
+    await waitFor(() => {
+      expect(mocks.navigate).toHaveBeenCalledWith("/super-admin", { replace: true });
+    });
+  });
+
   it("shows tenant selection and calls selectTenant", async () => {
     mocks.authState.pendingLogin = {
       username: "admin",

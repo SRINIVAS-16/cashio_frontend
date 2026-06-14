@@ -197,7 +197,7 @@ export const tenantApi = {
   }) => api.put("/tenants/me/settings", data),
 };
 
-// Super admin UI is not implemented yet; these endpoints are ready for future screens.
+// ─── Super Admin APIs ───────────────────────────────────────────
 export const superAdminApi = {
   getTenants: () => api.get("/super-admin/tenants"),
   createTenant: (data: { name: string; slug: string; plan?: string; adminUsername: string; adminPassword: string; adminName: string }) =>

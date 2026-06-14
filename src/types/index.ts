@@ -1,8 +1,9 @@
 // ─── TypeScript Types ────────────────────────────────────────────
 
-export type UserRole = "admin" | "manager" | "cashier" | "viewer";
+export type ManagedUserRole = "admin" | "manager" | "cashier" | "viewer";
+export type UserRole = ManagedUserRole | "superadmin";
 
-export const ALL_ROLES: UserRole[] = ["admin", "manager", "cashier", "viewer"];
+export const ALL_ROLES: ManagedUserRole[] = ["admin", "manager", "cashier", "viewer"];
 
 export interface User {
   id: number;

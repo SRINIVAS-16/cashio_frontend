@@ -31,7 +31,7 @@ export default function Login() {
         toast.success(t.welcomeBack);
         loginSuccessPendingRef.current = false;
       }
-      navigate("/", { replace: true });
+      navigate(user.role === "superadmin" ? "/super-admin" : "/", { replace: true });
     }
   }, [authLoading, user, navigate, t]);
 

@@ -6,9 +6,11 @@ import { usePermissions } from "../context/PermissionContext";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   permission?: string; // permission code e.g. "products", "billing"
+  superAdminOnly?: boolean;
+  redirectSuperAdmin?: boolean;
 }
 
-export default function ProtectedRoute({ children, permission }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, permission, superAdminOnly = false, redirectSuperAdmin = false }: ProtectedRouteProps) {
   const { user, isLoading: authLoading } = useAuth();
   const { hasPermission, isLoading: permLoading } = usePermissions();
 
@@ -23,6 +25,16 @@ export default function ProtectedRoute({ children, permission }: ProtectedRouteP
   // Not authenticated → redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  const isSuperAdmin = user.role === "superadmin";
+
+  if (superAdminOnly && !isSuperAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (redirectSuperAdmin && isSuperAdmin) {
+    return <Navigate to="/super-admin" replace />;
   }
 
   // Authenticated but no permission → show access denied

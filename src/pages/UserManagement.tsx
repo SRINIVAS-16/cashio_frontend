@@ -110,6 +110,7 @@ export default function UserManagement() {
   };
 
   const roleBadgeColor: Record<UserRole, string> = {
+    superadmin: "bg-purple-50 text-purple-700",
     admin: "bg-red-50 text-red-700",
     manager: "bg-blue-50 text-blue-700",
     cashier: "bg-green-50 text-green-700",

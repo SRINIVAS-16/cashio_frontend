@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { defaultShopConfig, type ShopConfig } from "../config/shopConfig";
 import { tenantApi } from "../api/client";
 import type { LangCode } from "../i18n";
-import type { ShopDetails, TenantSettings } from "../types";
+import type { ShopDetails, TenantSettings, User } from "../types";
 
 interface ShopConfigCtx {
   shop: ShopConfig;
@@ -40,6 +40,15 @@ const ShopConfigContext = createContext<ShopConfigCtx>({
   reload: async () => {},
 });
 
+function getStoredUser(): User | null {
+  try {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? (JSON.parse(savedUser) as User) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function ShopConfigProvider({ children }: { children: ReactNode }) {
   const [shop, setShop] = useState<ShopConfig>(defaultShopConfig);
   const [localLanguage, setLocalLanguage] = useState<LangCode>("te");
@@ -47,9 +56,11 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
   const [tokenVersion, setTokenVersion] = useState(0);
 
   const loadFromApi = useCallback(async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
+      const storedUser = getStoredUser();
+      if (!token || storedUser?.role === "superadmin" || storedUser?.tenantId === "__super__") {
         setShop(defaultShopConfig);
         setLocalLanguage("te");
         setLoading(false);
@@ -64,7 +75,8 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
       setShop(mapShopDetailsToShopConfig(shopDetailsRes.data));
       setLocalLanguage(((settingsRes.data as TenantSettings | null)?.localLanguage || "te") as LangCode);
     } catch {
-      // Not logged in or API unavailable — use defaults
+      setShop(defaultShopConfig);
+      setLocalLanguage("te");
     } finally {
       setLoading(false);
     }
