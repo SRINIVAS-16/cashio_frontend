@@ -1,7 +1,7 @@
 // ─── Auth Context (OAuth 2.0 + Username/Password + Role-Based) ──
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } from "@azure/msal-browser";
-import { User, AuthResponse, UserRole } from "../types";
+import { User, LoginResponse, TenantLoginOption, UserRole } from "../types";
 import { authApi, setAuthErrorHandler } from "../api/client";
 import { msalConfig, loginRequest, apiTokenRequest, isOAuthEnabled } from "../config/authConfig";
 
@@ -13,10 +13,18 @@ if (isOAuthEnabled) {
   msalReady = msalInstance.initialize();
 }
 
+export interface PendingLogin {
+  username: string;
+  password: string;
+  tenants: TenantLoginOption[];
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  pendingLogin: PendingLogin | null;
   login: (username: string, password: string) => Promise<void>;
+  selectTenant: (tenantId: string) => Promise<void>;
   loginWithOAuth: () => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -26,9 +34,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function persistLocalSession(data: { token: string; user: User }, setToken: (token: string) => void, setUser: (user: User) => void) {
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
+  localStorage.setItem("authMethod", "local");
+  setToken(data.token);
+  setUser(data.user);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [pendingLogin, setPendingLogin] = useState<PendingLogin | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   // Guard: ignore 401 interceptor during initial auth flow
   const initializingRef = useRef(true);
@@ -39,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (initializingRef.current) return; // Don't interrupt initial auth
       setToken(null);
       setUser(null);
+      setPendingLogin(null);
     });
   }, []);
 
@@ -166,15 +184,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     init();
   }, [acquireToken, resolveUserFromBackend]);
 
-  // Username/Password login (existing flow)
+  // Username/Password login (supports tenant selection)
   const login = async (username: string, password: string) => {
     const res = await authApi.login({ username, password });
-    const data: AuthResponse = res.data;
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    localStorage.setItem("authMethod", "local");
-    setToken(data.token);
-    setUser(data.user);
+    const data: LoginResponse = res.data;
+
+    if (data.requiresTenantSelection) {
+      setPendingLogin({ username, password, tenants: data.tenants || [] });
+      return;
+    }
+
+    if (!data.token || !data.user) {
+      throw new Error("Login failed");
+    }
+
+    setPendingLogin(null);
+    persistLocalSession({ token: data.token, user: data.user }, setToken, setUser);
+  };
+
+  const selectTenant = async (tenantId: string) => {
+    if (!pendingLogin) return;
+
+    const res = await authApi.loginWithTenant({
+      username: pendingLogin.username,
+      password: pendingLogin.password,
+      tenantId,
+    });
+    const data = res.data as LoginResponse;
+
+    if (!data.token || !data.user) {
+      throw new Error("Login failed");
+    }
+
+    persistLocalSession({ token: data.token, user: data.user }, setToken, setUser);
+    setPendingLogin(null);
   };
 
   // OAuth 2.0 login via Azure AD (redirect flow — page navigates away)
@@ -208,6 +251,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // user at least lands on /login.
           setToken(null);
           setUser(null);
+          setPendingLogin(null);
           setIsLoading(false);
         });
       // Clear local storage but DON'T null out user/token yet — the redirect
@@ -224,6 +268,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("authMethod");
     setToken(null);
     setUser(null);
+    setPendingLogin(null);
   };
 
   // Role check helper
@@ -237,7 +282,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         token,
+        pendingLogin,
         login,
+        selectTenant,
         loginWithOAuth,
         logout,
         isLoading,

@@ -45,6 +45,8 @@ api.interceptors.response.use(
 export const authApi = {
   login: (data: { username: string; password: string }) =>
     api.post("/auth/login", data),
+  loginWithTenant: (data: { username: string; password: string; tenantId: string }) =>
+    api.post("/auth/login-with-tenant", data),
   register: (data: { username: string; password: string; name: string }) =>
     api.post("/auth/register", data),
   getProfile: () => api.get("/auth/me"),

@@ -18,6 +18,20 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface TenantLoginOption {
+  tenantId: string;
+  tenantName: string;
+  tenantSlug: string;
+  role: UserRole;
+}
+
+export interface LoginResponse {
+  token?: string;
+  user?: User;
+  requiresTenantSelection?: boolean;
+  tenants?: TenantLoginOption[];
+}
+
 export interface ShopDetails {
   name: string;
   nameLocal?: string | null;
