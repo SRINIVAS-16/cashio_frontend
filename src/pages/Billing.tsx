@@ -109,8 +109,13 @@ export default function Billing() {
   };
 
   // Compute item total including tax
-  const calcItemTotal = (qty: number, price: number, cgst: number, sgst: number) =>
-    Math.round(qty * price * (1 + cgst / 100 + sgst / 100) * 100) / 100;
+  // Match backend: round each tax component separately (correct accounting)
+  const calcItemTotal = (qty: number, price: number, cgst: number, sgst: number) => {
+    const base = qty * price;
+    const cgstAmt = Math.round(base * cgst / 100 * 100) / 100;
+    const sgstAmt = Math.round(base * sgst / 100 * 100) / 100;
+    return Math.round((base + cgstAmt + sgstAmt) * 100) / 100;
+  };
 
   const selectBatch = (product: Product, batch?: AvailableBatch) => {
     const cgst = product.cgstPercent ?? 2.5;
@@ -194,16 +199,21 @@ export default function Billing() {
   const updateCartItemTotal = (key: string, newTotal: number) => {
     setCart(cart.map((c) => {
       if (cartKey(c) !== key) return c;
+      // Back-calculate price from total using same rounding logic as calcItemTotal
+      // total = base + round(base * cgst%) + round(base * sgst%) where base = qty * price
+      // Approximate: base ≈ total / (1 + cgst/100 + sgst/100), then verify and adjust
       const taxMultiplier = 1 + c.cgstPercent / 100 + c.sgstPercent / 100;
-      const newPrice = Math.round((newTotal / (c.quantity * taxMultiplier)) * 100) / 100;
-      return { ...c, price: newPrice, total: newTotal };
+      const approxPrice = Math.round((newTotal / (c.quantity * taxMultiplier)) * 100) / 100;
+      // Recalculate total with this price to ensure consistency
+      const recalcTotal = calcItemTotal(c.quantity, approxPrice, c.cgstPercent, c.sgstPercent);
+      return { ...c, price: approxPrice, total: recalcTotal };
     }));
   };
 
   const total = cart.reduce((sum, item) => sum + item.total, 0);
   const totalBase = Math.round(cart.reduce((sum, item) => sum + item.quantity * item.price, 0) * 100) / 100;
-  const totalCgst = Math.round(cart.reduce((sum, item) => sum + item.quantity * item.price * item.cgstPercent / 100, 0) * 100) / 100;
-  const totalSgst = Math.round(cart.reduce((sum, item) => sum + item.quantity * item.price * item.sgstPercent / 100, 0) * 100) / 100;
+  const totalCgst = cart.reduce((sum, item) => sum + Math.round(item.quantity * item.price * item.cgstPercent / 100 * 100) / 100, 0);
+  const totalSgst = cart.reduce((sum, item) => sum + Math.round(item.quantity * item.price * item.sgstPercent / 100 * 100) / 100, 0);
 
   // ─── Quick Add Customer ────────────────────────────────
   const handleQuickAdd = async () => {
@@ -235,7 +245,7 @@ export default function Billing() {
           mfgDate: item.mfgDate || null,
           expiryDate: item.expiryDate || null,
         })),
-        paidAmount: paidAmount ?? total,
+        paidAmount: Math.min(paidAmount ?? total, total),
         paymentMode,
         orderDate: orderDate !== new Date().toISOString().split("T")[0] ? orderDate : undefined,
         notes: notes || undefined,
