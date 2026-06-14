@@ -541,12 +541,6 @@ export default function Billing() {
             <div className="p-3">
               {selectedCustomer ? (
                 <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-                  <div className="sm:w-1/4 shrink-0">
-                    <input type="date" value={orderDate}
-                      onChange={(e) => setOrderDate(e.target.value)}
-                      max={new Date().toISOString().split("T")[0]}
-                      className="w-full px-2.5 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs" />
-                  </div>
                   <div className="flex-1 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2 flex items-center justify-between">
                     <div>
                       <p className="font-medium text-emerald-800 text-xs">{selectedCustomer.name}</p>
@@ -554,16 +548,16 @@ export default function Billing() {
                     </div>
                     <button onClick={() => { setSelectedCustomer(null); setPhoneSearch(""); }} className="text-emerald-500 hover:text-red-500 transition text-xs font-medium">✕</button>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                <div className="flex flex-col sm:flex-row gap-2">
                   <div className="sm:w-1/4 shrink-0">
                     <input type="date" value={orderDate}
                       onChange={(e) => setOrderDate(e.target.value)}
                       max={new Date().toISOString().split("T")[0]}
-                      className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs" />
+                      className="w-full px-2.5 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs" />
                   </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                     <input
@@ -578,6 +572,12 @@ export default function Billing() {
                       <UserPlus className="w-3 h-3" /> Add New
                     </button>
                   )}
+                  <div className="sm:w-1/4 shrink-0">
+                    <input type="date" value={orderDate}
+                      onChange={(e) => setOrderDate(e.target.value)}
+                      max={new Date().toISOString().split("T")[0]}
+                      className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 outline-none text-xs" />
+                  </div>
                 </div>
 
                   {phoneSearch.length >= 3 && (
