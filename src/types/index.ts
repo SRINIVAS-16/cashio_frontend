@@ -10,7 +10,7 @@ export interface User {
   name: string;
   email?: string;
   role: UserRole;
-  tenantId: number;
+  tenantId: string;
 }
 
 export interface AuthResponse {
@@ -19,7 +19,7 @@ export interface AuthResponse {
 }
 
 export interface Tenant {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   phone?: string | null;

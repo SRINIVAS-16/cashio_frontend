@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: account.name || account.username,
       email: account.username,
       role: role || (account.idTokenClaims?.roles?.[0] as UserRole) || "viewer",
-      tenantId: 0, // Will be resolved from backend
+      tenantId: "", // Will be resolved from backend
     };
   }, []);
 
