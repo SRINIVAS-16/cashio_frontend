@@ -797,22 +797,22 @@ export default function Billing() {
                         </td>
                         <td className="px-3 py-2.5 text-center text-gray-600">{item.quantity}</td>
                         <td className="px-3 py-2.5 text-right">
-                          <input type="number" value={item.price}
+                          <input type="text" inputMode="decimal" value={item.price}
                             onChange={(e) => updateCartItemPrice(key, parseFloat(e.target.value) || 0)}
                             className="w-20 px-1.5 py-1 rounded border border-gray-200 text-right text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" step="1" />
                         </td>
                         <td className="px-3 py-2.5 text-center">
-                          <input type="number" value={item.cgstPercent}
+                          <input type="text" inputMode="decimal" value={item.cgstPercent}
                             onChange={(e) => updateCartItemTax(key, "cgstPercent", parseFloat(e.target.value) || 0)}
                             className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" max="100" step="0.5" />
                         </td>
                         <td className="px-3 py-2.5 text-center">
-                          <input type="number" value={item.sgstPercent}
+                          <input type="text" inputMode="decimal" value={item.sgstPercent}
                             onChange={(e) => updateCartItemTax(key, "sgstPercent", parseFloat(e.target.value) || 0)}
                             className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" max="100" step="0.5" />
                         </td>
                         <td className="px-3 py-2.5 text-right">
-                          <input type="number" value={item.total}
+                          <input type="text" inputMode="decimal" value={item.total}
                             onChange={(e) => updateCartItemTotal(key, parseFloat(e.target.value) || 0)}
                             className="w-24 px-1.5 py-1 rounded border border-gray-200 text-right text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none" min="0" step="1" />
                         </td>
@@ -828,7 +828,7 @@ export default function Billing() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">{t.paidAmount} (₹)</label>
-                <input type="number"
+                <input type="text" inputMode="decimal"
                   value={paidAmount ?? total}
                   onChange={(e) => {
                     const val = parseFloat(e.target.value);
