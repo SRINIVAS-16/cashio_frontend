@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sprout, Eye, EyeOff, Phone, MapPin } from "lucide-react";
+import { Sprout, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
-import { useShopConfig } from "../context/ShopConfigContext";
 import toast from "react-hot-toast";
 
 const RECENT_TENANT_CODES_KEY = "cashio-recent-tenant-codes";
@@ -35,7 +34,6 @@ function normalizeTenantCode(value: string): string {
 export default function Login() {
   const { user, isLoading: authLoading, login } = useAuth();
   const { t } = useLang();
-  const { shop: shopConfig } = useShopConfig();
   const navigate = useNavigate();
   const loginSuccessPendingRef = useRef(false);
   const [tenantCode, setTenantCode] = useState("");
@@ -101,130 +99,115 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-600 rounded-xl shadow-sm mb-3">
-            <Sprout className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-lg font-bold text-gray-800 leading-tight">{shopConfig.name}</h1>
-          <p className="text-primary-600 text-xs font-medium mt-0.5">{shopConfig.nameLocal}</p>
-          <p className="text-[11px] text-gray-400 mt-1">{shopConfig.taglineLocal}</p>
-          <div className="flex items-center justify-center gap-1 text-[11px] text-gray-400 mt-2">
-            <Phone className="w-3 h-3 flex-shrink-0" /> {shopConfig.phone}
-          </div>
-          <div className="flex items-center justify-center gap-1 text-[10px] text-gray-400 mt-0.5 px-4">
-            <MapPin className="w-3 h-3 flex-shrink-0" /> {shopConfig.district}
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-primary-900 flex items-center justify-center p-4">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M0%200h60v60H0z%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M30%2030m-1%200a1%201%200%201%201%202%200a1%201%200%201%201-2%200%22%20fill%3D%22rgba(255%2C255%2C255%2C0.03)%22%2F%3E%3C%2Fsvg%3E')] opacity-50"></div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg shadow-gray-200/50 p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-700 text-center">{t.loginTitle}</h2>
-
-          {errorMsg && (
-            <div
-              role="alert"
-              aria-live="polite"
-              className="flex items-start gap-2 px-3 py-2 rounded-md border border-red-200 bg-red-50 text-red-700 text-xs"
-            >
-              <span className="flex-1">{errorMsg}</span>
-              <button
-                type="button"
-                onClick={() => setErrorMsg(null)}
-                aria-label="Dismiss"
-                className="text-red-400 hover:text-red-600 leading-none"
-              >
-                ×
-              </button>
+      <div className="relative w-full max-w-md">
+        {/* Glass card */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 space-y-6">
+          {/* Logo & branding */}
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-lg shadow-primary-500/30 mb-4">
+              <Sprout className="w-8 h-8 text-white" />
             </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Tenant Code</label>
-            <input
-              type="text"
-              value={tenantCode}
-              onChange={(e) => {
-                setTenantCode(e.target.value);
-                clearError();
-              }}
-              className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition"
-              placeholder="Tenant Code"
-              required
-              autoFocus
-            />
+            <h1 className="text-xl font-bold text-white tracking-tight">Cashio</h1>
+            <p className="text-sm text-white/60 mt-1">Shop Management Platform</p>
           </div>
 
-          {recentTenantCodes.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Recent tenant codes</p>
-              <div className="flex flex-wrap gap-2">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {errorMsg && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="flex items-start gap-2 px-3 py-2.5 rounded-lg border border-red-400/30 bg-red-500/10 backdrop-blur text-red-200 text-xs"
+              >
+                <span className="flex-1">{errorMsg}</span>
+                <button type="button" onClick={() => setErrorMsg(null)} aria-label="Dismiss" className="text-red-300 hover:text-red-100 leading-none">×</button>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-medium text-white/70 mb-1.5">Tenant Code</label>
+              <input
+                type="text"
+                value={tenantCode}
+                onChange={(e) => { setTenantCode(e.target.value); clearError(); }}
+                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-primary-400 focus:ring-1 focus:ring-primary-400/50 text-sm outline-none transition backdrop-blur"
+                placeholder="Enter your shop code"
+                required
+                autoFocus
+              />
+            </div>
+
+            {recentTenantCodes.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
                 {recentTenantCodes.map((recentCode) => (
                   <button
                     key={recentCode}
                     type="button"
-                    onClick={() => {
-                      setTenantCode(recentCode);
-                      clearError();
-                    }}
-                    className="px-3 py-1.5 rounded-full border border-gray-200 text-xs text-gray-700 hover:border-primary-500 hover:text-primary-700 transition"
+                    onClick={() => { setTenantCode(recentCode); clearError(); }}
+                    className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/60 hover:bg-white/10 hover:text-white/90 hover:border-white/20 transition"
                   >
                     {recentCode}
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t.username}</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-                clearError();
-              }}
-              className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition"
-              placeholder="Username"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t.password}</label>
-            <div className="relative">
+            <div>
+              <label className="block text-xs font-medium text-white/70 mb-1.5">{t.username}</label>
               <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  clearError();
-                }}
-                className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm outline-none transition pr-10"
-                placeholder="Password"
+                type="text"
+                value={username}
+                onChange={(e) => { setUsername(e.target.value); clearError(); }}
+                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-primary-400 focus:ring-1 focus:ring-primary-400/50 text-sm outline-none transition backdrop-blur"
+                placeholder="Username"
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-          >
-            {loading ? "..." : "Login"}
-          </button>
+            <div>
+              <label className="block text-xs font-medium text-white/70 mb-1.5">{t.password}</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); clearError(); }}
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-primary-400 focus:ring-1 focus:ring-primary-400/50 text-sm outline-none transition backdrop-blur pr-10"
+                  placeholder="Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
 
-          <p className="text-xs text-gray-400 mt-2 text-center">Platform admin? Use code: PLATFORM</p>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-lg hover:from-primary-600 hover:to-primary-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-500/25"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Signing in...
+                </span>
+              ) : "Sign In"}
+            </button>
+          </form>
+
+          <p className="text-[11px] text-white/30 text-center">Platform admin? Use code: <span className="text-white/50 font-mono">PLATFORM</span></p>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-[10px] text-white/20 mt-4">Powered by Cashio • Secure Multi-Tenant Platform</p>
       </div>
     </div>
   );
