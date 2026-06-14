@@ -44,11 +44,14 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
   const [shop, setShop] = useState<ShopConfig>(defaultShopConfig);
   const [localLanguage, setLocalLanguage] = useState<LangCode>("te");
   const [loading, setLoading] = useState(true);
+  const [tokenVersion, setTokenVersion] = useState(0);
 
   const loadFromApi = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
+        setShop(defaultShopConfig);
+        setLocalLanguage("te");
         setLoading(false);
         return;
       }
@@ -69,7 +72,32 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadFromApi();
-  }, [loadFromApi]);
+  }, [loadFromApi, tokenVersion]);
+
+  // Watch for token changes (login, logout, tenant switch)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "token") {
+        setTokenVersion((v) => v + 1);
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+
+    // Also poll for same-tab token changes (storage event only fires cross-tab)
+    let lastToken = localStorage.getItem("token");
+    const interval = setInterval(() => {
+      const currentToken = localStorage.getItem("token");
+      if (currentToken !== lastToken) {
+        lastToken = currentToken;
+        setTokenVersion((v) => v + 1);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const updateShop = async (updates: Partial<ShopConfig>) => {
     const apiData: Record<string, string> = {};
