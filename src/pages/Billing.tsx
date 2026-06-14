@@ -531,11 +531,11 @@ export default function Billing() {
       {step === 1 && (
         <div className="flex flex-col flex-1 min-h-0 gap-3">
           {/* ─── Customer Section (compact) ───────────────── */}
-          <div className={`bg-white rounded-lg shadow-sm overflow-hidden shrink-0 ${!selectedCustomer ? "border-2 border-amber-400 ring-2 ring-amber-100" : "border border-gray-100"}`}>
-            <div className={`px-4 py-2.5 border-b ${!selectedCustomer ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-gray-100"}`}>
-              <h3 className={`font-medium text-xs flex items-center gap-1.5 ${!selectedCustomer ? "text-amber-800" : "text-slate-700"}`}>
-                <User className={`w-3.5 h-3.5 ${!selectedCustomer ? "text-amber-600" : "text-primary-600"}`} />
-                {!selectedCustomer ? "⚠️ Select Customer First" : t.customer}
+          <div className={`bg-white rounded-lg shadow-sm overflow-hidden shrink-0 ${!selectedCustomer ? "border border-amber-200" : "border border-gray-100"}`}>
+            <div className={`px-4 py-2.5 border-b ${!selectedCustomer ? "bg-amber-50/60 border-amber-100" : "bg-slate-50 border-gray-100"}`}>
+              <h3 className={`font-medium text-xs flex items-center gap-1.5 ${!selectedCustomer ? "text-amber-700" : "text-slate-700"}`}>
+                <User className={`w-3.5 h-3.5 ${!selectedCustomer ? "text-amber-500" : "text-primary-600"}`} />
+                {!selectedCustomer ? "Select a customer to continue" : t.customer}
               </h3>
             </div>
             <div className="p-3">
