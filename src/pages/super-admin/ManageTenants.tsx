@@ -6,7 +6,7 @@ import { superAdminApi } from "../../api/client";
 interface SuperAdminTenant {
   id: string;
   name: string;
-  slug: string;
+  code: string;
   plan: "free" | "basic" | "pro";
   isActive: boolean;
   createdAt?: string;
@@ -16,7 +16,7 @@ interface SuperAdminTenant {
 
 interface TenantForm {
   name: string;
-  slug: string;
+  code: string;
   plan: "free" | "basic" | "pro";
   adminUsername: string;
   adminPassword: string;
@@ -31,7 +31,7 @@ interface TenantEditForm {
 
 const emptyCreateForm: TenantForm = {
   name: "",
-  slug: "",
+  code: "",
   plan: "free",
   adminUsername: "",
   adminPassword: "",
@@ -46,7 +46,7 @@ function normalizeTenant(raw: any): SuperAdminTenant {
   return {
     id: raw.id,
     name: raw.name,
-    slug: raw.slug,
+    code: raw.code,
     plan: normalizePlan(raw.plan),
     isActive: Boolean(raw.isActive),
     createdAt: raw.createdAt,
@@ -91,7 +91,7 @@ export default function ManageTenants() {
     const query = search.trim().toLowerCase();
     if (!query) return tenants;
     return tenants.filter(
-      (tenant) => tenant.name.toLowerCase().includes(query) || tenant.slug.toLowerCase().includes(query)
+      (tenant) => tenant.name.toLowerCase().includes(query) || tenant.code.toLowerCase().includes(query)
     );
   }, [search, tenants]);
 
@@ -207,7 +207,7 @@ export default function ManageTenants() {
                 <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   <tr>
                     <th className="px-4 py-3">Name</th>
-                    <th className="px-4 py-3">Slug</th>
+                    <th className="px-4 py-3">Code</th>
                     <th className="px-4 py-3">Plan</th>
                     <th className="px-4 py-3">Users</th>
                     <th className="px-4 py-3">Status</th>
@@ -227,7 +227,7 @@ export default function ManageTenants() {
                       <td className="px-4 py-3">
                         <div className="font-semibold text-gray-900">{tenant.name}</div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500">/{tenant.slug}</td>
+                      <td className="px-4 py-3 text-gray-500">{tenant.code}</td>
                       <td className="px-4 py-3">
                         <span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold capitalize text-primary-700">
                           {tenant.plan}
@@ -294,8 +294,8 @@ export default function ManageTenants() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-gray-200 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Slug</p>
-                  <p className="mt-2 text-sm font-medium text-gray-900">/{selectedTenant.slug}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Code</p>
+                  <p className="mt-2 text-sm font-medium text-gray-900">{selectedTenant.code}</p>
                 </div>
                 <div className="rounded-xl border border-gray-200 p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -395,16 +395,16 @@ export default function ManageTenants() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">Slug</label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Tenant Code</label>
                 <input
                   type="text"
-                  value={createForm.slug}
+                  value={createForm.code}
                   onChange={(e) => setCreateForm((current) => ({
                     ...current,
-                    slug: e.target.value.toLowerCase().replace(/\s+/g, "-")
+                    code: e.target.value.toLowerCase().replace(/\s+/g, "-")
                   }))}
                   className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  placeholder="tenant-slug"
+                  placeholder="tenant-code"
                   required
                 />
               </div>
@@ -475,3 +475,4 @@ export default function ManageTenants() {
     </div>
   );
 }
+

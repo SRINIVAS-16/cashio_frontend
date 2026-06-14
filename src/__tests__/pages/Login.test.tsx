@@ -4,14 +4,10 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({
   navigate: vi.fn(),
   login: vi.fn(),
-  loginWithOAuth: vi.fn(),
-  lookupBySlug: vi.fn(),
   toastSuccess: vi.fn(),
-  toastError: vi.fn(),
   authState: {
     user: null as null | { id: number; name: string; role?: string },
     isLoading: false,
-    isOAuthAvailable: true,
   },
 }));
 
@@ -25,8 +21,6 @@ vi.mock("../../context/AuthContext", () => ({
     user: mocks.authState.user,
     isLoading: mocks.authState.isLoading,
     login: mocks.login,
-    loginWithOAuth: mocks.loginWithOAuth,
-    isOAuthAvailable: mocks.authState.isOAuthAvailable,
   }),
 }));
 
@@ -55,17 +49,9 @@ vi.mock("../../context/ShopConfigContext", () => ({
   }),
 }));
 
-vi.mock("../../config/authConfig", () => ({ isLocalAuthEnabled: true }));
-
-vi.mock("../../api/client", () => ({
-  tenantApi: {
-    lookupBySlug: mocks.lookupBySlug,
-  },
-}));
-
 vi.mock("react-hot-toast", () => ({
-  default: { success: mocks.toastSuccess, error: mocks.toastError },
-  toast: { success: mocks.toastSuccess, error: mocks.toastError },
+  default: { success: mocks.toastSuccess },
+  toast: { success: mocks.toastSuccess },
 }));
 
 import Login from "../../pages/Login";
@@ -76,50 +62,38 @@ describe("Login page", () => {
     localStorage.clear();
     mocks.navigate.mockReset();
     mocks.login.mockReset();
-    mocks.loginWithOAuth.mockReset();
-    mocks.lookupBySlug.mockReset();
     mocks.toastSuccess.mockReset();
-    mocks.toastError.mockReset();
     mocks.authState.user = null;
     mocks.authState.isLoading = false;
-    mocks.authState.isOAuthAvailable = true;
   });
 
-  it("renders the tenant-first login step and shop details", () => {
+  it("renders the single-step login form and shop details", () => {
     renderWithRouter(<Login />);
 
     expect(screen.getByRole("heading", { name: "Test Shop" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("sri-sai-agro")).toBeRequired();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Login as Platform Admin" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Login with Microsoft" })).toBeInTheDocument();
-    expect(screen.getByText("Default: admin / admin123")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Tenant Code")).toBeRequired();
+    expect(screen.getByPlaceholderText("Username")).toBeRequired();
+    expect(screen.getByPlaceholderText("Password")).toBeRequired();
+    expect(screen.getByRole("button", { name: "Login" })).toBeInTheDocument();
+    expect(screen.getByText("Platform admin? Use code: PLATFORM")).toBeInTheDocument();
   });
 
-  it("looks up a tenant and then submits tenant-scoped credentials", async () => {
-    mocks.lookupBySlug.mockResolvedValue({ data: { name: "Sri Sai Agro Store", slug: "tenant-one" } });
+  it("submits tenant code credentials and stores recent codes", async () => {
     mocks.login.mockImplementation(async () => {
       mocks.authState.user = { id: 1, name: "Admin" } as any;
     });
 
-    const { container, rerender } = renderWithRouter(<Login />);
+    const { rerender } = renderWithRouter(<Login />);
 
-    fireEvent.change(screen.getByPlaceholderText("sri-sai-agro"), { target: { value: "tenant-one" } });
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(mocks.lookupBySlug).toHaveBeenCalledWith("tenant-one");
-      expect(screen.getByText("Logging into: Sri Sai Agro Store")).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "admin" } });
-    fireEvent.change(container.querySelector('input[type="password"]')!, { target: { value: "secret123" } });
-    fireEvent.click(screen.getByRole("button", { name: "loginButton" }));
+    fireEvent.change(screen.getByPlaceholderText("Tenant Code"), { target: { value: "tenant-one" } });
+    fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "admin" } });
+    fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "secret123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Login" }));
 
     await waitFor(() => {
-      expect(mocks.login).toHaveBeenCalledWith("admin", "secret123", "tenant-one");
+      expect(mocks.login).toHaveBeenCalledWith("tenant-one", "admin", "secret123");
     });
-    expect(localStorage.getItem("cashio-recent-tenants")).toBe(JSON.stringify(["tenant-one"]));
+    expect(localStorage.getItem("cashio-recent-tenant-codes")).toBe(JSON.stringify(["tenant-one"]));
 
     rerender(<Login />);
 
@@ -129,32 +103,26 @@ describe("Login page", () => {
     });
   });
 
-  it("shows recent tenants and allows quick selection", async () => {
-    localStorage.setItem("cashio-recent-tenants", JSON.stringify(["tenant-one", "tenant-two"]));
-    mocks.lookupBySlug.mockResolvedValue({ data: { name: "Tenant One", slug: "tenant-one" } });
+  it("shows recent codes and allows quick selection", () => {
+    localStorage.setItem("cashio-recent-tenant-codes", JSON.stringify(["tenant-one", "tenant-two"]));
 
     renderWithRouter(<Login />);
 
     fireEvent.click(screen.getByRole("button", { name: "tenant-one" }));
 
-    await waitFor(() => {
-      expect(mocks.lookupBySlug).toHaveBeenCalledWith("tenant-one");
-      expect(screen.getByText("Logging into: Tenant One")).toBeInTheDocument();
-    });
+    expect(screen.getByPlaceholderText("Tenant Code")).toHaveValue("tenant-one");
   });
 
-  it("lets platform admins skip tenant selection", async () => {
+  it("normalizes PLATFORM tenant code for super admin logins", async () => {
     renderWithRouter(<Login />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Login as Platform Admin" }));
-    expect(screen.getByText("Platform Admin Login")).toBeInTheDocument();
-
-    fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "platform-admin" } });
-    fireEvent.change(document.querySelector('input[type="password"]')!, { target: { value: "secret123" } });
-    fireEvent.click(screen.getByRole("button", { name: "loginButton" }));
+    fireEvent.change(screen.getByPlaceholderText("Tenant Code"), { target: { value: "platform" } });
+    fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "platform-admin" } });
+    fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "secret123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Login" }));
 
     await waitFor(() => {
-      expect(mocks.login).toHaveBeenCalledWith("platform-admin", "secret123", undefined);
+      expect(mocks.login).toHaveBeenCalledWith("PLATFORM", "platform-admin", "secret123");
     });
   });
 
@@ -163,30 +131,21 @@ describe("Login page", () => {
       response: { status: 401, data: { error: "Invalid credentials" } },
     });
 
-    const { container } = renderWithRouter(<Login />);
+    renderWithRouter(<Login />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Login as Platform Admin" }));
-    fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "admin" } });
-    fireEvent.change(container.querySelector('input[type="password"]')!, { target: { value: "wrong" } });
-    fireEvent.click(screen.getByRole("button", { name: "loginButton" }));
+    fireEvent.change(screen.getByPlaceholderText("Tenant Code"), { target: { value: "tenant-one" } });
+    fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "admin" } });
+    fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "wrong" } });
+    fireEvent.click(screen.getByRole("button", { name: "Login" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Incorrect username or password. Please try again.",
+      "Incorrect tenant code, username, or password. Please try again."
     );
 
-    fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "admin2" } });
+    fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "admin2" } });
 
     await waitFor(() => {
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
-  });
-
-  it("shows a loading spinner while auth is being resolved", () => {
-    mocks.authState.isLoading = true;
-
-    const { container } = renderWithRouter(<Login />);
-
-    expect(container.querySelector(".animate-spin")).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText("sri-sai-agro")).not.toBeInTheDocument();
   });
 });

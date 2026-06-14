@@ -45,7 +45,7 @@ export interface TenantSettings {
 export interface Tenant {
   id: string;
   name: string;
-  slug: string;
+  code: string;
   plan: string;
   isActive: boolean;
   createdAt?: string;

@@ -14,7 +14,7 @@ export function setAuthErrorHandler(handler: () => void) {
   onAuthError = handler;
 }
 
-// Attach JWT / OAuth token to every request
+// Attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -30,7 +30,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("authMethod");
       // Notify AuthContext to clear React state (triggers ProtectedRoute → /login)
       if (onAuthError) onAuthError();
     }
@@ -43,7 +42,7 @@ api.interceptors.response.use(
 
 // ─── Auth APIs ───────────────────────────────────────────────────
 export const authApi = {
-  login: (data: { username: string; password: string; tenantSlug?: string }) =>
+  login: (data: { tenantCode: string; username: string; password: string }) =>
     api.post("/auth/login", data),
   register: (data: { username: string; password: string; name: string }) =>
     api.post("/auth/register", data),
@@ -164,9 +163,9 @@ export const permissionApi = {
 
 // ─── Tenant APIs ─────────────────────────────────────────────────
 export const tenantApi = {
-  lookupBySlug: (slug: string) => api.get(`/tenants/lookup/${slug}`),
+  lookupByCode: (code: string) => api.get(`/tenants/lookup/${code}`),
   register: (data: {
-    shopName: string; slug: string; phone?: string; address?: string; gstNo?: string;
+    shopName: string; code: string; phone?: string; address?: string; gstNo?: string;
     adminUsername: string; adminPassword: string; adminName: string;
   }) => api.post("/tenants/register", data),
   getMyTenant: (config?: AxiosRequestConfig) => api.get("/tenants/me", config),
@@ -199,7 +198,7 @@ export const tenantApi = {
 // ─── Super Admin APIs ───────────────────────────────────────────
 export const superAdminApi = {
   getTenants: () => api.get("/super-admin/tenants"),
-  createTenant: (data: { name: string; slug: string; plan?: string; adminUsername: string; adminPassword: string; adminName: string }) =>
+  createTenant: (data: { name: string; code: string; plan?: string; adminUsername: string; adminPassword: string; adminName: string }) =>
     api.post("/super-admin/tenants", data),
   getTenant: (id: string) => api.get(`/super-admin/tenants/${id}`),
   updateTenant: (id: string, data: { name?: string; plan?: string; isActive?: boolean }) => api.put(`/super-admin/tenants/${id}`, data),

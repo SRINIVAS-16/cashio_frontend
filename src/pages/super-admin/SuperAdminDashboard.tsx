@@ -6,7 +6,7 @@ import { superAdminApi } from "../../api/client";
 interface SuperAdminTenant {
   id: string;
   name: string;
-  slug: string;
+  code: string;
   plan: string;
   isActive: boolean;
   createdAt?: string;
@@ -17,7 +17,7 @@ function normalizeTenant(raw: any): SuperAdminTenant {
   return {
     id: raw.id,
     name: raw.name,
-    slug: raw.slug,
+    code: raw.code,
     plan: raw.plan || "free",
     isActive: Boolean(raw.isActive),
     createdAt: raw.createdAt,
@@ -168,7 +168,7 @@ export default function SuperAdminDashboard() {
                     <div key={tenant.id} className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3">
                       <div>
                         <p className="font-medium text-gray-900">{tenant.name}</p>
-                        <p className="text-sm text-gray-500">/{tenant.slug}</p>
+                        <p className="text-sm text-gray-500">{tenant.code}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-semibold capitalize text-gray-700">{tenant.plan}</p>
@@ -191,3 +191,4 @@ export default function SuperAdminDashboard() {
     </div>
   );
 }
+
