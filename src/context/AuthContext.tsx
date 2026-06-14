@@ -1,11 +1,9 @@
-// ─── Auth Context (OAuth 2.0 + Username/Password + Role-Based) ──
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } from "@azure/msal-browser";
-import { User, LoginResponse, TenantLoginOption, UserRole } from "../types";
+import { User, AuthResponse, UserRole } from "../types";
 import { authApi, setAuthErrorHandler } from "../api/client";
 import { msalConfig, loginRequest, apiTokenRequest, isOAuthEnabled } from "../config/authConfig";
 
-// Initialize MSAL instance once at module load (only if OAuth is configured)
 let msalInstance: PublicClientApplication | null = null;
 let msalReady: Promise<void> | null = null;
 if (isOAuthEnabled) {
@@ -13,18 +11,10 @@ if (isOAuthEnabled) {
   msalReady = msalInstance.initialize();
 }
 
-export interface PendingLogin {
-  username: string;
-  password: string;
-  tenants: TenantLoginOption[];
-}
-
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  pendingLogin: PendingLogin | null;
-  login: (username: string, password: string) => Promise<void>;
-  selectTenant: (tenantId: string) => Promise<void>;
+  login: (username: string, password: string, tenantSlug?: string) => Promise<void>;
   loginWithOAuth: () => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -34,7 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function persistLocalSession(data: { token: string; user: User }, setToken: (token: string) => void, setUser: (user: User) => void) {
+function persistLocalSession(data: AuthResponse, setToken: (token: string) => void, setUser: (user: User) => void) {
   localStorage.setItem("token", data.token);
   localStorage.setItem("user", JSON.stringify(data.user));
   localStorage.setItem("authMethod", "local");
@@ -45,22 +35,17 @@ function persistLocalSession(data: { token: string; user: User }, setToken: (tok
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [pendingLogin, setPendingLogin] = useState<PendingLogin | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  // Guard: ignore 401 interceptor during initial auth flow
   const initializingRef = useRef(true);
 
-  // Register the global 401 handler — clears React state so ProtectedRoute navigates to /login
   useEffect(() => {
     setAuthErrorHandler(() => {
-      if (initializingRef.current) return; // Don't interrupt initial auth
+      if (initializingRef.current) return;
       setToken(null);
       setUser(null);
-      setPendingLogin(null);
     });
   }, []);
 
-  // Map Azure AD account to app User (role comes from token claims or API)
   const mapAzureAccountToUser = useCallback((account: AccountInfo, role?: UserRole): User => {
     return {
       id: 0,
@@ -68,11 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: account.name || account.username,
       email: account.username,
       role: role || (account.idTokenClaims?.roles?.[0] as UserRole) || "viewer",
-      tenantId: "", // Will be resolved from backend
+      tenantId: "",
     };
   }, []);
 
-  // Get access token silently (refresh if needed)
   const acquireToken = useCallback(async (): Promise<string | null> => {
     if (!msalInstance) return null;
     const accounts = msalInstance.getAllAccounts();
@@ -85,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return response.accessToken;
     } catch (error) {
       if (error instanceof InteractionRequiredAuthError) {
-        // Fall back to redirect for re-consent
         await msalInstance.acquireTokenRedirect(apiTokenRequest);
         return null;
       }
@@ -93,10 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Resolve user role from backend (needs token in localStorage for Axios interceptor)
   const resolveUserFromBackend = useCallback(async (accessToken: string, account: AccountInfo) => {
     const appUser = mapAzureAccountToUser(account);
-    // Store token BEFORE making API calls so Axios interceptor can attach it
     localStorage.setItem("token", accessToken);
     localStorage.setItem("authMethod", "oauth");
     try {
@@ -106,21 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       appUser.id = backendUser.id;
       appUser.tenantId = backendUser.tenantId;
     } catch {
-      // Backend unreachable or user not provisioned — use role from token claims
+      // Backend unreachable or user not provisioned — use role from token claims.
     }
     setToken(accessToken);
     setUser(appUser);
     localStorage.setItem("user", JSON.stringify(appUser));
   }, [mapAzureAccountToUser]);
 
-  // Initialize: check for existing session (OAuth redirect result or local)
   useEffect(() => {
     const init = async () => {
       if (msalInstance && msalReady) {
         try {
           await msalReady;
-
-          // 1. Process redirect callback (returns null if this isn't a redirect)
           const response = await msalInstance.handleRedirectPromise();
           if (response?.account && response.accessToken) {
             await resolveUserFromBackend(response.accessToken, response.account);
@@ -129,7 +107,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
           }
 
-          // 2. Check for existing MSAL session (cached tokens)
           const accounts = msalInstance.getAllAccounts();
           if (accounts.length > 0) {
             const accessToken = await acquireToken();
@@ -141,14 +118,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           }
 
-          // 3. No MSAL cache — try silent SSO using the Microsoft browser
-          // session. If the user is already signed in to Entra ID in this
-          // browser, this completes login with zero clicks. If not, it
-          // throws InteractionRequiredAuthError silently and we stay on
-          // the Login page (without auto-redirecting, which would loop).
-          // Skip this immediately after a logout, otherwise the user gets
-          // signed straight back in because the Microsoft session is still
-          // alive in the browser.
           const justLoggedOut = sessionStorage.getItem("justLoggedOut") === "1";
           sessionStorage.removeItem("justLoggedOut");
           if (!justLoggedOut) {
@@ -161,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return;
               }
             } catch {
-              // No active Microsoft session — user must click "Login"
+              // No active Microsoft session — user must click login.
             }
           }
         } catch (err) {
@@ -169,7 +138,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // 3. Fall back to local token-based auth
       const savedToken = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
       const authMethod = localStorage.getItem("authMethod");
@@ -184,79 +152,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     init();
   }, [acquireToken, resolveUserFromBackend]);
 
-  // Username/Password login (supports tenant selection)
-  const login = async (username: string, password: string) => {
-    const res = await authApi.login({ username, password });
-    const data: LoginResponse = res.data;
-
-    if (data.requiresTenantSelection) {
-      setPendingLogin({ username, password, tenants: data.tenants || [] });
-      return;
-    }
+  const login = async (username: string, password: string, tenantSlug?: string) => {
+    const res = await authApi.login({ username, password, tenantSlug });
+    const data = res.data as AuthResponse;
 
     if (!data.token || !data.user) {
       throw new Error("Login failed");
     }
 
-    setPendingLogin(null);
-    persistLocalSession({ token: data.token, user: data.user }, setToken, setUser);
+    persistLocalSession(data, setToken, setUser);
   };
 
-  const selectTenant = async (tenantId: string) => {
-    if (!pendingLogin) return;
-
-    const res = await authApi.loginWithTenant({
-      username: pendingLogin.username,
-      password: pendingLogin.password,
-      tenantId,
-    });
-    const data = res.data as LoginResponse;
-
-    if (!data.token || !data.user) {
-      throw new Error("Login failed");
-    }
-
-    persistLocalSession({ token: data.token, user: data.user }, setToken, setUser);
-    setPendingLogin(null);
-  };
-
-  // OAuth 2.0 login via Azure AD (redirect flow — page navigates away)
   const loginWithOAuth = async () => {
     if (!msalInstance || !msalReady) {
       throw new Error("OAuth is not configured. Set VITE_AZURE_CLIENT_ID in .env");
     }
     await msalReady;
-    // This navigates the browser to Microsoft login — does not return
     await msalInstance.loginRedirect(loginRequest);
   };
 
-  // Logout (both OAuth and local)
   const logout = () => {
     const authMethod = localStorage.getItem("authMethod");
 
     if (authMethod === "oauth" && msalInstance) {
-      // Mark that we're logging out so the next page-load init skips
-      // ssoSilent (which would otherwise sign the user back in using their
-      // still-active Microsoft browser session).
       sessionStorage.setItem("justLoggedOut", "1");
-      // Keep the loading spinner visible during the redirect to Microsoft —
-      // otherwise React unmounts the protected page, the Login form flashes
-      // for a frame, then the browser navigates away.
       setIsLoading(true);
       msalInstance
         .logoutRedirect({ postLogoutRedirectUri: window.location.origin })
         .catch((err) => {
           console.error(err);
-          // Redirect failed — fall back to clearing state locally so the
-          // user at least lands on /login.
           setToken(null);
           setUser(null);
-          setPendingLogin(null);
           setIsLoading(false);
         });
-      // Clear local storage but DON'T null out user/token yet — the redirect
-      // is about to replace the document, so leaving state intact prevents
-      // any in-between render of /login.
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("authMethod");
@@ -268,10 +196,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("authMethod");
     setToken(null);
     setUser(null);
-    setPendingLogin(null);
   };
 
-  // Role check helper
   const hasRole = (...roles: UserRole[]): boolean => {
     if (!user) return false;
     return roles.includes(user.role);
@@ -282,9 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         token,
-        pendingLogin,
         login,
-        selectTenant,
         loginWithOAuth,
         logout,
         isLoading,

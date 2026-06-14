@@ -43,10 +43,8 @@ api.interceptors.response.use(
 
 // ─── Auth APIs ───────────────────────────────────────────────────
 export const authApi = {
-  login: (data: { username: string; password: string }) =>
+  login: (data: { username: string; password: string; tenantSlug?: string }) =>
     api.post("/auth/login", data),
-  loginWithTenant: (data: { username: string; password: string; tenantId: string }) =>
-    api.post("/auth/login-with-tenant", data),
   register: (data: { username: string; password: string; name: string }) =>
     api.post("/auth/register", data),
   getProfile: () => api.get("/auth/me"),
@@ -166,6 +164,7 @@ export const permissionApi = {
 
 // ─── Tenant APIs ─────────────────────────────────────────────────
 export const tenantApi = {
+  lookupBySlug: (slug: string) => api.get(`/tenants/lookup/${slug}`),
   register: (data: {
     shopName: string; slug: string; phone?: string; address?: string; gstNo?: string;
     adminUsername: string; adminPassword: string; adminName: string;

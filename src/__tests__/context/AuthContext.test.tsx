@@ -132,7 +132,7 @@ describe("AuthContext", () => {
           <div data-testid="loading">{String(isLoading)}</div>
           <div data-testid="user">{user?.username ?? "none"}</div>
           <div data-testid="token">{token ?? "none"}</div>
-          <button onClick={() => login("alice", "secret")}>login</button>
+          <button onClick={() => login("alice", "secret", "tenant-one")}>login</button>
         </div>
       );
     }
@@ -148,7 +148,7 @@ describe("AuthContext", () => {
 
     await waitFor(() => expect(screen.getByTestId("user")).toHaveTextContent("alice"));
     expect(screen.getByTestId("token")).toHaveTextContent("jwt-token");
-    expect(authModule.loginMock).toHaveBeenCalledWith({ username: "alice", password: "secret" });
+    expect(authModule.loginMock).toHaveBeenCalledWith({ username: "alice", password: "secret", tenantSlug: "tenant-one" });
     expect(localStorage.getItem("token")).toBe("jwt-token");
     expect(localStorage.getItem("user")).toBe(JSON.stringify(mockUser));
     expect(localStorage.getItem("authMethod")).toBe("local");

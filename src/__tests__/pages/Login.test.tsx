@@ -4,19 +4,14 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({
   navigate: vi.fn(),
   login: vi.fn(),
-  selectTenant: vi.fn(),
   loginWithOAuth: vi.fn(),
+  lookupBySlug: vi.fn(),
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
   authState: {
-    user: null as null | { id: number; name: string },
+    user: null as null | { id: number; name: string; role?: string },
     isLoading: false,
     isOAuthAvailable: true,
-    pendingLogin: null as null | {
-      username: string;
-      password: string;
-      tenants: Array<{ tenantId: string; tenantName: string; tenantSlug: string; role: string }>;
-    },
   },
 }));
 
@@ -29,9 +24,7 @@ vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({
     user: mocks.authState.user,
     isLoading: mocks.authState.isLoading,
-    pendingLogin: mocks.authState.pendingLogin,
     login: mocks.login,
-    selectTenant: mocks.selectTenant,
     loginWithOAuth: mocks.loginWithOAuth,
     isOAuthAvailable: mocks.authState.isOAuthAvailable,
   }),
@@ -64,6 +57,12 @@ vi.mock("../../context/ShopConfigContext", () => ({
 
 vi.mock("../../config/authConfig", () => ({ isLocalAuthEnabled: true }));
 
+vi.mock("../../api/client", () => ({
+  tenantApi: {
+    lookupBySlug: mocks.lookupBySlug,
+  },
+}));
+
 vi.mock("react-hot-toast", () => ({
   default: { success: mocks.toastSuccess, error: mocks.toastError },
   toast: { success: mocks.toastSuccess, error: mocks.toastError },
@@ -74,43 +73,53 @@ import { renderWithRouter } from "./testUtils";
 
 describe("Login page", () => {
   beforeEach(() => {
+    localStorage.clear();
     mocks.navigate.mockReset();
     mocks.login.mockReset();
-    mocks.selectTenant.mockReset();
     mocks.loginWithOAuth.mockReset();
+    mocks.lookupBySlug.mockReset();
     mocks.toastSuccess.mockReset();
     mocks.toastError.mockReset();
     mocks.authState.user = null;
     mocks.authState.isLoading = false;
     mocks.authState.isOAuthAvailable = true;
-    mocks.authState.pendingLogin = null;
   });
 
-  it("renders the login form and shop details", () => {
-    const { container } = renderWithRouter(<Login />);
+  it("renders the tenant-first login step and shop details", () => {
+    renderWithRouter(<Login />);
 
     expect(screen.getByRole("heading", { name: "Test Shop" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("admin")).toBeRequired();
-    expect(container.querySelector('input[type="password"]')).toBeRequired();
-    expect(screen.getByRole("button", { name: "loginButton" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("sri-sai-agro")).toBeRequired();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Login as Platform Admin" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Login with Microsoft" })).toBeInTheDocument();
     expect(screen.getByText("Default: admin / admin123")).toBeInTheDocument();
   });
 
-  it("submits credentials and navigates on success", async () => {
+  it("looks up a tenant and then submits tenant-scoped credentials", async () => {
+    mocks.lookupBySlug.mockResolvedValue({ data: { name: "Sri Sai Agro Store", slug: "tenant-one" } });
     mocks.login.mockImplementation(async () => {
       mocks.authState.user = { id: 1, name: "Admin" } as any;
     });
 
     const { container, rerender } = renderWithRouter(<Login />);
 
+    fireEvent.change(screen.getByPlaceholderText("sri-sai-agro"), { target: { value: "tenant-one" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await waitFor(() => {
+      expect(mocks.lookupBySlug).toHaveBeenCalledWith("tenant-one");
+      expect(screen.getByText("Logging into: Sri Sai Agro Store")).toBeInTheDocument();
+    });
+
     fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "admin" } });
     fireEvent.change(container.querySelector('input[type="password"]')!, { target: { value: "secret123" } });
     fireEvent.click(screen.getByRole("button", { name: "loginButton" }));
 
     await waitFor(() => {
-      expect(mocks.login).toHaveBeenCalledWith("admin", "secret123");
+      expect(mocks.login).toHaveBeenCalledWith("admin", "secret123", "tenant-one");
     });
+    expect(localStorage.getItem("cashio-recent-tenants")).toBe(JSON.stringify(["tenant-one"]));
 
     rerender(<Login />);
 
@@ -120,33 +129,32 @@ describe("Login page", () => {
     });
   });
 
-  it("redirects super admins to the super admin console after login", async () => {
-    mocks.authState.user = { id: 99, name: "Platform Admin", role: "superadmin" } as any;
+  it("shows recent tenants and allows quick selection", async () => {
+    localStorage.setItem("cashio-recent-tenants", JSON.stringify(["tenant-one", "tenant-two"]));
+    mocks.lookupBySlug.mockResolvedValue({ data: { name: "Tenant One", slug: "tenant-one" } });
 
     renderWithRouter(<Login />);
 
+    fireEvent.click(screen.getByRole("button", { name: "tenant-one" }));
+
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith("/super-admin", { replace: true });
+      expect(mocks.lookupBySlug).toHaveBeenCalledWith("tenant-one");
+      expect(screen.getByText("Logging into: Tenant One")).toBeInTheDocument();
     });
   });
 
-  it("shows tenant selection and calls selectTenant", async () => {
-    mocks.authState.pendingLogin = {
-      username: "admin",
-      password: "secret123",
-      tenants: [
-        { tenantId: "t1", tenantName: "Tenant One", tenantSlug: "tenant-one", role: "admin" },
-        { tenantId: "t2", tenantName: "Tenant Two", tenantSlug: "tenant-two", role: "viewer" },
-      ],
-    };
-
+  it("lets platform admins skip tenant selection", async () => {
     renderWithRouter(<Login />);
 
-    expect(screen.getByText("Select your tenant")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Tenant One/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Login as Platform Admin" }));
+    expect(screen.getByText("Platform Admin Login")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "platform-admin" } });
+    fireEvent.change(document.querySelector('input[type="password"]')!, { target: { value: "secret123" } });
+    fireEvent.click(screen.getByRole("button", { name: "loginButton" }));
 
     await waitFor(() => {
-      expect(mocks.selectTenant).toHaveBeenCalledWith("t1");
+      expect(mocks.login).toHaveBeenCalledWith("platform-admin", "secret123", undefined);
     });
   });
 
@@ -157,6 +165,7 @@ describe("Login page", () => {
 
     const { container } = renderWithRouter(<Login />);
 
+    fireEvent.click(screen.getByRole("button", { name: "Login as Platform Admin" }));
     fireEvent.change(screen.getByPlaceholderText("admin"), { target: { value: "admin" } });
     fireEvent.change(container.querySelector('input[type="password"]')!, { target: { value: "wrong" } });
     fireEvent.click(screen.getByRole("button", { name: "loginButton" }));
@@ -178,6 +187,6 @@ describe("Login page", () => {
     const { container } = renderWithRouter(<Login />);
 
     expect(container.querySelector(".animate-spin")).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText("admin")).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("sri-sai-agro")).not.toBeInTheDocument();
   });
 });

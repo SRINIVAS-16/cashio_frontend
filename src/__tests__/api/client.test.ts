@@ -113,15 +113,13 @@ describe("api client", () => {
 
   it("calls auth, product, customer, and order endpoints with the correct payloads", async () => {
     const client = await loadClient();
-    const loginData = { username: "alice", password: "secret" };
-    const tenantLoginData = { username: "alice", password: "secret", tenantId: "00000000-0000-0000-0000-000000000001" };
+    const loginData = { username: "alice", password: "secret", tenantSlug: "tenant-one" };
     const registerData = { username: "bob", password: "secret", name: "Bob" };
     const productData = { name: "Urea" };
     const customerData = { name: "Customer" };
     const orderData = { items: [{ productId: 1, quantity: 2 }] };
 
     client.authApi.login(loginData);
-    client.authApi.loginWithTenant(tenantLoginData);
     client.authApi.register(registerData);
     client.authApi.getProfile();
     client.productApi.getAll("seed", "fertilizer");
@@ -142,27 +140,34 @@ describe("api client", () => {
     client.orderApi.cancel(9);
 
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(1, "/auth/login", loginData);
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(2, "/auth/login-with-tenant", tenantLoginData);
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(3, "/auth/register", registerData);
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(2, "/auth/register", registerData);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(1, "/auth/me");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(2, "/products", { params: { search: "seed", category: "fertilizer" } });
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(3, "/products/7", undefined);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(4, "/products/categories", undefined);
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(4, "/products", productData);
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(3, "/products", productData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(1, "/products/7", productData);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(1, "/products/7");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(5, "/customers", { params: { search: "alice" } });
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(6, "/customers/3", undefined);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(7, "/customers/phone/9999999999", undefined);
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(5, "/customers", customerData);
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(4, "/customers", customerData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(2, "/customers/3", customerData);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(2, "/customers/3");
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(8, "/orders", {
       params: { page: 2, limit: 50, startDate: "2024-01-01", endDate: "2024-01-31", customerIds: "1,2" },
     });
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(9, "/orders/9", undefined);
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(6, "/orders", orderData);
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(5, "/orders", orderData);
     expect(axiosState.instance.patch).toHaveBeenCalledWith("/orders/9/cancel");
+  });
+
+  it("calls the public tenant lookup endpoint", async () => {
+    const client = await loadClient();
+
+    client.tenantApi.lookupBySlug("tenant-one");
+
+    expect(axiosState.instance.get).toHaveBeenCalledWith("/tenants/lookup/tenant-one");
   });
 
   it("calls payment, custom field, and dashboard endpoints correctly", async () => {
@@ -221,7 +226,6 @@ describe("api client", () => {
     const dealerData = { name: "Dealer" };
     const userData = { username: "carol", password: "secret", name: "Carol", role: "manager" };
     const userUpdate = { name: "Carol Updated", role: "admin" };
-    const superAdminLogin = { username: "superadmin", password: "super123" };
     const superAdminTenant = {
       name: "Acme Agro",
       slug: "acme-agro",
@@ -290,9 +294,8 @@ describe("api client", () => {
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(5, "/users", userData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(3, "/users/12", userUpdate);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(2, "/users/12");
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(6, "/super-admin/login", superAdminLogin);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(13, "/super-admin/tenants");
-    expect(axiosState.instance.post).toHaveBeenNthCalledWith(7, "/super-admin/tenants", superAdminTenant);
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(6, "/super-admin/tenants", superAdminTenant);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(14, "/super-admin/tenants/tenant-1");
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(4, "/super-admin/tenants/tenant-1", superAdminTenantUpdate);
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(15, "/super-admin/tenants/tenant-1/users");
