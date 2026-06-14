@@ -191,6 +191,15 @@ export default function Billing() {
     }));
   };
 
+  const updateCartItemTotal = (key: string, newTotal: number) => {
+    setCart(cart.map((c) => {
+      if (cartKey(c) !== key) return c;
+      const taxMultiplier = 1 + c.cgstPercent / 100 + c.sgstPercent / 100;
+      const newPrice = Math.round((newTotal / (c.quantity * taxMultiplier)) * 100) / 100;
+      return { ...c, price: newPrice, total: newTotal };
+    }));
+  };
+
   const total = cart.reduce((sum, item) => sum + item.total, 0);
   const totalBase = Math.round(cart.reduce((sum, item) => sum + item.quantity * item.price, 0) * 100) / 100;
   const totalCgst = Math.round(cart.reduce((sum, item) => sum + item.quantity * item.price * item.cgstPercent / 100, 0) * 100) / 100;
@@ -792,7 +801,11 @@ export default function Billing() {
                             onChange={(e) => updateCartItemTax(key, "sgstPercent", parseFloat(e.target.value) || 0)}
                             className="w-14 px-1.5 py-1 rounded border border-gray-200 text-center text-xs focus:ring-1 focus:ring-primary-500 outline-none" min="0" max="100" step="0.5" />
                         </td>
-                        <td className="px-3 py-2.5 text-right font-semibold text-gray-800">₹{item.total.toLocaleString("en-IN")}</td>
+                        <td className="px-3 py-2.5 text-right">
+                          <input type="number" value={item.total}
+                            onChange={(e) => updateCartItemTotal(key, parseFloat(e.target.value) || 0)}
+                            className="w-24 px-1.5 py-1 rounded border border-gray-200 text-right text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none" min="0" step="1" />
+                        </td>
                       </tr>
                     );
                     })}
