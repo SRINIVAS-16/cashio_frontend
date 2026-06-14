@@ -253,13 +253,13 @@ const en = {
 
   // Settings Page
   shopName: "Shop Name",
-  shopNameTe: "Shop Name (Telugu)",
+  shopNameTe: "Shop Name (Local)",
   tagline: "Tagline",
   taglineTe: "Tagline (Local)",
   altPhone: "Alternate Phone",
   email: "Email",
   addressLabel: "Address",
-  addressLabelTe: "Address (Telugu)",
+  addressLabelTe: "Address (Local)",
   district: "District",
   districtTe: "District (Local)",
   themeColor: "Theme Color",

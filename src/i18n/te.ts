@@ -253,13 +253,13 @@ const te = {
 
   // Settings Page
   shopName: "దుకాణం పేరు",
-  shopNameTe: "దుకాణం పేరు (తెలుగు)",
+  shopNameTe: "దుకాణం పేరు (స్థానిక)",
   tagline: "ట్యాగ్‌లైన్",
   taglineTe: "ట్యాగ్‌లైన్ (లోకల్)",
   altPhone: "ప్రత్యామ్నాయ ఫోన్",
   email: "ఇమెయిల్",
   addressLabel: "చిరునామా",
-  addressLabelTe: "చిరునామా (తెలుగు)",
+  addressLabelTe: "చిరునామా (స్థానిక)",
   district: "జిల్లా",
   districtTe: "జిల్లా (లోకల్)",
   themeColor: "థీమ్ రంగు",
