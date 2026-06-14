@@ -254,7 +254,6 @@ describe("api client", () => {
     client.userApi.create(userData);
     client.userApi.update(12, userUpdate);
     client.userApi.delete(12);
-    client.superAdminApi.login(superAdminLogin);
     client.superAdminApi.getTenants();
     client.superAdminApi.createTenant(superAdminTenant);
     client.superAdminApi.getTenant("tenant-1");

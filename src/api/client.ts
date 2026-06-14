@@ -199,7 +199,6 @@ export const tenantApi = {
 
 // Super admin UI is not implemented yet; these endpoints are ready for future screens.
 export const superAdminApi = {
-  login: (data: { username: string; password: string }) => api.post("/super-admin/login", data),
   getTenants: () => api.get("/super-admin/tenants"),
   createTenant: (data: { name: string; slug: string; plan?: string; adminUsername: string; adminPassword: string; adminName: string }) =>
     api.post("/super-admin/tenants", data),
