@@ -20,7 +20,6 @@ interface TenantForm {
   plan: "free" | "basic" | "pro";
   adminUsername: string;
   adminPassword: string;
-  adminName: string;
 }
 
 interface TenantEditForm {
@@ -35,7 +34,6 @@ const emptyCreateForm: TenantForm = {
   plan: "free",
   adminUsername: "",
   adminPassword: "",
-  adminName: "",
 };
 
 function normalizePlan(plan?: string): "free" | "basic" | "pro" {
@@ -419,16 +417,6 @@ export default function ManageTenants() {
                   <option value="basic">Basic</option>
                   <option value="pro">Pro</option>
                 </select>
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">Admin Full Name</label>
-                <input
-                  type="text"
-                  value={createForm.adminName}
-                  onChange={(e) => setCreateForm((current) => ({ ...current, adminName: e.target.value }))}
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  required
-                />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Admin Username</label>

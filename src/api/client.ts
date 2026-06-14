@@ -198,7 +198,7 @@ export const tenantApi = {
 // ─── Super Admin APIs ───────────────────────────────────────────
 export const superAdminApi = {
   getTenants: () => api.get("/super-admin/tenants"),
-  createTenant: (data: { name: string; code: string; plan?: string; adminUsername: string; adminPassword: string; adminName: string }) =>
+  createTenant: (data: { name: string; code: string; plan?: string; adminUsername: string; adminPassword: string }) =>
     api.post("/super-admin/tenants", data),
   getTenant: (id: string) => api.get(`/super-admin/tenants/${id}`),
   updateTenant: (id: string, data: { name?: string; plan?: string; isActive?: boolean }) => api.put(`/super-admin/tenants/${id}`, data),
