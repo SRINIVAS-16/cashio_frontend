@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { defaultShopConfig, type ShopConfig } from "../config/shopConfig";
 import { tenantApi } from "../api/client";
 import type { LangCode } from "../i18n";
+import type { ShopDetails, TenantSettings } from "../types";
 
 interface ShopConfigCtx {
   shop: ShopConfig;
@@ -12,21 +13,21 @@ interface ShopConfigCtx {
   reload: () => Promise<void>;
 }
 
-function mapTenantToShopConfig(tenant: any): ShopConfig {
+function mapShopDetailsToShopConfig(shopDetails?: ShopDetails | null): ShopConfig {
   return {
-    name: tenant.name || "",
-    nameLocal: tenant.nameLocal || "",
-    tagline: tenant.tagline || "",
-    taglineLocal: tenant.taglineLocal || "",
-    phone: tenant.phone || "",
-    altPhone: tenant.altPhone || "",
-    gst: tenant.gstNo || "",
-    address: tenant.address || "",
-    addressLocal: tenant.addressLocal || "",
-    district: tenant.district || "",
-    districtLocal: tenant.districtLocal || "",
-    email: tenant.email || "",
-    logo: tenant.logo || "/logo.svg",
+    name: shopDetails?.name || "",
+    nameLocal: shopDetails?.nameLocal || "",
+    tagline: shopDetails?.tagline || "",
+    taglineLocal: shopDetails?.taglineLocal || "",
+    phone: shopDetails?.phone || "",
+    altPhone: shopDetails?.altPhone || "",
+    gst: shopDetails?.gstNo || "",
+    address: shopDetails?.address || "",
+    addressLocal: shopDetails?.addressLocal || "",
+    district: shopDetails?.district || "",
+    districtLocal: shopDetails?.districtLocal || "",
+    email: shopDetails?.email || "",
+    logo: shopDetails?.logo || "/logo.svg",
   };
 }
 
@@ -51,9 +52,14 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
-      const res = await tenantApi.getMyTenant();
-      setShop(mapTenantToShopConfig(res.data));
-      setLocalLanguage((res.data.localLanguage || "te") as LangCode);
+
+      const [shopDetailsRes, settingsRes] = await Promise.all([
+        tenantApi.getShopDetails(),
+        tenantApi.getSettings(),
+      ]);
+
+      setShop(mapShopDetailsToShopConfig(shopDetailsRes.data));
+      setLocalLanguage(((settingsRes.data as TenantSettings | null)?.localLanguage || "te") as LangCode);
     } catch {
       // Not logged in or API unavailable — use defaults
     } finally {
@@ -66,7 +72,7 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
   }, [loadFromApi]);
 
   const updateShop = async (updates: Partial<ShopConfig>) => {
-    const apiData: any = {};
+    const apiData: Record<string, string> = {};
     if (updates.name !== undefined) apiData.name = updates.name;
     if (updates.nameLocal !== undefined) apiData.nameLocal = updates.nameLocal;
     if (updates.tagline !== undefined) apiData.tagline = updates.tagline;
@@ -81,12 +87,12 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
     if (updates.districtLocal !== undefined) apiData.districtLocal = updates.districtLocal;
     if (updates.logo !== undefined) apiData.logo = updates.logo;
 
-    const res = await tenantApi.updateMyTenant(apiData);
-    setShop(mapTenantToShopConfig(res.data));
+    const res = await tenantApi.updateShopDetails(apiData);
+    setShop(mapShopDetailsToShopConfig(res.data));
   };
 
   const updateLocalLanguage = async (lang: LangCode) => {
-    const res = await tenantApi.updateMyTenant({ localLanguage: lang });
+    const res = await tenantApi.updateSettings({ localLanguage: lang });
     setLocalLanguage((res.data.localLanguage || "te") as LangCode);
   };
 

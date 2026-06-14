@@ -169,13 +169,30 @@ export const tenantApi = {
     adminUsername: string; adminPassword: string; adminName: string;
   }) => api.post("/tenants/register", data),
   getMyTenant: (config?: AxiosRequestConfig) => api.get("/tenants/me", config),
-  updateMyTenant: (data: {
-    name?: string; nameLocal?: string; phone?: string; altPhone?: string;
-    email?: string; address?: string; addressLocal?: string;
-    district?: string; districtLocal?: string;
-    gstNo?: string; tagline?: string; taglineLocal?: string; logo?: string;
+  updateMyTenant: (data: { name?: string }) => api.put("/tenants/me", data),
+  getShopDetails: (config?: AxiosRequestConfig) => api.get("/tenants/me/shop-details", config),
+  updateShopDetails: (data: {
+    name?: string;
+    nameLocal?: string;
+    phone?: string;
+    altPhone?: string;
+    email?: string;
+    address?: string;
+    addressLocal?: string;
+    district?: string;
+    districtLocal?: string;
+    gstNo?: string;
+    tagline?: string;
+    taglineLocal?: string;
+    logo?: string;
+  }) => api.put("/tenants/me/shop-details", data),
+  getSettings: (config?: AxiosRequestConfig) => api.get("/tenants/me/settings", config),
+  updateSettings: (data: {
     localLanguage?: string;
-  }) => api.put("/tenants/me", data),
+    currency?: string;
+    billPrefix?: string;
+    thermalPrintEnabled?: boolean;
+  }) => api.put("/tenants/me/settings", data),
 };
 
 // ─── User Management APIs ────────────────────────────────────────

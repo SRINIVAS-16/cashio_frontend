@@ -18,11 +18,9 @@ export interface AuthResponse {
   user: User;
 }
 
-export interface Tenant {
-  id: string;
+export interface ShopDetails {
   name: string;
   nameLocal?: string | null;
-  slug: string;
   phone?: string | null;
   altPhone?: string | null;
   email?: string | null;
@@ -34,7 +32,19 @@ export interface Tenant {
   tagline?: string | null;
   taglineLocal?: string | null;
   logo?: string | null;
-  localLanguage: string; // e.g. "te", "hi", "ta", "kn"
+}
+
+export interface TenantSettings {
+  localLanguage: string;
+  currency: string;
+  billPrefix: string;
+  thermalPrintEnabled: boolean;
+}
+
+export interface Tenant {
+  id: string;
+  name: string;
+  slug: string;
   plan: string;
   isActive: boolean;
   createdAt?: string;
