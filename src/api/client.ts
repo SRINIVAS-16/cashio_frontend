@@ -197,6 +197,17 @@ export const tenantApi = {
   }) => api.put("/tenants/me/settings", data),
 };
 
+// Super admin UI is not implemented yet; these endpoints are ready for future screens.
+export const superAdminApi = {
+  login: (data: { username: string; password: string }) => api.post("/super-admin/login", data),
+  getTenants: () => api.get("/super-admin/tenants"),
+  createTenant: (data: { name: string; slug: string; plan?: string; adminUsername: string; adminPassword: string; adminName: string }) =>
+    api.post("/super-admin/tenants", data),
+  getTenant: (id: string) => api.get(`/super-admin/tenants/${id}`),
+  updateTenant: (id: string, data: { name?: string; plan?: string; isActive?: boolean }) => api.put(`/super-admin/tenants/${id}`, data),
+  getTenantUsers: (id: string) => api.get(`/super-admin/tenants/${id}/users`),
+};
+
 // ─── User Management APIs ────────────────────────────────────────
 export const userApi = {
   getAll: (config?: AxiosRequestConfig) => api.get("/users", config),

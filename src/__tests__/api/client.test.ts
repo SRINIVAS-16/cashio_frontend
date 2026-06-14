@@ -215,12 +215,22 @@ describe("api client", () => {
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(14, "/dashboard/audit-logs", { params: { limit: 25 } });
   });
 
-  it("calls purchase, dealer, stock book, permission, and user endpoints correctly", async () => {
+  it("calls purchase, dealer, stock book, permission, user, and super-admin endpoints correctly", async () => {
     const client = await loadClient();
     const purchaseData = { invoiceNo: "INV-1" };
     const dealerData = { name: "Dealer" };
     const userData = { username: "carol", password: "secret", name: "Carol", role: "manager" };
     const userUpdate = { name: "Carol Updated", role: "admin" };
+    const superAdminLogin = { username: "superadmin", password: "super123" };
+    const superAdminTenant = {
+      name: "Acme Agro",
+      slug: "acme-agro",
+      plan: "pro",
+      adminUsername: "acmeadmin",
+      adminPassword: "secret",
+      adminName: "Acme Admin",
+    };
+    const superAdminTenantUpdate = { name: "Acme Agro Plus", plan: "enterprise", isActive: false };
 
     client.purchaseApi.getAll(3, 10, 5, "2024-03-01", "2024-03-31");
     client.purchaseApi.getById(6);
@@ -244,6 +254,12 @@ describe("api client", () => {
     client.userApi.create(userData);
     client.userApi.update(12, userUpdate);
     client.userApi.delete(12);
+    client.superAdminApi.login(superAdminLogin);
+    client.superAdminApi.getTenants();
+    client.superAdminApi.createTenant(superAdminTenant);
+    client.superAdminApi.getTenant("tenant-1");
+    client.superAdminApi.updateTenant("tenant-1", superAdminTenantUpdate);
+    client.superAdminApi.getTenantUsers("tenant-1");
 
     expect(axiosState.instance.get).toHaveBeenNthCalledWith(1, "/purchases", {
       params: { page: 3, limit: 10, dealerId: 5, startDate: "2024-03-01", endDate: "2024-03-31" },
@@ -275,5 +291,11 @@ describe("api client", () => {
     expect(axiosState.instance.post).toHaveBeenNthCalledWith(5, "/users", userData);
     expect(axiosState.instance.put).toHaveBeenNthCalledWith(3, "/users/12", userUpdate);
     expect(axiosState.instance.delete).toHaveBeenNthCalledWith(2, "/users/12");
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(6, "/super-admin/login", superAdminLogin);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(13, "/super-admin/tenants");
+    expect(axiosState.instance.post).toHaveBeenNthCalledWith(7, "/super-admin/tenants", superAdminTenant);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(14, "/super-admin/tenants/tenant-1");
+    expect(axiosState.instance.put).toHaveBeenNthCalledWith(4, "/super-admin/tenants/tenant-1", superAdminTenantUpdate);
+    expect(axiosState.instance.get).toHaveBeenNthCalledWith(15, "/super-admin/tenants/tenant-1/users");
   });
 });
