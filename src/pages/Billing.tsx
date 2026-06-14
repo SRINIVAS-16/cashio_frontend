@@ -822,7 +822,7 @@ export default function Billing() {
                   value={paidAmount ?? total}
                   onChange={(e) => {
                     const val = parseFloat(e.target.value);
-                    setPaidAmount(isNaN(val) ? 0 : Math.min(val, total));
+                    setPaidAmount(isNaN(val) ? 0 : val);
                   }}
                   className="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm" min="0" max={total} />
                 {(paidAmount !== null && paidAmount < total) && (
