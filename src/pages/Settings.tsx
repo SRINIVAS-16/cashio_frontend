@@ -1,6 +1,6 @@
 // ─── Settings / Configuration Page ───────────────────────────────
 import { useState } from "react";
-import { Save, RotateCcw, Store, Palette, Check } from "lucide-react";
+import { Save, RotateCcw, Store, Palette, Check, Receipt } from "lucide-react";
 import { useLang } from "../context/LanguageContext";
 import { useShopConfig } from "../context/ShopConfigContext";
 import { languages as allLanguages } from "../i18n";
@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 
 export default function Settings() {
   const { t } = useLang();
-  const { shop, updateShop, localLanguage, updateLocalLanguage } = useShopConfig();
+  const { shop, updateShop, localLanguage, updateLocalLanguage, claimItc, updateClaimItc } = useShopConfig();
   const { theme, setTheme } = useTheme();
 
   const [form, setForm] = useState<ShopConfig>({ ...shop });
@@ -122,6 +122,35 @@ export default function Settings() {
                 {l.code === localLanguage && <Check className="w-3 h-3 ml-auto" />}
               </button>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Tax / ITC (Tenant Setting) ──────────────────── */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
+          <Receipt className="w-4 h-4 text-primary-600" />
+          <h2 className="text-sm font-semibold text-gray-800">{t.taxSettings || "Tax & Profit"}</h2>
+        </div>
+        <div className="p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-800">{t.claimItc || "Claim Input Tax Credit (ITC)"}</p>
+              <p className="text-xs text-gray-500 mt-0.5 max-w-xl">{t.claimItcHelp || "When on, GST paid on purchases is reclaimable and excluded from cost. Turn off if you can't claim ITC (unregistered / composition) — purchase GST is then counted as cost, reducing reported profit."}</p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={claimItc}
+              onClick={async () => {
+                try {
+                  await updateClaimItc(!claimItc);
+                  toast.success(t.settingsSaved || "Settings saved!");
+                } catch { toast.error("Failed to update"); }
+              }}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center justify-start rounded-full transition-colors ${claimItc ? "bg-primary-600" : "bg-gray-300"}`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${claimItc ? "translate-x-6" : "translate-x-1"}`} />
+            </button>
           </div>
         </div>
       </div>

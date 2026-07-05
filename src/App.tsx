@@ -15,6 +15,7 @@ import { lazy, Suspense } from "react";
 // Lazy-loaded pages for code splitting
 const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ProfitLoss = lazy(() => import("./pages/ProfitLoss"));
 const Products = lazy(() => import("./pages/Products"));
 const Customers = lazy(() => import("./pages/Customers"));
 const Billing = lazy(() => import("./pages/Billing"));
@@ -76,6 +77,7 @@ export default function App() {
                         }
                       >
                         <Route index element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+                        <Route path="profit-loss" element={<ProtectedRoute permission="dashboard"><Suspense fallback={<PageLoader />}><ProfitLoss /></Suspense></ProtectedRoute>} />
                         <Route path="billing" element={<ProtectedRoute permission="billing"><Suspense fallback={<PageLoader />}><Billing /></Suspense></ProtectedRoute>} />
                         <Route path="orders" element={<ProtectedRoute permission="orders"><Suspense fallback={<PageLoader />}><Orders /></Suspense></ProtectedRoute>} />
                         <Route path="orders/:id" element={<ProtectedRoute permission="orders"><Suspense fallback={<PageLoader />}><OrderDetail /></Suspense></ProtectedRoute>} />

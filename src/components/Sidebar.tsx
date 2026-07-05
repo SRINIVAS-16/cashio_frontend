@@ -21,6 +21,7 @@ import {
   Check,
   ChevronUp,
   Sprout,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -64,6 +65,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   const allNavItems: { to: string; icon: LucideIcon; label: string; permission: string }[] = [
     { to: "/", icon: LayoutDashboard, label: t.dashboard, permission: "dashboard" },
+    { to: "/profit-loss", icon: TrendingUp, label: t.profitLoss, permission: "dashboard" },
     { to: "/billing", icon: ShoppingCart, label: t.billing, permission: "billing" },
     { to: "/stock-book", icon: BookOpen, label: t.stockBook || "Stock Book", permission: "stock-book" },
     { to: "/orders", icon: Receipt, label: t.orders, permission: "orders" },
@@ -140,16 +142,16 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="rounded-2xl border border-white/10 bg-white/10 p-1.5 shadow-lg shadow-slate-950/10 backdrop-blur-xl">
               <button
                 onClick={() => setProfileOpen((value) => !value)}
-                className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left transition-all ${
+                className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left transition-all ${
                   isProfileRouteActive ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-500/20 text-xs font-semibold uppercase text-primary-300">
+                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-500/20 text-xs font-semibold uppercase text-primary-300">
                   {(user.name || user.username || "?").charAt(0)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-white">{user.name || user.username}</p>
-                  <span className="text-[10px] uppercase tracking-wider text-white/50">{user.role}</span>
+                  <p className="truncate text-xs font-medium text-white">{user.name || user.username}</p>
+                  <span className="text-[9px] uppercase tracking-wider text-white/50">{user.role}</span>
                 </div>
                 {visibleProfileSubItems.length > 0 && (
                   profileOpen ? <ChevronUp className="h-3.5 w-3.5 flex-shrink-0 text-white/50" /> : <ChevronDown className="h-3.5 w-3.5 flex-shrink-0 text-white/50" />

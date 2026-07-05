@@ -15,8 +15,8 @@ const sidebarState = vi.hoisted(() => ({
   lang: {
     t: {
       dashboard: "Dashboard",
-      billing: "Billing",
-      orders: "Orders",
+      profitLoss: "Profit & Loss",
+      billing: "Billing",      orders: "Orders",
       customers: "Customers",
       products: "Products",
       logout: "Logout",

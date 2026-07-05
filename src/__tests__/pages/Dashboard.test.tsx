@@ -5,7 +5,6 @@ const mocks = vi.hoisted(() => ({
   dashboardApi: {
     getDashboard: vi.fn(),
     getSalesTrend: vi.fn(),
-    getProductDistribution: vi.fn(),
   },
 }));
 
@@ -46,10 +45,6 @@ vi.mock('recharts', () => ({
   YAxis: () => null,
   CartesianGrid: () => null,
   Tooltip: () => null,
-  PieChart: ({ children }: any) => <div data-testid="pie-chart">{children}</div>,
-  Pie: ({ children, data }: any) => <div data-testid="pie-series">{data?.length}{children}</div>,
-  Cell: () => null,
-  Legend: () => <div data-testid="chart-legend" />,
 }));
 
 import Dashboard from '../../pages/Dashboard';
@@ -57,8 +52,8 @@ import { renderWithRouter } from './testUtils';
 
 function createDashboardData() {
   return {
-    today: { count: 3, total: 5000 },
-    thisMonth: { count: 12, total: 45000 },
+    financialYear: { startYear: 2026, label: 'FY 2026-27' },
+    fySummary: { salesCount: 12, salesTotal: 45000, grossProfit: 8000, totalCost: 37000 },
     totalProducts: 24,
     totalCustomers: 8,
     dueSummary: { totalDueAmount: 1500, totalDueOrders: 2 },
@@ -66,6 +61,10 @@ function createDashboardData() {
     customersWithDues: [{ customer: { name: 'Ravi', phone: '9999999999' }, totalDue: 1500, orderCount: 2 }],
     expiringSoon: [{ batchId: 1, productName: 'DAP', batchNo: 'B1', expiryDate: '2099-01-01', remaining: 10, unit: 'kg' }],
     topProducts: [{ product: { id: 1, name: 'Urea' }, totalQuantity: 5, totalRevenue: 2500, orderCount: 2 }],
+    productProfitability: {
+      topProfit: [{ product: { id: 1, name: 'Urea' }, totalQuantity: 5, totalRevenue: 2500, totalCost: 1500, profit: 1000 }],
+      topLoss: [{ product: { id: 2, name: 'DAP' }, totalQuantity: 3, totalRevenue: 600, totalCost: 900, profit: -300 }],
+    },
     recentOrders: [{ id: 1, orderNo: 'ORD-1', customer: { name: 'Ravi', phone: '9999999999' }, total: 2500, status: 'completed', createdAt: '2024-01-10T00:00:00.000Z' }],
   };
 }
@@ -74,17 +73,14 @@ describe('Dashboard page', () => {
   beforeEach(() => {
     mocks.dashboardApi.getDashboard.mockReset();
     mocks.dashboardApi.getSalesTrend.mockReset();
-    mocks.dashboardApi.getProductDistribution.mockReset();
   });
 
   it('shows loading indicators first and then renders stats and charts', async () => {
     let resolveDashboard: (value: any) => void = () => {};
     let resolveTrend: (value: any) => void = () => {};
-    let resolveDistribution: (value: any) => void = () => {};
 
     mocks.dashboardApi.getDashboard.mockReturnValue(new Promise((resolve) => { resolveDashboard = resolve; }));
     mocks.dashboardApi.getSalesTrend.mockReturnValue(new Promise((resolve) => { resolveTrend = resolve; }));
-    mocks.dashboardApi.getProductDistribution.mockReturnValue(new Promise((resolve) => { resolveDistribution = resolve; }));
 
     const { container } = renderWithRouter(<Dashboard />);
 
@@ -92,23 +88,31 @@ describe('Dashboard page', () => {
 
     resolveDashboard({ data: createDashboardData() });
     resolveTrend({ data: [{ date: '2024-01-01', total: 1000 }] });
-    resolveDistribution({ data: [{ category: 'fertilizer', count: 10 }] });
 
     await waitFor(() => {
-      expect(screen.getByText('₹5,000')).toBeInTheDocument();
+      expect(screen.getByText('₹45,000')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('₹45,000')).toBeInTheDocument();
+    expect(screen.getByText('₹8,000')).toBeInTheDocument();
     expect(screen.getByText('24')).toBeInTheDocument();
     expect(screen.getByText('Ravi')).toBeInTheDocument();
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
-    expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
+    // Profit & loss lists render amounts (no bar charts anymore)
+    expect(screen.getByText('+₹1,000')).toBeInTheDocument();
+    expect(screen.getByText('-₹300')).toBeInTheDocument();
+    expect(screen.queryByTestId('bar-chart')).not.toBeInTheDocument();
   });
 
   it('renders no-data placeholders when chart datasets are empty', async () => {
-    mocks.dashboardApi.getDashboard.mockResolvedValue({ data: createDashboardData() });
+    mocks.dashboardApi.getDashboard.mockResolvedValue({
+      data: {
+        ...createDashboardData(),
+        topProducts: [],
+        customersWithDues: [],
+        productProfitability: { topProfit: [], topLoss: [] },
+      },
+    });
     mocks.dashboardApi.getSalesTrend.mockResolvedValue({ data: [] });
-    mocks.dashboardApi.getProductDistribution.mockResolvedValue({ data: [] });
 
     renderWithRouter(<Dashboard />);
 
@@ -116,6 +120,29 @@ describe('Dashboard page', () => {
       expect(mocks.dashboardApi.getDashboard).toHaveBeenCalled();
     });
 
-    expect(await screen.findAllByText('noData')).toHaveLength(2);
+    expect(await screen.findAllByText('noData')).toHaveLength(3);
+  });
+
+  it('refetches with the selected financial year when the dropdown changes', async () => {
+    mocks.dashboardApi.getDashboard.mockResolvedValue({ data: createDashboardData() });
+    mocks.dashboardApi.getSalesTrend.mockResolvedValue({ data: [] });
+
+    renderWithRouter(<Dashboard />);
+
+    await waitFor(() => {
+      expect(mocks.dashboardApi.getDashboard).toHaveBeenCalled();
+    });
+
+    const currentFyStart = mocks.dashboardApi.getDashboard.mock.calls[0][0] as number;
+    expect(typeof currentFyStart).toBe('number');
+    expect(mocks.dashboardApi.getSalesTrend).toHaveBeenCalledWith(30, currentFyStart, expect.anything());
+
+    const select = screen.getByLabelText('financialYear') as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: String(currentFyStart - 1) } });
+
+    await waitFor(() => {
+      expect(mocks.dashboardApi.getDashboard).toHaveBeenCalledWith(currentFyStart - 1, expect.anything());
+    });
+    expect(mocks.dashboardApi.getSalesTrend).toHaveBeenCalledWith(30, currentFyStart - 1, expect.anything());
   });
 });

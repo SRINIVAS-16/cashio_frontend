@@ -1,8 +1,13 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { LanguageProvider, useLang } from "../../context/LanguageContext";
 import hi from "../../i18n/hi";
+
+vi.mock("../../context/ShopConfigContext", () => ({
+  useShopConfig: () => ({ localLanguage: "te" }),
+}));
+
+import { LanguageProvider, useLang } from "../../context/LanguageContext";
 
 function Consumer() {
   const { lang, t, setLang, languages } = useLang();
@@ -18,7 +23,7 @@ function Consumer() {
   );
 }
 
-describe.skip("LanguageContext", () => {
+describe("LanguageContext", () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -36,7 +41,7 @@ describe.skip("LanguageContext", () => {
     expect(screen.getByText("child")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("dashboard")).toHaveTextContent("డాష్‌బోర్డ్"));
     expect(screen.getByTestId("lang")).toHaveTextContent("te");
-    expect(screen.getByTestId("count")).toHaveTextContent("11");
+    expect(screen.getByTestId("count")).toHaveTextContent("2");
   });
 
   it("switches languages and persists a bundled translation", async () => {

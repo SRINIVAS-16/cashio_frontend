@@ -41,6 +41,7 @@ export interface TenantSettings {
   currency: string;
   billPrefix: string;
   thermalPrintEnabled: boolean;
+  claimItc: boolean;
 }
 
 export interface Tenant {
@@ -192,8 +193,8 @@ export interface ExpiringBatch {
 }
 
 export interface DashboardData {
-  today: { count: number; total: number };
-  thisMonth: { count: number; total: number };
+  financialYear: { startYear: number; label: string };
+  fySummary: { salesCount: number; salesTotal: number; grossProfit: number; totalCost: number };
   lowStockProducts: Product[];
   topProducts: {
     product: { id: number; name: string; nameTe?: string | null } | undefined;
@@ -201,12 +202,55 @@ export interface DashboardData {
     totalRevenue: number;
     orderCount: number;
   }[];
+  productProfitability: {
+    topProfit: ProductProfit[];
+    topLoss: ProductProfit[];
+  };
   recentOrders: Order[];
   totalProducts: number;
   totalCustomers: number;
   dueSummary: DueSummary;
   customersWithDues: CustomerDue[];
   expiringSoon: ExpiringBatch[];
+}
+
+export type ProfitLossGroupBy = "product" | "category" | "customer" | "payment";
+
+export interface ProfitLossRow {
+  key: string;
+  label: string;
+  labelTe: string | null;
+  quantity: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  margin: number;
+  due: number;
+}
+
+export interface ProfitLossReport {
+  groupBy: ProfitLossGroupBy;
+  summary: {
+    revenue: number;
+    cost: number;
+    profit: number;
+    quantity: number;
+    margin: number;
+    due: number;
+    itemCount: number;
+  };
+  rows: ProfitLossRow[];
+  trend: { date: string; profit: number }[];
+}
+
+export interface ProfitLossFilters {
+  start?: string;
+  end?: string;
+  productIds?: number[];
+  categories?: string[];
+  customerId?: number;
+  paymentMode?: string;
+  groupBy?: ProfitLossGroupBy;
 }
 
 export interface SalesTrend {
@@ -217,6 +261,14 @@ export interface SalesTrend {
 export interface ProductDistribution {
   category: string;
   count: number;
+}
+
+export interface ProductProfit {
+  product: { id: number; name: string; nameTe?: string | null } | undefined;
+  totalQuantity: number;
+  totalRevenue: number;
+  totalCost: number;
+  profit: number;
 }
 
 // ─── Cart (for billing frontend) ─────────────────────────────────

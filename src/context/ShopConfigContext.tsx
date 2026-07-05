@@ -8,9 +8,11 @@ interface ShopConfigCtx {
   shop: ShopConfig;
   localLanguage: LangCode;
   themeColor: string;
+  claimItc: boolean;
   updateShop: (updates: Partial<ShopConfig>) => Promise<void>;
   updateLocalLanguage: (lang: LangCode) => Promise<void>;
   updateThemeColor: (theme: string) => Promise<void>;
+  updateClaimItc: (value: boolean) => Promise<void>;
   loading: boolean;
   reload: () => Promise<void>;
 }
@@ -37,9 +39,11 @@ const ShopConfigContext = createContext<ShopConfigCtx>({
   shop: defaultShopConfig,
   localLanguage: "te",
   themeColor: "blue",
+  claimItc: true,
   updateShop: async () => {},
   updateLocalLanguage: async () => {},
   updateThemeColor: async () => {},
+  updateClaimItc: async () => {},
   loading: true,
   reload: async () => {},
 });
@@ -57,6 +61,7 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
   const [shop, setShop] = useState<ShopConfig>(defaultShopConfig);
   const [localLanguage, setLocalLanguage] = useState<LangCode>("te");
   const [themeColor, setThemeColor] = useState<string>("blue");
+  const [claimItc, setClaimItc] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
   const [tokenVersion, setTokenVersion] = useState(0);
 
@@ -69,6 +74,7 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
         setShop(defaultShopConfig);
         setLocalLanguage("te");
         setThemeColor("blue");
+        setClaimItc(true);
         setLoading(false);
         return;
       }
@@ -82,6 +88,7 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
       const settings = settingsRes.data as TenantSettings | null;
       setLocalLanguage((settings?.localLanguage || "te") as LangCode);
       setThemeColor(settings?.themeColor || "blue");
+      setClaimItc(settings?.claimItc ?? true);
     } catch {
       setShop(defaultShopConfig);
       setLocalLanguage("te");
@@ -149,8 +156,13 @@ export function ShopConfigProvider({ children }: { children: ReactNode }) {
     setThemeColor(res.data.themeColor || "blue");
   };
 
+  const updateClaimItc = async (value: boolean) => {
+    const res = await tenantApi.updateSettings({ claimItc: value });
+    setClaimItc(res.data.claimItc ?? true);
+  };
+
   return (
-    <ShopConfigContext.Provider value={{ shop, localLanguage, themeColor, updateShop, updateLocalLanguage, updateThemeColor, loading, reload: loadFromApi }}>
+    <ShopConfigContext.Provider value={{ shop, localLanguage, themeColor, claimItc, updateShop, updateLocalLanguage, updateThemeColor, updateClaimItc, loading, reload: loadFromApi }}>
       {children}
     </ShopConfigContext.Provider>
   );

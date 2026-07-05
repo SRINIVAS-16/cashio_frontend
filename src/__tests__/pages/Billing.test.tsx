@@ -98,7 +98,7 @@ function renderPage() {
   );
 }
 
-describe.skip('Billing page', () => {
+describe('Billing page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.keys(mockParams).forEach((key) => delete mockParams[key]);
@@ -144,15 +144,22 @@ describe.skip('Billing page', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'billSummary' }));
 
-    fireEvent.change(screen.getByDisplayValue('100'), { target: { value: '120' } });
-    const taxInputs = screen.getAllByDisplayValue('2.5');
+    const priceInput = screen.getByDisplayValue('100');
+    fireEvent.change(priceInput, { target: { value: '120' } });
+    fireEvent.blur(priceInput);
+
+    let taxInputs = screen.getAllByDisplayValue('2.5');
     fireEvent.change(taxInputs[0], { target: { value: '10' } });
-    fireEvent.change(taxInputs[1], { target: { value: '5' } });
+    fireEvent.blur(taxInputs[0]);
+
+    taxInputs = screen.getAllByDisplayValue('2.5');
+    fireEvent.change(taxInputs[0], { target: { value: '5' } });
+    fireEvent.blur(taxInputs[0]);
 
     await waitFor(() => {
       expect(screen.getAllByText('₹240').length).toBeGreaterThan(0);
       expect(screen.getAllByText('₹24').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('₹12').length).toBeGreaterThan(0);
+      expect(screen.getByText((content) => /^₹12(?:\.0+)?$/.test(content))).toBeInTheDocument();
       expect(screen.getAllByText('₹276').length).toBeGreaterThan(0);
     });
 
@@ -221,6 +228,3 @@ describe.skip('Billing page', () => {
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Failed to load products'));
   });
 });
-
-
-

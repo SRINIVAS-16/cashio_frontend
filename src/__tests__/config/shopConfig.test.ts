@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { defaultShopConfig, shopConfig } from "../../config/shopConfig";
 
-describe.skip("shopConfig", () => {
+describe("shopConfig", () => {
   const requiredFields = [
     "name",
     "nameLocal",
@@ -23,8 +23,23 @@ describe.skip("shopConfig", () => {
 
     for (const field of requiredFields) {
       expect(defaultShopConfig[field]).toEqual(expect.any(String));
-      expect(defaultShopConfig[field]).not.toHaveLength(0);
     }
+
+    expect(defaultShopConfig).toMatchObject({
+      name: "",
+      nameLocal: "",
+      tagline: "",
+      taglineLocal: "",
+      phone: "",
+      altPhone: "",
+      gst: "",
+      address: "",
+      addressLocal: "",
+      district: "",
+      districtLocal: "",
+      email: "",
+      logo: "/logo.svg",
+    });
   });
 
   it("exports shopConfig as a backward-compatible alias", () => {

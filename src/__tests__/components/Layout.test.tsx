@@ -13,7 +13,7 @@ vi.mock("../../components/Sidebar", () => ({
 
 import Layout from "../../components/Layout";
 
-describe.skip("Layout", () => {
+describe("Layout", () => {
   it("renders the sidebar shell and outlet content", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
@@ -26,12 +26,12 @@ describe.skip("Layout", () => {
     );
 
     expect(screen.getByTestId("sidebar")).toHaveAttribute("data-open", "false");
-    expect(screen.getByText("Amrutha Lakshmi Fertilisers")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open navigation" })).toBeInTheDocument();
     expect(screen.getByText("Dashboard page")).toBeInTheDocument();
   });
 
   it("opens the sidebar from the mobile menu button and closes it again", () => {
-    const { container } = render(
+    render(
       <MemoryRouter initialEntries={["/"]}>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -41,8 +41,7 @@ describe.skip("Layout", () => {
       </MemoryRouter>
     );
 
-    const menuButton = container.querySelector("header button") as HTMLButtonElement;
-    fireEvent.click(menuButton);
+    fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
     expect(screen.getByTestId("sidebar")).toHaveAttribute("data-open", "true");
 
     fireEvent.click(screen.getByRole("button", { name: "close-sidebar" }));

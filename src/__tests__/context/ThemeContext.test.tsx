@@ -1,6 +1,19 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
+const shopConfigMock = vi.hoisted(() => ({
+  themeColor: "blue",
+  updateThemeColor: vi.fn(),
+}));
+
+vi.mock("../../context/ShopConfigContext", () => ({
+  useShopConfig: () => ({
+    themeColor: shopConfigMock.themeColor,
+    updateThemeColor: shopConfigMock.updateThemeColor,
+  }),
+}));
+
 import { ThemeProvider, useTheme, themes } from "../../context/ThemeContext";
 
 function Consumer() {
@@ -14,13 +27,16 @@ function Consumer() {
   );
 }
 
-describe.skip("ThemeContext", () => {
+describe("ThemeContext", () => {
   beforeEach(() => {
-    localStorage.clear();
+    shopConfigMock.themeColor = "blue";
+    shopConfigMock.updateThemeColor.mockReset().mockResolvedValue(undefined);
     document.documentElement.removeAttribute("data-theme");
   });
 
   it("exports theme metadata and defaults to blue", () => {
+    shopConfigMock.themeColor = "invalid-theme";
+
     render(
       <ThemeProvider>
         <Consumer />
@@ -30,13 +46,12 @@ describe.skip("ThemeContext", () => {
     expect(themes.map((theme) => theme.key)).toEqual(["blue", "emerald", "purple", "orange", "rose"]);
     expect(screen.getByTestId("theme")).toHaveTextContent("blue");
     expect(document.documentElement).toHaveAttribute("data-theme", "blue");
-    expect(localStorage.getItem("cashio-theme")).toBe("blue");
   });
 
-  it("restores a saved valid theme and ignores invalid values", () => {
-    localStorage.setItem("cashio-theme", "purple");
+  it("uses the theme color from shop config when it is valid", () => {
+    shopConfigMock.themeColor = "purple";
 
-    const { unmount } = render(
+    render(
       <ThemeProvider>
         <Consumer />
       </ThemeProvider>
@@ -44,20 +59,9 @@ describe.skip("ThemeContext", () => {
 
     expect(screen.getByTestId("theme")).toHaveTextContent("purple");
     expect(document.documentElement).toHaveAttribute("data-theme", "purple");
-    unmount();
-
-    localStorage.setItem("cashio-theme", "invalid-theme");
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    );
-
-    expect(screen.getByTestId("theme")).toHaveTextContent("blue");
-    expect(document.documentElement).toHaveAttribute("data-theme", "blue");
   });
 
-  it("switches theme colors and persists the selection", () => {
+  it("switches theme colors and persists the selection through shop config", () => {
     render(
       <ThemeProvider>
         <Consumer />
@@ -68,7 +72,6 @@ describe.skip("ThemeContext", () => {
 
     expect(screen.getByTestId("theme")).toHaveTextContent("emerald");
     expect(document.documentElement).toHaveAttribute("data-theme", "emerald");
-    expect(localStorage.getItem("cashio-theme")).toBe("emerald");
+    expect(shopConfigMock.updateThemeColor).toHaveBeenCalledWith("emerald");
   });
 });
-

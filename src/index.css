@@ -95,7 +95,8 @@
  * children of flex containers so we don't break standalone inline usage.
  */
 .flex > svg,
-.inline-flex > svg {
+.inline-flex > svg,
+button > svg {
   display: block;
   flex-shrink: 0;
 }
@@ -119,11 +120,17 @@
  * NOTE: buttons that need their content left/right aligned (e.g. dropdown
  * triggers with `text-left`) MUST add an explicit Tailwind `justify-start`
  * /`justify-between` utility — `text-align` does not affect flex layout.
+ *
+ * `line-height: 1` tightens the text line-box to its glyphs so the flex
+ * `items-center` centre coincides with the icon's centre. Without it the
+ * default (taller) line-box makes the icon appear a pixel or two below the
+ * text. `:where()` keeps specificity 0 so `leading-*` utilities still win.
  */
 :where(button:not(:has(p, div, h1, h2, h3, h4, h5, h6, ul, ol, table))) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
 }
 
 /* Print styles */

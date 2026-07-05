@@ -28,27 +28,6 @@ vi.mock("../../context/LanguageContext", () => ({
   useLang: () => ({ t: new Proxy({}, { get: (_, key) => String(key) }), lang: "en", setLang: vi.fn() }),
 }));
 
-vi.mock("../../context/ShopConfigContext", () => ({
-  useShopConfig: () => ({
-    shop: {
-      name: "Test Shop",
-      nameLocal: "టెస్ట్ షాప్",
-      tagline: "Best inputs",
-      taglineLocal: "బెస్ట్ ఇన్‌పుట్స్",
-      address: "Main road",
-      addressLocal: "",
-      district: "East Godavari",
-      districtLocal: "",
-      phone: "9999999999",
-      altPhone: "",
-      gst: "GST123",
-      email: "shop@example.com",
-      logo: "/logo.svg",
-    },
-    updateShop: vi.fn(),
-  }),
-}));
-
 vi.mock("react-hot-toast", () => ({
   default: { success: mocks.toastSuccess },
   toast: { success: mocks.toastSuccess },
@@ -57,7 +36,7 @@ vi.mock("react-hot-toast", () => ({
 import Login from "../../pages/Login";
 import { renderWithRouter } from "./testUtils";
 
-describe.skip("Login page", () => {
+describe("Login page", () => {
   beforeEach(() => {
     localStorage.clear();
     mocks.navigate.mockReset();
@@ -67,15 +46,17 @@ describe.skip("Login page", () => {
     mocks.authState.isLoading = false;
   });
 
-  it("renders the single-step login form and shop details", () => {
+  it("renders the tenant login form", () => {
     renderWithRouter(<Login />);
 
-    expect(screen.getByRole("heading", { name: "Test Shop" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Tenant Code")).toBeRequired();
+    expect(screen.getByRole("heading", { name: "Cashio" })).toBeInTheDocument();
+    expect(screen.getByText("Tenant Code")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Enter your shop code")).toBeRequired();
     expect(screen.getByPlaceholderText("Username")).toBeRequired();
     expect(screen.getByPlaceholderText("Password")).toBeRequired();
-    expect(screen.getByRole("button", { name: "Login" })).toBeInTheDocument();
-    expect(screen.getByText("Platform admin? Use code: PLATFORM")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
+    expect(screen.getByText("Platform admin? Use code:")).toBeInTheDocument();
+    expect(screen.getByText("PLATFORM")).toBeInTheDocument();
   });
 
   it("submits tenant code credentials and stores recent codes", async () => {
@@ -85,10 +66,10 @@ describe.skip("Login page", () => {
 
     const { rerender } = renderWithRouter(<Login />);
 
-    fireEvent.change(screen.getByPlaceholderText("Tenant Code"), { target: { value: "tenant-one" } });
+    fireEvent.change(screen.getByPlaceholderText("Enter your shop code"), { target: { value: "tenant-one" } });
     fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "admin" } });
     fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "secret123" } });
-    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
       expect(mocks.login).toHaveBeenCalledWith("tenant-one", "admin", "secret123");
@@ -110,16 +91,16 @@ describe.skip("Login page", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "tenant-one" }));
 
-    expect(screen.getByPlaceholderText("Tenant Code")).toHaveValue("tenant-one");
+    expect(screen.getByPlaceholderText("Enter your shop code")).toHaveValue("tenant-one");
   });
 
   it("normalizes PLATFORM tenant code for super admin logins", async () => {
     renderWithRouter(<Login />);
 
-    fireEvent.change(screen.getByPlaceholderText("Tenant Code"), { target: { value: "platform" } });
+    fireEvent.change(screen.getByPlaceholderText("Enter your shop code"), { target: { value: "platform" } });
     fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "platform-admin" } });
     fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "secret123" } });
-    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
       expect(mocks.login).toHaveBeenCalledWith("PLATFORM", "platform-admin", "secret123");
@@ -133,10 +114,10 @@ describe.skip("Login page", () => {
 
     renderWithRouter(<Login />);
 
-    fireEvent.change(screen.getByPlaceholderText("Tenant Code"), { target: { value: "tenant-one" } });
+    fireEvent.change(screen.getByPlaceholderText("Enter your shop code"), { target: { value: "tenant-one" } });
     fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "admin" } });
     fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "wrong" } });
-    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Incorrect tenant code, username, or password. Please try again."
@@ -149,4 +130,3 @@ describe.skip("Login page", () => {
     });
   });
 });
-

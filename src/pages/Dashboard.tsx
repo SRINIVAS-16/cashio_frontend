@@ -16,14 +16,12 @@ import {
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
 } from "recharts";
 import { dashboardApi } from "../api/client";
 import { useLang } from "../context/LanguageContext";
-import { DashboardData, SalesTrend, ProductDistribution, ExpiringBatch } from "../types";
+import { DashboardData, SalesTrend, ExpiringBatch } from "../types";
 import { useShopConfig } from "../context/ShopConfigContext";
-
-const COLORS = ["#3b82f6", "#0ea5e9", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
+import { listFinancialYears, financialYearStart } from "../utils/financialYear";
 
 const TileLoader = () => (
   <div className="flex items-center justify-center h-20">
@@ -42,39 +40,56 @@ export default function Dashboard() {
   const { shop: shopConfig } = useShopConfig();
   const [data, setData] = useState<DashboardData | null>(null);
   const [salesTrend, setSalesTrend] = useState<SalesTrend[] | null>(null);
-  const [productDist, setProductDist] = useState<ProductDistribution[] | null>(null);
   const [dashLoading, setDashLoading] = useState(true);
   const [trendLoading, setTrendLoading] = useState(true);
-  const [distLoading, setDistLoading] = useState(true);
+  const [fyStart, setFyStart] = useState(() => financialYearStart());
+  const fyOptions = listFinancialYears(6);
 
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
+    setDashLoading(true);
+    setTrendLoading(true);
 
     // Load each section independently so tiles render as data arrives
-    dashboardApi.getDashboard({ signal })
+    dashboardApi.getDashboard(fyStart, { signal })
       .then((res) => setData(res.data))
       .catch((err) => { if (!signal.aborted) console.error("Dashboard summary error:", err); })
       .finally(() => { if (!signal.aborted) setDashLoading(false); });
 
-    dashboardApi.getSalesTrend(30, { signal })
+    dashboardApi.getSalesTrend(30, fyStart, { signal })
       .then((res) => setSalesTrend(res.data))
       .catch((err) => { if (!signal.aborted) console.error("Sales trend error:", err); })
       .finally(() => { if (!signal.aborted) setTrendLoading(false); });
 
-    dashboardApi.getProductDistribution({ signal })
-      .then((res) => setProductDist(res.data))
-      .catch((err) => { if (!signal.aborted) console.error("Product distribution error:", err); })
-      .finally(() => { if (!signal.aborted) setDistLoading(false); });
-
     return () => controller.abort();
-  }, []);
+  }, [fyStart]);
 
   const formatCurrency = (val: number) => `₹${val.toLocaleString("en-IN")}`;
+  const localName = (p?: { name?: string; nameTe?: string | null }) =>
+    (lang === "te" && p?.nameTe ? p.nameTe : p?.name) || "Unknown";
+  const topProfit = data?.productProfitability?.topProfit || [];
+  const topLoss = data?.productProfitability?.topLoss || [];
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-gray-800">{t.dashboard}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold text-gray-800">{t.dashboard}</h1>
+        <div className="flex items-center gap-2">
+          <label htmlFor="fy-select" className="text-xs text-gray-500">{t.financialYear}</label>
+          <select
+            id="fy-select"
+            aria-label={t.financialYear}
+            value={fyStart}
+            onChange={(e) => setFyStart(Number(e.target.value))}
+            className="rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-700 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+          >
+            {fyOptions.map((fy) => (
+              <option key={fy.startYear} value={fy.startYear}>{fy.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* ─── Shop Info Card ─────────────────────────────────── */}
       <div className="bg-white rounded-lg p-3 sm:p-5 shadow-sm border-l-4 border-primary-500">
@@ -114,34 +129,34 @@ export default function Dashboard() {
 
       {/* ─── Summary Cards ──────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {/* Today's Sales */}
+        {/* FY Sales */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-emerald-50 rounded-md">
               <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
             </div>
-            <span className="text-xs text-gray-500">{t.todaySales}</span>
+            <span className="text-xs text-gray-500">{t.fySales}</span>
           </div>
           {dashLoading ? <TileLoader /> : (
             <>
-              <p className="text-lg font-bold text-gray-800">{formatCurrency(data?.today?.total || 0)}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">{data?.today?.count || 0} {t.orders.toLowerCase()}</p>
+              <p className="text-lg font-bold text-gray-800">{formatCurrency(data?.fySummary?.salesTotal || 0)}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">{data?.fySummary?.salesCount || 0} {t.orders.toLowerCase()}</p>
             </>
           )}
         </div>
 
-        {/* Monthly Sales */}
+        {/* FY Gross Profit */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-primary-50 rounded-md">
               <TrendingUp className="w-3.5 h-3.5 text-primary-600" />
             </div>
-            <span className="text-xs text-gray-500">{t.monthSales}</span>
+            <span className="text-xs text-gray-500">{t.fyGrossProfit}</span>
           </div>
           {dashLoading ? <TileLoader /> : (
             <>
-              <p className="text-lg font-bold text-gray-800">{formatCurrency(data?.thisMonth?.total || 0)}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">{data?.thisMonth?.count || 0} {t.orders.toLowerCase()}</p>
+              <p className={`text-lg font-bold ${(data?.fySummary?.grossProfit || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(data?.fySummary?.grossProfit || 0)}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">{formatCurrency(data?.fySummary?.totalCost || 0)} {t.cost.toLowerCase()}</p>
             </>
           )}
         </div>
@@ -190,9 +205,9 @@ export default function Dashboard() {
       </div>
 
       {/* ─── Charts Row ─────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Sales Trend Line Chart */}
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 xl:col-span-2">
           <h3 className="text-sm font-semibold mb-3 text-gray-700">{t.salesTrend}</h3>
           {trendLoading ? <ChartLoader /> : !salesTrend || salesTrend.length === 0 ? (
             <div className="flex items-center justify-center h-56 text-gray-400 text-xs">{t.noData}</div>
@@ -203,13 +218,14 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(v) => new Date(v).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
+                  tickFormatter={(v) => new Date(v).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                   fontSize={12}
+                  minTickGap={24}
                 />
                 <YAxis fontSize={12} tickFormatter={(v) => `₹${v >= 1000 ? (v / 1000).toFixed(0) + "K" : v}`} />
                 <Tooltip
                   formatter={(val: number) => [formatCurrency(val), "Sales"]}
-                  labelFormatter={(label) => new Date(label).toLocaleDateString("en-IN")}
+                  labelFormatter={(label) => `${t.weekOf} ${new Date(label).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`}
                 />
                 <Line type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={2} dot={false} />
               </LineChart>
@@ -218,35 +234,45 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Product Distribution Pie Chart */}
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-          <h3 className="text-sm font-semibold mb-3 text-gray-700">{t.productDistribution}</h3>
-          {distLoading ? <ChartLoader /> : !productDist || productDist.length === 0 ? (
+        {/* Top Profitable Products */}
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-green-100">
+          <h3 className="text-sm font-semibold mb-3 text-gray-700">{t.topProfitProducts}</h3>
+          {!data ? <ChartLoader /> : topProfit.length === 0 ? (
             <div className="flex items-center justify-center h-56 text-gray-400 text-xs">{t.noData}</div>
           ) : (
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={productDist}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={65}
-                  fill="#8884d8"
-                  dataKey="count"
-                  nameKey="category"
-                  label={({ category, count }) => `${category} (${count})`}
-                  fontSize={10}
-                >
-                  {productDist.map((_, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+            <ul className="divide-y divide-gray-100">
+              {topProfit.map((item, idx) => (
+                <li key={item.product?.id ?? idx} className="flex items-center gap-3 py-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold flex items-center justify-center">{idx + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-800 truncate">{localName(item.product)}</p>
+                    <p className="text-[11px] text-gray-400">{item.totalQuantity} · {formatCurrency(item.totalRevenue)}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-green-600 flex-shrink-0">+{formatCurrency(item.profit)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Top Loss-Making Products */}
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-red-100">
+          <h3 className="text-sm font-semibold mb-3 text-gray-700">{t.topLossProducts}</h3>
+          {!data ? <ChartLoader /> : topLoss.length === 0 ? (
+            <div className="flex items-center justify-center h-56 text-gray-400 text-xs">{t.noData}</div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {topLoss.map((item, idx) => (
+                <li key={item.product?.id ?? idx} className="flex items-center gap-3 py-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-50 text-red-700 text-[11px] font-semibold flex items-center justify-center">{idx + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-800 truncate">{localName(item.product)}</p>
+                    <p className="text-[11px] text-gray-400">{item.totalQuantity} · {formatCurrency(item.totalRevenue)}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-red-600 flex-shrink-0">-{formatCurrency(Math.abs(item.profit))}</span>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>

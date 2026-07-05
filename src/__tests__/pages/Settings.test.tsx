@@ -3,8 +3,8 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 
 const mocks = vi.hoisted(() => ({
   updateShop: vi.fn(),
+  updateLocalLanguage: vi.fn(),
   setTheme: vi.fn(),
-  setLang: vi.fn(),
   toastSuccess: vi.fn(),
 }));
 
@@ -12,10 +12,10 @@ vi.mock('../../context/LanguageContext', () => ({
   useLang: () => ({
     t: new Proxy({}, { get: (_, key) => String(key) }),
     lang: 'en',
-    setLang: mocks.setLang,
+    setLang: vi.fn(),
     languages: [
       { code: 'en', name: 'English', script: 'EN' },
-      { code: 'te', name: 'Telugu', script: 'తె' },
+      { code: 'te', name: 'తెలుగు', script: 'తె' },
     ],
   }),
 }));
@@ -37,7 +37,9 @@ vi.mock('../../context/ShopConfigContext', () => ({
       districtLocal: 'ఈస్ట్ గోదావరి',
       logo: '/logo.svg',
     },
+    localLanguage: 'te',
     updateShop: mocks.updateShop,
+    updateLocalLanguage: mocks.updateLocalLanguage,
   }),
 }));
 
@@ -57,26 +59,28 @@ vi.mock('react-hot-toast', () => ({
 import Settings from '../../pages/Settings';
 import { renderWithRouter } from './testUtils';
 
-describe.skip('Settings page', () => {
+describe('Settings page', () => {
   beforeEach(() => {
     mocks.updateShop.mockReset();
+    mocks.updateLocalLanguage.mockReset().mockResolvedValue(undefined);
     mocks.setTheme.mockReset();
-    mocks.setLang.mockReset();
     mocks.toastSuccess.mockReset();
   });
 
-  it('renders settings sections and handles theme/language changes', () => {
+  it('renders settings sections and handles theme/language changes', async () => {
     renderWithRouter(<Settings />);
 
     expect(screen.getByText('themeColor')).toBeInTheDocument();
-    expect(screen.getByText('language')).toBeInTheDocument();
+    expect(screen.getByText('Local Language (for all users)')).toBeInTheDocument();
+    expect(screen.getByText('shopDetails')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Test Shop')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Teal/i }));
-    fireEvent.click(screen.getByRole('button', { name: /Telugu/i }));
+    fireEvent.click(screen.getByText('हिन्दी'));
 
     expect(mocks.setTheme).toHaveBeenCalledWith('emerald');
-    expect(mocks.setLang).toHaveBeenCalledWith('te');
+    await waitFor(() => expect(mocks.updateLocalLanguage).toHaveBeenCalledWith('hi'));
+    expect(mocks.toastSuccess).toHaveBeenCalledWith('Local language set to Hindi');
   });
 
   it('updates shop configuration when saved', async () => {
@@ -91,6 +95,3 @@ describe.skip('Settings page', () => {
     expect(mocks.toastSuccess).toHaveBeenCalledWith('settingsSaved');
   });
 });
-
-
-

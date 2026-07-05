@@ -1,5 +1,6 @@
 // ─── API Client (Axios) ──────────────────────────────────────────
 import axios, { AxiosRequestConfig } from "axios";
+import { ProfitLossFilters } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -106,9 +107,23 @@ export const customFieldApi = {
 };
 
 export const dashboardApi = {
-  getDashboard: (config?: AxiosRequestConfig) => api.get("/dashboard", config),
-  getSalesTrend: (days = 30, config?: AxiosRequestConfig) =>
-    api.get("/dashboard/sales-trend", { params: { days }, ...config }),
+  getDashboard: (fy?: number, config?: AxiosRequestConfig) =>
+    api.get("/dashboard", { params: fy !== undefined ? { fy } : {}, ...config }),
+  getSalesTrend: (days = 30, fy?: number, config?: AxiosRequestConfig) =>
+    api.get("/dashboard/sales-trend", { params: { days, ...(fy !== undefined ? { fy } : {}) }, ...config }),
+  getProfitLoss: (filters: ProfitLossFilters, config?: AxiosRequestConfig) =>
+    api.get("/dashboard/profit-loss", {
+      params: {
+        ...(filters.start ? { start: filters.start } : {}),
+        ...(filters.end ? { end: filters.end } : {}),
+        ...(filters.productIds && filters.productIds.length ? { productIds: filters.productIds.join(",") } : {}),
+        ...(filters.categories && filters.categories.length ? { categories: filters.categories.join(",") } : {}),
+        ...(filters.customerId !== undefined ? { customerId: filters.customerId } : {}),
+        ...(filters.paymentMode ? { paymentMode: filters.paymentMode } : {}),
+        ...(filters.groupBy ? { groupBy: filters.groupBy } : {}),
+      },
+      ...config,
+    }),
   getProductDistribution: (config?: AxiosRequestConfig) => api.get("/dashboard/product-distribution", config),
   exportSalesReport: (startDate: string, endDate: string) =>
     api.get("/dashboard/export", {
@@ -193,6 +208,7 @@ export const tenantApi = {
     currency?: string;
     billPrefix?: string;
     thermalPrintEnabled?: boolean;
+    claimItc?: boolean;
   }) => api.put("/tenants/me/settings", data),
 };
 
